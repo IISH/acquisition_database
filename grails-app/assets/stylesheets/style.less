@@ -1,0 +1,130 @@
+/*
+*= require custom-bootstrap
+*= require datepicker
+*/
+
+#main {
+  width: 1170px;
+}
+
+.page-header {
+  margin-top: 0;
+
+  h1 {
+    display: inline-block;
+  }
+
+  a.header-link {
+    &:hover,
+    &:focus {
+      text-decoration: none;
+    }
+  }
+
+  .user-info {
+    margin-top: 20px;
+  }
+}
+
+#loginForm {
+  max-width: 300px;
+  padding: 15px;
+}
+
+.form-horizontal {
+  .form-group-nested {
+    margin-bottom: 0;
+  }
+
+  div.control-label {
+    text-align: left;
+  }
+
+  .form-control-listing {
+    .form-group {
+      margin-bottom: 5px;
+    }
+
+    .row {
+      min-height: 40px;
+    }
+  }
+}
+
+.form-control-small,
+.form-control-medium {
+  display: inline-block;
+}
+
+input {
+  &.form-control-small {
+    max-width: 50px;
+  }
+  &.form-control-medium {
+    max-width: 100px;
+  }
+}
+
+select {
+  &.form-control-small {
+    max-width: 75px;
+  }
+}
+
+textarea.form-control {
+  line-height: 1;
+}
+
+.btn-link,
+a {
+  &:hover,
+  &:focus {
+    &.add,
+    &.sort {
+      text-decoration: none;
+    }
+  }
+}
+
+.required {
+  color: red;
+}
+
+table {
+  ol,
+  ul {
+    margin: 0;
+  }
+
+  &.table-click {
+    tbody tr {
+      cursor: pointer;
+    }
+  }
+
+  .list-group {
+    margin-bottom: 0;
+  }
+  .list-group-item {
+    padding: 5px 10px;
+  }
+}
+
+.btn-export {
+  margin: 20px 0;
+}
+
+@media print {
+  // Don't show links when printing a page.
+  a {
+    &:after {
+      content: normal !important;
+    }
+  }
+
+  // Make sure that the column of the printable area takes all available space.
+  // However, remove ~10% to make sure it still fits on the printable page.
+  .print-col {
+    width: 90% !important;
+  }
+}
