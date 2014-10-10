@@ -97,7 +97,8 @@ class CollectionController {
 				contracts       : Contract.list(),
 				accruals        : Accrual.values(),
 				appraisals      : Appraisal.list(),
-				statuses        : Status.list()
+				statuses        : Status.list(),
+				uploadedPhotos  : []
 		]
 	}
 
@@ -126,7 +127,8 @@ class CollectionController {
 					contracts       : Contract.list(),
 					accruals        : Accrual.values(),
 					appraisals      : Appraisal.list(),
-					statuses        : Status.list()
+					statuses        : Status.list(),
+					uploadedPhotos  : Photo.getPhotoMetaData(collection)
 			]
 		}
 	}
@@ -183,65 +185,5 @@ class CollectionController {
 		if (runBody) {
 			body()
 		}
-	}
-
-	// TODO: For testing purposes
-	def test() {
-		(1..100).each { Integer count ->
-			Collection col = new Collection(name: 'Test collection ' + count, acquisitionId: '12345',
-					content: 'Content',
-					listsAvailable: 'Lists available', toBeDone: 'To be done', priority: Priority.HIGH,
-					level: Priority.MEDIUM, owner: 'Owner', accrual: Accrual.ACCRUAL, dateOfArrival: new Date(),
-					contactPerson: 'CPS', remarks: 'remarks', originalPackageTransport: 'original',
-					status: Status.get(Status.COLLECTION_LEVEL_READY_ID), addedBy: User.get(1L))
-
-			col.save()
-
-			AnalogMaterial analogMaterial1 = new AnalogMaterial(materialType: MaterialType.get(MaterialType
-					.ARCHIVE_ID),
-					size: 12, unit: AnalogUnit.METER)
-			AnalogMaterial analogMaterial2 = new AnalogMaterial(
-					materialType: MaterialType.get(MaterialType.PERIODICALS_ID),
-					size: 34, unit: AnalogUnit.METER)
-			AnalogMaterial analogMaterial3 = new AnalogMaterial(
-					materialType: MaterialType.get(MaterialType.POSTERS_ID),
-					size: 5, unit: AnalogUnit.NUMBER)
-
-			DigitalMaterial digitalMaterial1 = new DigitalMaterial(
-					materialType: MaterialType.get(MaterialType.BOOKS_ID))
-			DigitalMaterial digitalMaterial2 = new DigitalMaterial(
-					materialType: MaterialType.
-							get(MaterialType.MOVING_IMAGES_ID))
-			DigitalMaterial digitalMaterial3 = new DigitalMaterial(
-					materialType: MaterialType.get(MaterialType.DRAWINGS_ID))
-
-			AnalogMaterialCollection analogMaterialCollection = new AnalogMaterialCollection()
-					.addToMaterials(analogMaterial1)
-					.addToMaterials(analogMaterial2)
-					.addToMaterials(analogMaterial3)
-
-			DigitalMaterialCollection digitalMaterialCollection = new DigitalMaterialCollection(numberOfFiles: 123,
-					totalSize: 456, unit: ByteUnit.GB)
-					.addToMaterials(digitalMaterial1)
-					.addToMaterials(digitalMaterial2)
-					.addToMaterials(digitalMaterial3)
-
-			Location location1 = new Location(cabinet: 'Cabinet', shelf: 'Shelf',
-					depot: Depot.get(Depot.RANGEERTERREIN_ID))
-			Location location2 = new Location(cabinet: 'dsadsa', shelf: 'sdsdad',
-					depot: Depot.get(Depot.SORTEERRUIMTE_ID))
-
-			col.analogMaterialCollection = analogMaterialCollection
-			col.digitalMaterialCollection = digitalMaterialCollection
-
-			col.save()
-
-			col.addToLocations(location1)
-			col.addToLocations(location2)
-
-			col.save(flush: true)
-		}
-
-		render text: 'Done!'
 	}
 }

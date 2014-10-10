@@ -3,6 +3,7 @@ package org.iish.acquisition.service
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.transaction.Transactional
+import org.apache.commons.lang.BooleanUtils
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.grails.databinding.DataBinder
 import org.grails.databinding.SimpleMapDataBindingSource
@@ -44,6 +45,7 @@ class CollectionService {
 			collection.addedBy = (User) springSecurityService.getCurrentUser()
 		}
 
+		processIngestDepotStatus(collection, params)
 		updateLocations(collection, collectionParams)
 		processUploadedPhotos(collection, collectionParams)
 		updateAnalogMaterialCollection(collection, collectionParams)
@@ -178,7 +180,7 @@ class CollectionService {
 	 * @return The updated material data.
 	 */
 	private AnalogMaterial updateAnalogMaterial(AnalogMaterialCollection materialCollection, MaterialType materialType,
-			AnalogUnit unit, Integer size) {
+	                                            AnalogUnit unit, Integer size) {
 		AnalogMaterial material = materialCollection.getMaterialByTypeAndUnit(materialType, unit)
 		if (!material) {
 			material = new AnalogMaterial(materialType: materialType, unit: unit)
@@ -239,7 +241,7 @@ class CollectionService {
 	 * @return The updated material data.
 	 */
 	private DigitalMaterial updateDigitalMaterial(DigitalMaterialCollection materialCollection,
-			MaterialType materialType) {
+	                                              MaterialType materialType) {
 		DigitalMaterial material = materialCollection.getMaterialByType(materialType)
 		if (!material) {
 			material = new DigitalMaterial(materialType: materialType)
@@ -248,5 +250,23 @@ class CollectionService {
 		materialCollection.addToMaterials(material)
 
 		return material
+	}
+
+	/**
+	 * Processes any changes made to the ingest depot status.
+	 * @param collection The collection to update.
+	 * @param params The data as filled out by the user.
+	 */
+	private void processIngestDepotStatus(Collection collection, GrailsParameterMap params) {
+		IngestDepotStatus ingestDepotStatus = collection.ingestDepotStatus
+
+		if (SpringSecurityUtils.ifAllGranted(Authority.ROLE_SUPER_ADMIN) && ingestDepotStatus &&
+				ingestDepotStatus?.canManuallySetSorProcess()) {
+			ingestDepotStatus.manualSorProcessOnHold = BooleanUtils.toBoolean(params.onHold.toString())
+			ingestDepotStatus.manualStartSorProcess = (ingestDepotStatus.manualSorProcessOnHold) ? false :
+					BooleanUtils.toBoolean(params.startProcess.toString())
+
+			ingestDepotStatus.save()
+		}
 	}
 }

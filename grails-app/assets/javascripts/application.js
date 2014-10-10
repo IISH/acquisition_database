@@ -51,6 +51,18 @@
 		location.href = $(this).find('.table-click-link').text();
 	};
 
+	var onHoldSor = function (e) {
+		if ($(this).is(':checked')) {
+			$('#startProcess').attr('checked', false);
+		}
+	};
+
+	var startProcessSor = function (e) {
+		if ($(this).is(':checked')) {
+			$('#onHold').attr('checked', false);
+		}
+	};
+
 	$(document).ready(function () {
 		$('.input-group.date').datepicker();
 
@@ -60,5 +72,8 @@
 		$('.btn-delete').click(deleteCollection);
 
 		$('table.table-click > tbody > tr').click(onRowClick);
+
+		$('#onHold').change(onHoldSor);
+		$('#startProcess').change(startProcessSor);
 	});
 })(jQuery);

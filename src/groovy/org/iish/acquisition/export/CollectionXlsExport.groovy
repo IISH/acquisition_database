@@ -71,6 +71,7 @@ class CollectionXlsExport {
 	 */
 	void writeToStream(OutputStream outputStream) {
 		workbook.write(outputStream)
+		outputStream.flush()
 	}
 
 	/**
@@ -135,9 +136,13 @@ class CollectionXlsExport {
 		setHeaderCell(row, i++, '#')
 		setHeaderCell(row, i++, 'collection.name.label')
 		setHeaderCell(row, i++, 'collection.acquisitionId.label')
+		setHeaderCell(row, i++, 'collection.addedBy.label')
+		setHeaderCell(row, i++, 'collection.objectRepositoryPID.label')
 
-		(1..maxNumberOfLocations).each { int locationNumber ->
-			setHeaderCell(row, i++, 'collection.location.extended.label', locationNumber.toString())
+		if (maxNumberOfLocations > 0) {
+			(1..maxNumberOfLocations).each { int locationNumber ->
+				setHeaderCell(row, i++, 'collection.location.extended.label', locationNumber.toString())
+			}
 		}
 
 		materials.each { MaterialType materialType ->
@@ -198,6 +203,8 @@ class CollectionXlsExport {
 		setDataCellWithText(row, i++, collection.name)
 		setDataCellWithText(row, i++,
 				collection.acquisitionId ? "$collection.acquisitionTypeId $collection.acquisitionId" : '')
+		setDataCellWithText(row, i++, collection.addedBy?.toString())
+		setDataCellWithText(row, i++, collection.objectRepositoryPID)
 
 		locations.each { Location location ->
 			setDataCellWithText(row, i++, location.toDetailedString())

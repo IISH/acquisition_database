@@ -1,5 +1,9 @@
 package org.iish.acquisition.domain
 
+import org.apache.commons.lang.StringUtils
+
+import java.text.DecimalFormat
+
 /**
  * The collections of the acquisition database.
  */
@@ -30,6 +34,7 @@ class Collection {
 	]
 
 	static hasOne = [
+			ingestDepotStatus        : IngestDepotStatus,
 			analogMaterialCollection : AnalogMaterialCollection,
 			digitalMaterialCollection: DigitalMaterialCollection
 	]
@@ -42,7 +47,7 @@ class Collection {
 	static constraints = {
 		name blank: false, maxSize: 1000
 		acquisitionId nullable: true, maxSize: 10
-		objectRepositoryPID nullable: true, maxSize: 50, unique: true
+		objectRepositoryPID nullable: true, maxSize: 15, unique: true
 		content blank: false
 		listsAvailable blank: false
 		toBeDone nullable: true, maxSize: 255
@@ -57,6 +62,7 @@ class Collection {
 		contract nullable: true
 		appraisal nullable: true
 
+		ingestDepotStatus nullable: true
 		analogMaterialCollection nullable: true
 		digitalMaterialCollection nullable: true, validator: { val, obj ->
 			if (!val && !obj.analogMaterialCollection) {
@@ -73,6 +79,7 @@ class Collection {
 		locations cascade: 'all-delete-orphan', sort: 'depot'
 		photos cascade: 'all-delete-orphan'
 
+		ingestDepotStatus fetch: 'join'
 		analogMaterialCollection fetch: 'join'
 		digitalMaterialCollection fetch: 'join'
 		addedBy fetch: 'join'
@@ -90,6 +97,14 @@ class Collection {
 		deleted index: 'collections_deleted_idx'
 	}
 
+	void afterInsert() {
+		afterInsertOrUpdate()
+	}
+
+	void afterUpdate() {
+		afterInsertOrUpdate()
+	}
+
 	/**
 	 * Searches for a specific location of this collection with the given id.
 	 * @param id The id of the location part of this collection.
@@ -97,6 +112,52 @@ class Collection {
 	 */
 	Location getLocationById(Long id) {
 		locations?.find { it.id == id }
+	}
+
+	/**
+	 * Returns a list of digital material collections without a folder on the ingest depot server.
+	 * @return A list of matching collections.
+	 */
+	static List<Collection> getWithoutFolder() {
+		Collection.withCriteria {
+			ingestDepotStatus {
+				eq('statusCode', IngestDepotStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION)
+			}
+		}
+	}
+
+	/**
+	 * After each insert or update, check if digital material was entered.
+	 * If so, make sure a PID is created and the ingest depot status can be tracked.
+	 */
+	private void afterInsertOrUpdate() {
+		if (digitalMaterialCollection && (!objectRepositoryPID || !ingestDepotStatus)) {
+			createPidIfNotExists()
+			createIngestDepotStatusIfNotExists()
+
+			save()
+		}
+	}
+
+	/**
+	 * If there is no PID created yet, a new PID is created for this collection.
+	 */
+	private void createPidIfNotExists() {
+		// The PID is based on the id of the record, so it has to be saved before PID can be created
+		if (!objectRepositoryPID && id) {
+			String pattern = StringUtils.repeat('0', 5)
+			DecimalFormat formatter = new DecimalFormat(pattern)
+			objectRepositoryPID = '10622/BULK' + formatter.format(id)
+		}
+	}
+
+	/**
+	 * If there is no ingest depot status created yet, a new ingest depot status is created for this collection.
+	 */
+	private void createIngestDepotStatusIfNotExists() {
+		if (!ingestDepotStatus) {
+			ingestDepotStatus = new IngestDepotStatus()
+		}
 	}
 
 	@Override

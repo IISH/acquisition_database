@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.AnalogUnit" %>
+<%@ page import="org.iish.acquisition.domain.IngestDepotReport; org.iish.acquisition.domain.IngestDepotStatusCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.AnalogUnit" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -49,22 +49,27 @@
     </div>
 </div>
 
-<g:if test="${actionName == 'edit'}">
+<g:if test="${collection.addedBy || collection.objectRepositoryPID}">
     <div class="form-group">
-        <label class="col-xs-4 control-label">
-            <g:message code="collection.addedBy.label"/>
-        </label>
+        <g:if test="${collection.addedBy}">
+            <label class="col-xs-4 control-label">
+                <g:message code="collection.addedBy.label"/>
+            </label>
 
-        <div class="col-xs-8">
-            <p class="form-control-static">${collection.addedBy}</p>
-        </div>
+            <div class="col-xs-14">
+                <p class="form-control-static">${collection.addedBy}</p>
+            </div>
+        </g:if>
+        <g:else>
+            <div class="col-xs-18"></div>
+        </g:else>
 
         <g:if test="${collection.objectRepositoryPID}">
-            <label class="col-xs-4 control-label">
+            <label class="col-xs-1 control-label">
                 <g:message code="collection.objectRepositoryPID.label"/>
             </label>
 
-            <div class="col-xs-8">
+            <div class="col-xs-5">
                 <p class="form-control-static">${collection.objectRepositoryPID}</p>
             </div>
         </g:if>
@@ -510,6 +515,61 @@
     </div>
 </div>
 
+<g:if test="${actionName == 'edit'}">
+    <div class="form-group">
+        <label class="col-xs-4 control-label">
+            <g:message code="collection.status.label"/>
+        </label>
+
+        <g:set var="halfSizeStatuses" value="${Math.ceil(statuses.size() / 2)}"/>
+
+        <div class="col-xs-8">
+            <g:each in="${statuses[0..<halfSizeStatuses]}" var="status">
+                <div class="radio">
+                    <label>
+                        <g:radio id="collection.status.id" name="collection.status.id" value="${status.id}"
+                                 checked="${collection.status?.id == status.id}"/>
+                        ${status}
+                    </label>
+                </div>
+            </g:each>
+        </div>
+
+        <div class="col-xs-8">
+            <g:each in="${statuses[halfSizeStatuses..<statuses.size()]}" var="status">
+                <div class="radio">
+                    <label>
+                        <g:radio id="collection.status.id" name="collection.status.id" value="${status.id}"
+                                 checked="${collection.status?.id == status.id}"/>
+                        ${status}
+                    </label>
+                </div>
+            </g:each>
+        </div>
+    </div>
+</g:if>
+
+<g:if test="${uploadedPhotos.size() > 0}">
+    <div class="form-group">
+        <label class="col-xs-4 control-label">
+            <g:message code="collection.uploadedPhotos.label"/>
+        </label>
+
+        <div class="col-xs-16">
+            <ul class="list-unstyled form-control-static">
+                <g:each in="${collection.photos}" var="uploadedPhoto">
+                    <li>
+                        <g:link controller="download" action="photo" id="${uploadedPhoto.id}">
+                            ${uploadedPhoto.originalFilename}
+                        </g:link>
+                        (${uploadedPhoto.getReadableFileSize()})
+                    </li>
+                </g:each>
+            </ul>
+        </div>
+    </div>
+</g:if>
+
 <div class="form-group">
     <label class="col-xs-4 control-label">
         <g:message code="collection.uploadPhoto.label"/>
@@ -544,37 +604,66 @@
     </div>
 </div>
 
-<g:if test="${actionName == 'edit'}">
+<g:set var="ingestDepotStatus" value="${collection.ingestDepotStatus}"/>
+<g:if test="${ingestDepotStatus}">
     <div class="form-group">
         <label class="col-xs-4 control-label">
-            <g:message code="collection.status.label"/>
+            <g:message code="collection.ingestDepotStatus.label"/>
         </label>
 
-        <g:set var="halfSizeStatuses" value="${Math.ceil(statuses.size() / 2)}"/>
+        <div class="col-xs-20">
+            <div class="form-control-static">
+                <span class="<g:if test="${ingestDepotStatus.getStatusSubCode() ==
+                        IngestDepotStatusCode.SUB_CODE_FAIL}">text-danger</g:if><g:else>text-success</g:else>">
+                    ${ingestDepotStatus.getHumanReadableMessage()}</span>
 
-        <div class="col-xs-8">
-            <g:each in="${statuses[0..<halfSizeStatuses]}" var="status">
-                <div class="radio">
-                    <label>
-                        <g:radio id="collection.status.id" name="collection.status.id" value="${status.id}"
-                                 checked="${collection.status?.id == status.id}"/>
-                        ${status}
-                    </label>
-                </div>
-            </g:each>
+                <ul>
+                    <g:each in="${ingestDepotStatus.uploadStatuses}" var="uploadStatus">
+                        <li>
+                            <span class="<g:if test="${uploadStatus.getStatusSubCode() ==
+                                    IngestDepotStatusCode.SUB_CODE_FAIL}">text-danger</g:if><g:else>text-success</g:else>">
+                                ${uploadStatus.getHumanReadableMessage()}</span>
+
+                            <g:if test="${IngestDepotReport.hasVirusReport(uploadStatus)}">
+                                (<g:link controller="download" action="virusReport"
+                                         id="${uploadStatus.id}"><g:message
+                                        code="ingestDepotStatus.download.virusReport.label"/></g:link>)
+                            </g:if>
+
+                            <g:if test="${IngestDepotReport.hasFileIdentificationReport(uploadStatus)}">
+                                (<g:link controller="download" action="fileIdentificationReport"
+                                         id="${uploadStatus.id}"><g:message
+                                        code="ingestDepotStatus.download.fileIdentificationReport.label"/></g:link>)
+                            </g:if>
+                        </li>
+                    </g:each>
+                </ul>
+            </div>
         </div>
 
-        <div class="col-xs-8">
-            <g:each in="${statuses[halfSizeStatuses..<statuses.size()]}" var="status">
-                <div class="radio">
-                    <label>
-                        <g:radio id="collection.status.id" name="collection.status.id" value="${status.id}"
-                                 checked="${collection.status?.id == status.id}"/>
-                        ${status}
-                    </label>
+        <sec:ifAllGranted roles="${Authority.ROLE_SUPER_ADMIN}">
+            <g:if test="${ingestDepotStatus.canManuallySetSorProcess()}">
+                <div class="col-xs-8 col-xs-push-4">
+                    <div class="checkbox">
+                        <label>
+                            <g:checkBox name="onHold" checked="${ingestDepotStatus.manualSorProcessOnHold}"/>
+                            <g:message code="ingestDepotStatus.manual.onHold.label"/>
+                        </label>
+                    </div>
                 </div>
-            </g:each>
-        </div>
+            </g:if>
+
+            <g:if test="${ingestDepotStatus.canManuallySetSorProcess()}">
+                <div class="col-xs-8 col-xs-push-4">
+                    <div class="checkbox">
+                        <label>
+                            <g:checkBox name="startProcess" checked="${ingestDepotStatus.manualStartSorProcess}"/>
+                            <g:message code="ingestDepotStatus.manual.startProcess.label"/>
+                        </label>
+                    </div>
+                </div>
+            </g:if>
+        </sec:ifAllGranted>
     </div>
 </g:if>
 
