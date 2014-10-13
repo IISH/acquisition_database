@@ -11,8 +11,6 @@ import org.iish.acquisition.domain.UserAuthority
  * Initialization of the application.
  */
 class BootStrap {
-	def grailsApplication
-
 	def init = { servletContext ->
 		populateTables()
 		setUsersAndAuthorities()

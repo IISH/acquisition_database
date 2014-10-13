@@ -29,7 +29,7 @@ environments {
 	test {
 		dataSource {
 			driverClassName = "org.h2.Driver"
-			dbCreate = "update"
+			dbCreate = "create-drop"
 			dialect = org.hibernate.dialect.H2Dialect
 			username = "sa"
 			password = ""
