@@ -63,7 +63,7 @@ enum IngestDepotStatusCode {
 	 * @param subCode The sub-code in question.
 	 * @return The matching ingest depot status code, if found.
 	 */
-	static IngestDepotStatusCode getByCodeAndSubcode(int code, int subCode) {
+	static IngestDepotStatusCode getByCodeAndSubcode(Integer code, Integer subCode) {
 		values().find { (it.code == code) && (it.subCode == subCode) }
 	}
 

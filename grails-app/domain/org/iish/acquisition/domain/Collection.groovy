@@ -119,11 +119,9 @@ class Collection {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getWithoutFolder() {
-		Collection.withCriteria {
-			ingestDepotStatus {
-				eq('statusCode', IngestDepotStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION)
-			}
-		}
+		where {
+			ingestDepotStatus.statusCode == IngestDepotStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION
+		}.list()
 	}
 
 	/**
