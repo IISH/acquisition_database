@@ -38,7 +38,7 @@ environments {
 	}
 	production {
 		dataSource {
-			dbCreate = "create-drop"
+			dbCreate = "update"
 			dialect = org.iish.acquisition.util.CustomMySQL5InnoDBDialect
 			properties {
 				// Documentation for Tomcat JDBC Pool
