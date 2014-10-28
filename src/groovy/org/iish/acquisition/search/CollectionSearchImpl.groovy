@@ -102,6 +102,37 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	}
 
 	/**
+	 * Returns the previous and the next id for the given id in the results,
+	 * for the given where, sort and parameters data.
+	 * @param where The HQL WHERE criteria statements to use.
+	 * @param sort The HQL ORDER BY fields and sort order to use.
+	 * @param parameters The parameters to apply on the query.
+	 * @param id The id in the results to look for.
+	 * @return The pager with the previous and the next id.
+	 */
+	@Override
+	protected final Pager getPagedResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters,
+	                                         Long id) {
+		Pager pager = new Pager()
+		Map<String, Object> params = getMapWhereKeyIsString(parameters)
+		List<Long> ids = getMatchingCollectionIds(where, sort, params)
+
+		Long previousId = null
+		for (Long collectionId : ids) {
+			if (id == collectionId) {
+				pager.setPreviousId(previousId)
+			}
+			else if (id == previousId) {
+				pager.setNextId(collectionId)
+			}
+
+			previousId = collectionId
+		}
+
+		return pager
+	}
+
+	/**
 	 * Returns the total number of matching collections with the given criteria.
 	 * @param where The HQL WHERE criteria statements to use.
 	 * @param sort The HQL ORDER BY fields and sort order to use.
@@ -126,6 +157,19 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	                                                   Map<String, Object> parameters, int max, int offset) {
 		String queryIds = createHqlQueryForCriteria(ID_SELECT, sort, where)
 		return Collection.executeQuery(queryIds, parameters, [max: max, offset: offset]) as List<Long>
+	}
+
+	/**
+	 * Returns all matching collection ids, with the given criteria.
+	 * @param where The HQL WHERE criteria statements to use.
+	 * @param sort The HQL ORDER BY fields and sort order to use.
+	 * @param parameters The parameters to apply on the query.
+	 * @return All matching collection ids for the current page, based on the given criteria.
+	 */
+	private static List<Long> getMatchingCollectionIds(List<String> where, List<String> sort,
+	                                                   Map<String, Object> parameters) {
+		String queryIds = createHqlQueryForCriteria(ID_SELECT, sort, where)
+		return Collection.executeQuery(queryIds, parameters) as List<Long>
 	}
 
 	/**

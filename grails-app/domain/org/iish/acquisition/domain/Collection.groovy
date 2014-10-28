@@ -24,6 +24,7 @@ class Collection {
 	String contactPerson
 	String remarks
 	String originalPackageTransport
+	boolean collectionLevelReady
 	boolean deleted = false
 
 	static belongsTo = [
@@ -54,7 +55,11 @@ class Collection {
 		priority nullable: true
 		level nullable: true
 		owner blank: false, maxSize: 255
-		contactPerson blank: false, minSize: 3, maxSize: 3
+		contactPerson blank: false, maxSize: 7, validator: { val, obj ->
+			if (!val || !val.matches('^[A-Za-z]{3}(/[A-Za-z]{3})?$')) {
+				'collection.wrong.contactPerson.message'
+			}
+		}
 		remarks nullable: true
 		originalPackageTransport nullable: true
 
@@ -67,6 +72,12 @@ class Collection {
 		digitalMaterialCollection nullable: true, validator: { val, obj ->
 			if (!val && !obj.analogMaterialCollection) {
 				'collection.no.material.collection.message'
+			}
+		}
+
+		locations  validator: { val, obj ->
+			if (!val || val.isEmpty()) {
+				'collection.no.location.message'
 			}
 		}
 	}

@@ -16,21 +16,25 @@ class KeywordCollectionSearchDecorator extends CollectionSearchDecorator {
 	@Override
 	protected List<String> getWhere() {
 		List<String> where = []
-		getCollectionSearchCommand().getAsListOfValues('keyword').eachWithIndex { it, i ->
-			where << "c.name LIKE :keywordName$i"
-			where << "c.content LIKE :keywordContent$i"
-			where << "c.listsAvailable LIKE :keywordListsAvailable$i"
-			where << "c.toBeDone LIKE :keywordToBeDone$i"
-			where << "c.owner LIKE :keywordOwner$i"
-			where << "c.contactPerson LIKE :keywordContactPerson$i"
-			where << "c.remarks LIKE :keywordRemarks$i"
-			where << "c.originalPackageTransport LIKE :keywordOriginalPackageTransport$i"
+		getCollectionSearchCommand().getAsListOfValuesAdvanced('keyword').eachWithIndex { it, i ->
+			List<String> whereOr = []
 
-			where << "l.cabinet LIKE :keywordCabinet$i"
-			where << "l.shelf LIKE :keywordShelf$i"
+			whereOr << "c.name LIKE :keywordName$i"
+			whereOr << "c.content LIKE :keywordContent$i"
+			whereOr << "c.listsAvailable LIKE :keywordListsAvailable$i"
+			whereOr << "c.toBeDone LIKE :keywordToBeDone$i"
+			whereOr << "c.owner LIKE :keywordOwner$i"
+			whereOr << "c.contactPerson LIKE :keywordContactPerson$i"
+			whereOr << "c.remarks LIKE :keywordRemarks$i"
+			whereOr << "c.originalPackageTransport LIKE :keywordOriginalPackageTransport$i"
+
+			whereOr << "l.cabinet LIKE :keywordCabinet$i"
+			whereOr << "l.shelf LIKE :keywordShelf$i"
+
+			where << "(${whereOr.join(' OR ')})"
 		}
 
-		return addToListAsString(super.getWhere(), where, ' OR ')
+		return addToListAsString(super.getWhere(), where, ' AND ')
 	}
 
 	/**
@@ -40,7 +44,7 @@ class KeywordCollectionSearchDecorator extends CollectionSearchDecorator {
 	@Override
 	protected Map<String, Object> getParameters() {
 		Map<String, Object> parameters = super.getParameters()
-		getCollectionSearchCommand().getAsListOfValues('keyword').eachWithIndex { it, i ->
+		getCollectionSearchCommand().getAsListOfValuesAdvanced('keyword').eachWithIndex { it, i ->
 			String value = "%$it%"
 
 			parameters << ["keywordName$i": value]

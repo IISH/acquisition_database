@@ -6,9 +6,8 @@ package org.iish.acquisition.domain
 class Status {
 	static final long NOT_PROCESSED_ID = 1L
 	static final long IN_PROCESS_ID = 2L
-	static final long COLLECTION_LEVEL_READY_ID = 3L
-	static final long PROCESSED_ID = 4L
-	static final long WONT_BE_PROCESSED_ID = 5L
+	static final long PROCESSED_ID = 3L
+	static final long WONT_BE_PROCESSED_ID = 4L
 
 	String status
 

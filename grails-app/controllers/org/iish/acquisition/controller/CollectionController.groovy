@@ -38,6 +38,7 @@ class CollectionController {
 		render view: 'list', model: [
 				results                : results,
 				collectionSearchCommand: collectionSearchCommand,
+				acquisitionTypes       : AcquisitionType.values(),
 				depots                 : Depot.list(),
 				statuses               : Status.list(),
 				materialTypes          : MaterialType.list()
@@ -49,9 +50,14 @@ class CollectionController {
 	 */
 	def search() {
 		render view: 'search', model: [
-				depots       : Depot.list(),
-				statuses     : Status.list(),
-				materialTypes: MaterialType.list()
+				acquisitionTypes: AcquisitionType.values(),
+				depots          : Depot.list(),
+				statuses        : Status.list(),
+				materialTypes   : MaterialType.list(),
+				booleanEntrySet : [
+						(Boolean.TRUE) : g.message(code: 'default.boolean.true'),
+						(Boolean.FALSE): g.message(code: 'default.boolean.false')
+				].entrySet()
 		]
 	}
 
@@ -106,7 +112,7 @@ class CollectionController {
 	 * Updating an existing collection.
 	 * @param collection The collection to update.
 	 */
-	def edit(Collection collection) {
+	def edit(Collection collection, CollectionSearchCommand collectionSearchCommand) {
 		ifCollectionExists(collection, params.long('id')) {
 			if (request.post && collectionService.updateCollection(collection, params)) {
 				flash.message = g.message(
@@ -118,17 +124,18 @@ class CollectionController {
 			}
 
 			render view: 'form', model: [
-					collection      : collection,
-					acquisitionTypes: AcquisitionType.values(),
-					depots          : Depot.list(),
-					materialTypes   : MaterialType.list(),
-					byteUnits       : ByteUnit.values(),
-					priorities      : Priority.values(),
-					contracts       : Contract.list(),
-					accruals        : Accrual.values(),
-					appraisals      : Appraisal.list(),
-					statuses        : Status.list(),
-					uploadedPhotos  : Photo.getPhotoMetaData(collection)
+					collection             : collection,
+					acquisitionTypes       : AcquisitionType.values(),
+					depots                 : Depot.list(),
+					materialTypes          : MaterialType.list(),
+					byteUnits              : ByteUnit.values(),
+					priorities             : Priority.values(),
+					contracts              : Contract.list(),
+					accruals               : Accrual.values(),
+					appraisals             : Appraisal.list(),
+					statuses               : Status.list(),
+					uploadedPhotos         : Photo.getPhotoMetaData(collection),
+					collectionSearchCommand: collectionSearchCommand
 			]
 		}
 	}

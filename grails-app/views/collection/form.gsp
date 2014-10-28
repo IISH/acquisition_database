@@ -21,6 +21,10 @@
     </div>
 </g:hasErrors>
 
+<g:if test="${actionName == 'edit'}">
+    <g:prevNextPager collectionSearchCommand="${collectionSearchCommand}"/>
+</g:if>
+
 <form class="form-horizontal" role="form" method="post" action="#" enctype="multipart/form-data">
 
 <div class="form-group">
@@ -29,12 +33,12 @@
         <span class="required">*</span>
     </label>
 
-    <div class="col-xs-14">
+    <div class="col-xs-13">
         <input type="text" id="collection.name" name="collection.name" class="form-control"
                value="${collection.name}"/>
     </div>
 
-    <div class="col-xs-6">
+    <div class="col-xs-7">
         <div class="form-group form-group-nested">
             <label for="collection.acquisitionId" class="col-xs-4 control-label">
                 <g:message code="collection.acquisitionId.label"/>
@@ -56,12 +60,12 @@
                 <g:message code="collection.addedBy.label"/>
             </label>
 
-            <div class="col-xs-14">
+            <div class="col-xs-13">
                 <p class="form-control-static">${collection.addedBy}</p>
             </div>
         </g:if>
         <g:else>
-            <div class="col-xs-18"></div>
+            <div class="col-xs-17"></div>
         </g:else>
 
         <g:if test="${collection.objectRepositoryPID}">
@@ -69,7 +73,7 @@
                 <g:message code="collection.objectRepositoryPID.label"/>
             </label>
 
-            <div class="col-xs-5">
+            <div class="col-xs-6">
                 <p class="form-control-static">${collection.objectRepositoryPID}</p>
             </div>
         </g:if>
@@ -79,6 +83,7 @@
 <div class="form-group">
     <label class="col-xs-4 control-label">
         <g:message code="collection.location.label"/>
+        <span class="required">*</span>
     </label>
 
     <div class="col-xs-20 elements">
@@ -220,7 +225,8 @@
                             <g:if test="${materialType.inMeters}">
                                 <input type="text" id="collection.analogMaterialCollection[${i}].meterSize"
                                        name="collection.analogMaterialCollection[${i}].meterSize"
-                                       class="form-control form-control-small" value="${materialMeter?.size}"/>
+                                       class="form-control form-control-small"
+                                       value="${materialMeter?.sizeToString()}"/>
                                 <span class="control-label">${AnalogUnit.METER}</span>
                             </g:if>
                             <g:if test="${materialType.inMeters && materialType.inNumbers}">
@@ -304,7 +310,7 @@
                                 <input type="text" id="collection.digitalMaterialCollection.totalSize"
                                        name="collection.digitalMaterialCollection.totalSize"
                                        class="form-control form-control-small"
-                                       value="${collection.digitalMaterialCollection?.totalSize}"/>
+                                       value="${collection.digitalMaterialCollection?.totalSizeToString()}"/>
                                 <g:select id="collection.digitalMaterialCollection.unit"
                                           name="collection.digitalMaterialCollection.unit"
                                           class="form-control form-control-small" from="${byteUnits}"
@@ -545,6 +551,32 @@
                     </label>
                 </div>
             </g:each>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-xs-4 control-label">
+            <g:message code="collection.collectionLevelReady.label"/>
+        </label>
+
+        <div class="col-xs-8">
+            <div class="radio">
+                <label>
+                    <g:radio name="collection.collectionLevelReady" value="${true}"
+                             checked="${collection.collectionLevelReady}"/>
+                    <g:message code="default.boolean.true"/>
+                </label>
+            </div>
+        </div>
+
+        <div class="col-xs-8">
+            <div class="radio">
+                <label>
+                    <g:radio name="collection.collectionLevelReady" value="${false}"
+                             checked="${!collection.collectionLevelReady}"/>
+                    <g:message code="default.boolean.false"/>
+                </label>
+            </div>
         </div>
     </div>
 </g:if>

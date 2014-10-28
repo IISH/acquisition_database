@@ -29,6 +29,16 @@ abstract class AbstractCollectionSearch implements CollectionSearch {
 	}
 
 	/**
+	 * Returns the previous and the next id for the given id in the results.
+	 * @param id The id in the results to look for.
+	 * @return The pager with the previous and the next id.
+	 */
+	@Override
+	Pager getPagedResults(Long id) {
+		getPagedResultsFor(getWhere(), getSort(), getParameters(), id)
+	}
+
+	/**
 	 * Returns the collection search command.
 	 * @return The collection search command.
 	 */
@@ -73,4 +83,16 @@ abstract class AbstractCollectionSearch implements CollectionSearch {
 	 */
 	abstract protected PagedResultList getPaginatedResultsFor(List<String> where, List<String> sort,
 	                                                          Map<String, Object> parameters, int max, int offset)
+
+	/**
+	 * Returns the previous and the next id for the given id in the results,
+	 * for the given where, sort and parameters data.
+	 * @param where The HQL WHERE criteria statements to use.
+	 * @param sort The HQL ORDER BY fields and sort order to use.
+	 * @param parameters The parameters to apply on the query.
+	 * @param id The id in the results to look for.
+	 * @return The pager with the previous and the next id.
+	 */
+	abstract protected Pager getPagedResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters,
+	                                            Long id)
 }

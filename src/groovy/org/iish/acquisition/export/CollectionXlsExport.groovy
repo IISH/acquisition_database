@@ -168,7 +168,8 @@ class CollectionXlsExport {
 		setHeaderCell(row, i++, 'collection.contactPerson.label')
 		setHeaderCell(row, i++, 'collection.remarks.label')
 		setHeaderCell(row, i++, 'collection.originalPackageTransport.label')
-		setHeaderCell(row, i, 'collection.status.label')
+		setHeaderCell(row, i++, 'collection.status.label')
+		setHeaderCell(row, i,   'collection.collectionLevelReady.label')
 
 		return i
 	}
@@ -222,7 +223,7 @@ class CollectionXlsExport {
 				analogMaterials = []
 			}
 
-			setDataCellWithText(row, i++, analogMaterials.collect { "$it.size $it.unit" }.join(', '))
+			setDataCellWithText(row, i++, analogMaterials.collect { "${it.sizeToString()} $it.unit" }.join(', '))
 		}
 
 		materials.each { MaterialType materialType ->
@@ -232,7 +233,7 @@ class CollectionXlsExport {
 
 		setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfFiles)
 		setDataCellWithText(row, i++, digitalMaterialCollection ?
-				"${digitalMaterialCollection.totalSize} ${digitalMaterialCollection.unit}" : '')
+				"${digitalMaterialCollection.totalSizeToString()} ${digitalMaterialCollection.unit}" : '')
 		setDataCellWithText(row, i++, collection.content)
 		setDataCellWithText(row, i++, collection.listsAvailable)
 		setDataCellWithText(row, i++, collection.toBeDone)
@@ -246,7 +247,8 @@ class CollectionXlsExport {
 		setDataCellWithText(row, i++, collection.contactPerson)
 		setDataCellWithText(row, i++, collection.remarks)
 		setDataCellWithText(row, i++, collection.originalPackageTransport)
-		setDataCellWithText(row, i, collection.status?.toString())
+		setDataCellWithText(row, i++, collection.status?.toString())
+		setDataCellWithText(row, i,   collection.collectionLevelReady ? 'YES' : '')
 	}
 
 	/**

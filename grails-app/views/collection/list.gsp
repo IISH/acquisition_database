@@ -27,6 +27,12 @@
             <dt><g:message code="search.keywords.label"/></dt>
             <dd>${collectionSearchCommand.keyword}</dd>
         </g:if>
+        <g:if test="${collectionSearchCommand.acquisitionTypeId && collectionSearchCommand.acquisitionId}">
+            <dt><g:message code="search.acquisition.id.label"/></dt>
+            <dd>${acquisitionTypes.find {
+                collectionSearchCommand.acquisitionTypeId == it.id
+            }} ${collectionSearchCommand.acquisitionId}</dd>
+        </g:if>
         <g:if test="${collectionSearchCommand.collectionName}">
             <dt><g:message code="search.collection.name.label"/></dt>
             <dd>${collectionSearchCommand.collectionName}</dd>
@@ -50,6 +56,17 @@
         <g:if test="${collectionSearchCommand.status?.size() > 0}">
             <dt><g:message code="search.status.label"/></dt>
             <dd>${statuses.findAll { collectionSearchCommand.status.contains(it.id) }.join(', ')}</dd>
+        </g:if>
+        <g:if test="${collectionSearchCommand.collectionLevelReady}">
+            <dt><g:message code="search.collectionLevelReady.label"/></dt>
+            <dd>
+                <g:if test="${collectionSearchCommand.collectionLevelReady}">
+                    <g:message code="default.boolean.true" />
+                </g:if>
+                <g:else>
+                    <g:message code="default.boolean.false" />
+                </g:else>
+            </dd>
         </g:if>
         <g:if test="${collectionSearchCommand.analog?.size() > 0}">
             <dt><g:message code="search.analog.label"/></dt>

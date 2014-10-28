@@ -1,11 +1,13 @@
 package org.iish.acquisition.domain
 
+import org.iish.acquisition.util.PrinterUtil
+
 /**
  * The collection of digital material descriptions.
  */
 class DigitalMaterialCollection {
 	Integer numberOfFiles
-	Integer totalSize
+	BigDecimal totalSize
 	ByteUnit unit
 
 	static belongsTo = [
@@ -18,7 +20,7 @@ class DigitalMaterialCollection {
 
 	static constraints = {
 		numberOfFiles min: 0
-		totalSize min: 0
+		totalSize min: BigDecimal.ZERO, scale: 5, maxSize: 5
 		collection unique: true
 	}
 
@@ -37,6 +39,14 @@ class DigitalMaterialCollection {
 		materials?.find {
 			it.materialType.id == materialType.id
 		}
+	}
+
+	/**
+	 * Returns the total size in a human-readable format.
+	 * @return The total size in a human-readable format.
+	 */
+	String totalSizeToString() {
+		return PrinterUtil.printBigDecimal(totalSize)
 	}
 
 	@Override

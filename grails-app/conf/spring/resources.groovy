@@ -1,3 +1,4 @@
+import org.iish.acquisition.converter.BigDecimalValueConverter
 import org.iish.acquisition.security.AcquisitionUserDetailsContextMapper
 import org.iish.acquisition.security.AcquisitionUserDetailsService
 
@@ -7,4 +8,6 @@ beans = {
 	}
 
 	ldapUserDetailsMapper(AcquisitionUserDetailsContextMapper)
+
+	bigDecimalConverter(BigDecimalValueConverter)
 }

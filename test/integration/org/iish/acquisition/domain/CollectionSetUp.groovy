@@ -18,7 +18,7 @@ class CollectionSetUp {
 		])
 		setUpDigitalMaterialCollection(collection1, [
 				setUpDigitalMaterial(MaterialType.DRAWINGS_ID),
-				setUpDigitalMaterial(MaterialType.EPHEMERAL_ID)
+				setUpDigitalMaterial(MaterialType.EPHEMERA_ID)
 		])
 		setUpLocations(collection1, [
 				setUpLocation(Depot.FIFTH_FLOOR_ID),
@@ -33,7 +33,7 @@ class CollectionSetUp {
 				dateOfArrival: calendar.getTime()
 		])
 		setUpDigitalMaterialCollection(collection2, [
-				setUpDigitalMaterial(MaterialType.EPHEMERAL_ID),
+				setUpDigitalMaterial(MaterialType.EPHEMERA_ID),
 		])
 		setUpLocations(collection2, [
 				setUpLocation(Depot.BG_DEPOT_ID),
@@ -49,6 +49,9 @@ class CollectionSetUp {
 				dateOfArrival: calendar.getTime(),
 				status       : Status.get(Status.NOT_PROCESSED_ID)
 		])
+		setUpLocations(collection3, [
+				setUpLocation(Depot.ELSEWHERE_ID)
+		])
 		setUpDigitalMaterialCollection(collection3, [
 				setUpDigitalMaterial(MaterialType.MOVING_IMAGES_ID),
 				setUpDigitalMaterial(MaterialType.PERIODICALS_ID),
@@ -59,9 +62,12 @@ class CollectionSetUp {
 		calendar.set(2014, 04, 04)
 		Collection collection4 = setUpCollection([
 				name         : 'Fourth',
-				remarks      : 'this is very specific indeed',
+				remarks      : 'this for the search in very specific keywords',
 				dateOfArrival: calendar.getTime(),
 				status       : Status.get(Status.IN_PROCESS_ID)
+		])
+		setUpLocations(collection4, [
+				setUpLocation(Depot.ELSEWHERE_ID)
 		])
 		setUpAnalogMaterialCollection(collection4, [
 				setUpAnalogMaterial(MaterialType.OTHER_ID)
@@ -75,7 +81,9 @@ class CollectionSetUp {
 		calendar.set(2014, 06, 06)
 		Collection collection5 = setUpCollection([
 				name         : 'Fifth',
-				dateOfArrival: calendar.getTime()
+				remarks      : 'keywords',
+				dateOfArrival: calendar.getTime(),
+				status       : Status.get(Status.IN_PROCESS_ID)
 		])
 		setUpAnalogMaterialCollection(collection5, [
 				setUpAnalogMaterial(MaterialType.PERIODICALS_ID)
@@ -105,7 +113,7 @@ class CollectionSetUp {
 				contactPerson: 'AAA',
 				remarks: 'Remarks',
 				originalPackageTransport: 'Original package transport',
-				status: Status.get(Status.COLLECTION_LEVEL_READY_ID)
+				status: Status.get(Status.WONT_BE_PROCESSED_ID)
 		)
 
 		collection.properties << properties
@@ -197,7 +205,7 @@ class CollectionSetUp {
 		 (MaterialType.BOOKS_ID)        : [name: 'Books', inMeters: true, inNumbers: true],
 		 (MaterialType.PERIODICALS_ID)  : [name: 'Periodicals', inMeters: true, inNumbers: false],
 		 (MaterialType.MOVING_IMAGES_ID): [name: 'Moving images', inMeters: false, inNumbers: true],
-		 (MaterialType.EPHEMERAL_ID)    : [name: 'Ephemeral', inMeters: true, inNumbers: false],
+		 (MaterialType.EPHEMERA_ID)     : [name: 'Ephemeral', inMeters: true, inNumbers: false],
 		 (MaterialType.SOUND_ID)        : [name: 'Sound', inMeters: false, inNumbers: true],
 		 (MaterialType.POSTERS_ID)      : [name: 'Posters', inMeters: false, inNumbers: true],
 		 (MaterialType.DRAWINGS_ID)     : [name: 'Drawings', inMeters: false, inNumbers: true],
@@ -209,11 +217,10 @@ class CollectionSetUp {
 					}
 				}
 
-		[(Status.NOT_PROCESSED_ID)         : 'Not processed',
-		 (Status.IN_PROCESS_ID)            : 'In process',
-		 (Status.COLLECTION_LEVEL_READY_ID): 'Collection level ready',
-		 (Status.PROCESSED_ID)             : 'Processed',
-		 (Status.WONT_BE_PROCESSED_ID)     : 'Won\'t be processed'].
+		[(Status.NOT_PROCESSED_ID)    : 'Not processed',
+		 (Status.IN_PROCESS_ID)       : 'In process',
+		 (Status.PROCESSED_ID)        : 'Processed',
+		 (Status.WONT_BE_PROCESSED_ID): 'Won\'t be processed'].
 				each { Long id, String status ->
 					new Status(id: id, status: status).save()
 				}

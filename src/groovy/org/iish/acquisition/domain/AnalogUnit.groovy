@@ -4,7 +4,7 @@ package org.iish.acquisition.domain
  * Possible units to describe the size of analog material.
  */
 enum AnalogUnit {
-	METER(1, 'meter'), NUMBER(2, 'number')
+	METER(1, 'meter'), NUMBER(2, 'items')
 
 	int id
 	String name

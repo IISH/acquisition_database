@@ -7,6 +7,7 @@ import org.apache.commons.lang.BooleanUtils
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.grails.databinding.DataBinder
 import org.grails.databinding.SimpleMapDataBindingSource
+import org.iish.acquisition.converter.BigDecimalValueConverter
 import org.iish.acquisition.domain.*
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile
 class CollectionService {
 	DataBinder grailsWebDataBinder
 	SpringSecurityService springSecurityService
+	BigDecimalValueConverter bigDecimalConverter
 
 	/**
 	 * Updates the given collection with the given data from the user.
@@ -29,7 +31,8 @@ class CollectionService {
 
 		grailsWebDataBinder.bind(collection, collectionParams as SimpleMapDataBindingSource, [
 				'name', 'acquisitionId', 'content', 'listsAvailable', 'toBeDone', 'owner', 'dateOfArrival',
-				'contactPerson', 'remarks', 'originalPackageTransport', 'contract', 'appraisal', 'status'], [])
+				'contactPerson', 'remarks', 'originalPackageTransport', 'contract', 'appraisal', 'status',
+				'collectionLevelReady'], [])
 
 		// Enums are not (yet) supported by the data binder
 		collection.acquisitionTypeId = AcquisitionType.getById(collectionParams.int('acquisitionTypeId'))
@@ -100,13 +103,15 @@ class CollectionService {
 			CommonsMultipartFile photoData = (CommonsMultipartFile) params["photo[$i]"]
 			i++
 
-			Photo photo = new Photo(
-					originalFilename: photoData.originalFilename,
-					size: photoData.size,
-					contentType: photoData.contentType,
-					photo: photoData.bytes
-			)
-			collection.addToPhotos(photo)
+			if (photoData.size > 0) {
+				Photo photo = new Photo(
+						originalFilename: photoData.originalFilename,
+						size: photoData.size,
+						contentType: photoData.contentType,
+						photo: photoData.bytes
+				)
+				collection.addToPhotos(photo)
+			}
 		}
 	}
 
@@ -134,7 +139,7 @@ class CollectionService {
 				AnalogMaterial meterMaterial = null
 				if (materialType?.inMeters) {
 					meterMaterial = updateAnalogMaterial(materialCollection, materialType, AnalogUnit.METER,
-							materialData.int('meterSize'))
+							materialData.meterSize)
 					materials.remove(meterMaterial)
 				}
 
@@ -142,7 +147,7 @@ class CollectionService {
 				AnalogMaterial numberMaterial = null
 				if (materialType?.inNumbers) {
 					numberMaterial = updateAnalogMaterial(materialCollection, materialType, AnalogUnit.NUMBER,
-							materialData.int('numberSize'))
+							materialData.numberSize)
 					materials.remove(numberMaterial)
 				}
 
@@ -180,13 +185,13 @@ class CollectionService {
 	 * @return The updated material data.
 	 */
 	private AnalogMaterial updateAnalogMaterial(AnalogMaterialCollection materialCollection, MaterialType materialType,
-	                                            AnalogUnit unit, Integer size) {
+	                                            AnalogUnit unit, String size) {
 		AnalogMaterial material = materialCollection.getMaterialByTypeAndUnit(materialType, unit)
 		if (!material) {
 			material = new AnalogMaterial(materialType: materialType, unit: unit)
 		}
 
-		material.size = size
+		material.size = (BigDecimal) bigDecimalConverter.convert(size)
 		materialCollection.addToMaterials(material)
 
 		return material
@@ -223,7 +228,8 @@ class CollectionService {
 		// We only store a material collection if the collection has at least one material item
 		if (materialCollection.materials?.size() > 0) {
 			materialCollection.numberOfFiles = params.digitalMaterialCollection.int('numberOfFiles')
-			materialCollection.totalSize = params.digitalMaterialCollection.int('totalSize')
+			materialCollection.totalSize =
+					(BigDecimal) bigDecimalConverter.convert(params.digitalMaterialCollection.totalSize)
 			materialCollection.unit = ByteUnit.getById(params.digitalMaterialCollection.int('unit'))
 
 			collection.digitalMaterialCollection = materialCollection

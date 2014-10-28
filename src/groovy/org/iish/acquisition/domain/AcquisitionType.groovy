@@ -4,7 +4,7 @@ package org.iish.acquisition.domain
  * The collection ID contains an acquisition type.
  */
 enum AcquisitionType {
-	COLLECTION(1, 'Coll'), NOT_APPLICABLE(2, 'n.a.')
+	COLLECTION(1, 'COLL'), ARCHIVE(2, 'ARCH'), NOT_APPLICABLE(3, 'n.a.')
 
 	int id
 	String name

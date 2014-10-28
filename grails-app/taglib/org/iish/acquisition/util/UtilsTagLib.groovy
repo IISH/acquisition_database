@@ -1,6 +1,9 @@
 package org.iish.acquisition.util
 
 import groovy.xml.MarkupBuilder
+import org.iish.acquisition.command.CollectionSearchCommand
+import org.iish.acquisition.search.CollectionSearch
+import org.iish.acquisition.search.Pager
 
 import java.text.SimpleDateFormat
 
@@ -9,6 +12,48 @@ import java.text.SimpleDateFormat
  */
 class UtilsTagLib {
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat('dd/MM/yyyy')
+
+	/**
+	 * Creates a pager to go to the previous and the next record.
+	 * @attr collectionSearchCommand REQUIRED The collection search that was performed.
+	 */
+	def prevNextPager = { attrs ->
+		MarkupBuilder builder = new MarkupBuilder(out)
+		builder.doubleQuotes = true
+
+		CollectionSearchCommand collectionSearchCommand = attrs.collectionSearchCommand
+		if (!collectionSearchCommand.isASearch()) {
+			collectionSearchCommand = CollectionSearchCommand.getDefaultCollectionSearchCommand(params)
+		}
+
+		CollectionSearch collectionSearch = collectionSearchCommand.getCollectionSearch()
+		Pager pager = collectionSearch.getPagedResults(params.long('id'))
+
+		String prevClass = 'previous disabled'
+		String prevLink = '#'
+		if (pager.previousId) {
+			prevClass = 'previous'
+			prevLink = g.createLink(controller: 'collection', action: 'edit', id: pager.previousId,
+					params: request.getAttribute('queryParams'))
+		}
+
+		String nextClass = 'next disabled'
+		String nextLink = '#'
+		if (pager.nextId) {
+			nextClass = 'next'
+			nextLink = g.createLink(controller: 'collection', action: 'edit', id: pager.nextId,
+					params: request.getAttribute('queryParams'))
+		}
+
+		builder.ul(class: 'pager hidden-print') {
+			builder.li(class: prevClass) {
+				builder.a(href: prevLink, "← ${g.message(code: 'default.paginate.prev')}")
+			}
+			builder.li(class: nextClass) {
+				builder.a(href: nextLink, "${g.message(code: 'default.paginate.next')} →")
+			}
+		}
+	}
 
 	/**
 	 * Creates a date picker.

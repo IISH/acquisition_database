@@ -1,3 +1,4 @@
+<%@ page import="org.iish.acquisition.domain.Status" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,7 +56,8 @@
                         </li>
                         <li <g:if test="${controllerName == 'collection' && actionName ==
                                 'list'}">class="active"</g:if>>
-                            <g:link controller="collection" action="list">
+                            <g:link controller="collection" action="list"
+                                    params="${[status: [Status.NOT_PROCESSED_ID, Status.IN_PROCESS_ID], search: 1]}">
                                 <g:message code="page.collection.all.label"/>
                             </g:link>
                         </li>

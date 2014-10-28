@@ -77,6 +77,21 @@ abstract class CollectionSearchDecorator extends AbstractCollectionSearch {
 	}
 
 	/**
+	 * Returns the previous and the next id for the given id in the results,
+	 * for the given where, sort and parameters data.
+	 * @param where The HQL WHERE criteria statements to use.
+	 * @param sort The HQL ORDER BY fields and sort order to use.
+	 * @param parameters The parameters to apply on the query.
+	 * @param id The id in the results to look for.
+	 * @return The pager with the previous and the next id.
+	 */
+	@Override
+	protected final Pager getPagedResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters,
+	                                         Long id) {
+		return decoratedCollectionSearch.getPagedResultsFor(where, sort, parameters, id)
+	}
+
+	/**
 	 * Simple utility function to join a list and add it to another list in one go.
 	 * @param originalList The original list.
 	 * @param toAdd The list with values to add as a string to the original list.

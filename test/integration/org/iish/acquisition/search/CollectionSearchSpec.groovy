@@ -23,7 +23,7 @@ class CollectionSearchSpec {
 	void testKeywordSearch() {
 		// MySQL has case insensitive LIKE, while H2 is case sensitive
 		CollectionSearchCommand collectionSearchCommand1 = new CollectionSearchCommand()
-		collectionSearchCommand1.keyword = 'specific keywords to search for'
+		collectionSearchCommand1.keyword = 'keywords search for'
 
 		CollectionSearch collectionSearch1 = new CollectionSearchImpl(collectionSearchCommand1)
 		collectionSearch1 = new KeywordCollectionSearchDecorator(collectionSearch1)
@@ -193,24 +193,24 @@ class CollectionSearchSpec {
 
 		List<Collection> collections1 = collectionSearch1.getResults() as List<Collection>
 
-		assert collections1.size() == 3
+		assert collections1.size() == 4
 		assert collections1*.name.contains('First')
 		assert collections1*.name.contains('Third')
 		assert collections1*.name.contains('Fourth')
+		assert collections1*.name.contains('Fifth')
 
 		// ------------------------------------------------------------------------------------------- //
 
 		CollectionSearchCommand collectionSearchCommand2 = new CollectionSearchCommand()
-		collectionSearchCommand2.status = [Status.COLLECTION_LEVEL_READY_ID]
+		collectionSearchCommand2.status = [Status.WONT_BE_PROCESSED_ID]
 
 		CollectionSearch collectionSearch2 = new CollectionSearchImpl(collectionSearchCommand2)
 		collectionSearch2 = new StatusCollectionSearchDecorator(collectionSearch2)
 
 		List<Collection> collections2 = collectionSearch2.getResults() as List<Collection>
 
-		assert collections2.size() == 2
+		assert collections2.size() == 1
 		assert collections2*.name.contains('Second')
-		assert collections2*.name.contains('Fifth')
 	}
 
 	@Test
@@ -244,7 +244,7 @@ class CollectionSearchSpec {
 	@Test
 	void testDigitalMaterialSearch() {
 		CollectionSearchCommand collectionSearchCommand1 = new CollectionSearchCommand()
-		collectionSearchCommand1.digital = [MaterialType.EPHEMERAL_ID]
+		collectionSearchCommand1.digital = [MaterialType.EPHEMERA_ID]
 
 		CollectionSearch collectionSearch1 = new CollectionSearchImpl(collectionSearchCommand1)
 		collectionSearch1 = new DigitalMaterialCollectionSearchDecorator(collectionSearch1)
@@ -317,15 +317,15 @@ class CollectionSearchSpec {
 		to.set(2014, 07, 01)
 
 		CollectionSearchCommand collectionSearchCommand1 = new CollectionSearchCommand()
-		collectionSearchCommand1.keyword = 'done available keywords'
+		collectionSearchCommand1.keyword = 'keywords'
 		collectionSearchCommand1.collectionName = 'Fifth First Second'
 		collectionSearchCommand1.location = [Depot.FIFTH_FLOOR_ID, Depot.REGIONAL_DESK_ID]
 		collectionSearchCommand1.fromDate = from.getTime()
 		collectionSearchCommand1.toDate = to.getTime()
 		collectionSearchCommand1.contactPerson = 'AAA AB'
-		collectionSearchCommand1.status = [Status.COLLECTION_LEVEL_READY_ID, Status.NOT_PROCESSED_ID]
+		collectionSearchCommand1.status = [Status.IN_PROCESS_ID, Status.NOT_PROCESSED_ID]
 		collectionSearchCommand1.analog = [MaterialType.ARCHIVE_ID, MaterialType.PERIODICALS_ID]
-		collectionSearchCommand1.digital = [MaterialType.BOOKS_ID, MaterialType.EPHEMERAL_ID]
+		collectionSearchCommand1.digital = [MaterialType.BOOKS_ID, MaterialType.EPHEMERA_ID]
 		collectionSearchCommand1.sort = 'date'
 		collectionSearchCommand1.order = 'asc'
 

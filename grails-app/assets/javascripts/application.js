@@ -5,6 +5,14 @@
 (function ($) {
 	var attrNames = ['name', 'id'];
 
+    var checkHasManyFields = function () {
+        $('.elements .removables').each(function(index, elem) {
+            if ($(elem).find('.removable').length === 0) {
+                addElement({target: elem});
+            }
+        });
+    };
+
 	var addElement = function (e) {
 		var container = $(e.target).parents('.elements');
 		var clonedElement = container.find('.removable.hidden').clone(true);
@@ -64,6 +72,8 @@
 	};
 
 	$(document).ready(function () {
+        checkHasManyFields();
+
 		$('.input-group.date').datepicker();
 
 		$('button.add').click(addElement);

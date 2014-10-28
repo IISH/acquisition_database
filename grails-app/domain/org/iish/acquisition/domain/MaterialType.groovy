@@ -8,7 +8,7 @@ class MaterialType {
 	static final long BOOKS_ID = 2L
 	static final long PERIODICALS_ID = 3L
 	static final long MOVING_IMAGES_ID = 4L
-	static final long EPHEMERAL_ID = 5L
+	static final long EPHEMERA_ID = 5L
 	static final long SOUND_ID = 6L
 	static final long POSTERS_ID = 7L
 	static final long DRAWINGS_ID = 8L

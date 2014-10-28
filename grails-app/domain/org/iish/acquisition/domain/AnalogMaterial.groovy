@@ -1,10 +1,12 @@
 package org.iish.acquisition.domain
 
+import org.iish.acquisition.util.PrinterUtil
+
 /**
  * Represents how much of a certain type of analog material belongs to a collection.
  */
 class AnalogMaterial {
-	Integer size
+	BigDecimal size
 	AnalogUnit unit
 
 	static belongsTo = [
@@ -13,7 +15,7 @@ class AnalogMaterial {
 	]
 
 	static constraints = {
-		size min: 0
+		size min: BigDecimal.ZERO, scale: 5, maxSize: 5
 	}
 
 	static mapping = {
@@ -23,8 +25,16 @@ class AnalogMaterial {
 		materialType fetch: 'join'
 	}
 
+	/**
+	 * Returns the size in a human-readable format.
+	 * @return The size in a human-readable format.
+	 */
+	String sizeToString() {
+		return PrinterUtil.printBigDecimal(size)
+	}
+
 	@Override
 	String toString() {
-		return "$materialType: $size $unit"
+		return "$materialType: ${sizeToString()} $unit"
 	}
 }

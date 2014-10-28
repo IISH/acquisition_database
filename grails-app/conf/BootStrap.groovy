@@ -41,15 +41,16 @@ class BootStrap {
 					}
 				}
 
-		[(Depot.RANGEERTERREIN_ID): 'Rangeerterrein',
-		 (Depot.SORTEERRUIMTE_ID) : 'Sorteerruimte',
-		 (Depot.THIRD_FLOOR_ID)   : '3rd floor',
-		 (Depot.FOURTH_FLOOR_ID)  : '4th floor',
-		 (Depot.FIFTH_FLOOR_ID)   : '5th floor',
-		 (Depot.REGIONAL_DESK_ID) : 'Regional Desk',
-		 (Depot.BG_DEPOT_ID)      : 'B&G depot',
-		 (Depot.ELSEWHERE_ID)     : 'Elsewhere',
-		 (Depot.ZERO_FLOOR_ID)    : '0th floor'].
+		[(Depot.FIFTH_FLOOR_ID)         : '5th floor',
+		 (Depot.FOURTH_FLOOR_ID)        : '4th floor',
+		 (Depot.THIRD_FLOOR_ID)         : '3rd floor',
+		 (Depot.ZERO_FLOOR_ID)          : '0th floor',
+		 (Depot.SORTEERRUIMTE_ID)       : 'Sorteerruimte',
+		 (Depot.RANGEERTERREIN_ID)      : 'Rangeerterrein',
+		 (Depot.BG_DEPOT_ID)            : 'B&G depot',
+		 (Depot.DIGITAL_INGEST_DEPOT_ID): 'Digital ingest depot',
+		 (Depot.REGIONAL_DESK_ID)       : 'Regional Desk',
+		 (Depot.ELSEWHERE_ID)           : 'Elsewhere'].
 				each { Long id, String name ->
 					if (!Depot.get(id)) {
 						new Depot(id: id, name: name).save()
@@ -60,7 +61,7 @@ class BootStrap {
 		 (MaterialType.BOOKS_ID)        : [name: 'Books', inMeters: true, inNumbers: true],
 		 (MaterialType.PERIODICALS_ID)  : [name: 'Periodicals', inMeters: true, inNumbers: false],
 		 (MaterialType.MOVING_IMAGES_ID): [name: 'Moving images', inMeters: false, inNumbers: true],
-		 (MaterialType.EPHEMERAL_ID)    : [name: 'Ephemeral', inMeters: true, inNumbers: false],
+		 (MaterialType.EPHEMERA_ID)     : [name: 'Ephemera', inMeters: true, inNumbers: false],
 		 (MaterialType.SOUND_ID)        : [name: 'Sound', inMeters: false, inNumbers: true],
 		 (MaterialType.POSTERS_ID)      : [name: 'Posters', inMeters: false, inNumbers: true],
 		 (MaterialType.DRAWINGS_ID)     : [name: 'Drawings', inMeters: false, inNumbers: true],
@@ -74,7 +75,6 @@ class BootStrap {
 
 		[(Status.NOT_PROCESSED_ID)         : 'Not processed',
 		 (Status.IN_PROCESS_ID)            : 'In process',
-		 (Status.COLLECTION_LEVEL_READY_ID): 'Collection level ready',
 		 (Status.PROCESSED_ID)             : 'Processed',
 		 (Status.WONT_BE_PROCESSED_ID)     : 'Won\'t be processed'].
 				each { Long id, String status ->
@@ -102,7 +102,7 @@ class BootStrap {
 		 'huub.sanders'        : Authority.ROLE_USER,
 		 'marien.vanderheijden': Authority.ROLE_USER,
 		 'frank.dejong'        : Authority.ROLE_USER,
-		 'jacques.vangerwen'   : Authority.ROLE_USER, // TODO: moet zijn 'jvg', Jacques is 'jge'
+		 'jacques.vangerwen'   : Authority.ROLE_USER,
 		 'stefano.bellucci'    : Authority.ROLE_USER,
 		 'rossanna.barragan'   : Authority.ROLE_USER,
 		 'eef.vermeij'         : Authority.ROLE_USER,
