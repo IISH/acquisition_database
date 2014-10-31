@@ -109,7 +109,8 @@ class BootStrap {
 		 'niels.beugeling'     : Authority.ROLE_USER,
 		 'job.schouten'        : Authority.ROLE_USER,
 		 'irina.novichenko'    : Authority.ROLE_USER,
-		 'zulfikar.ozdogan'    : Authority.ROLE_USER].
+		 'zulfikar.ozdogan'    : Authority.ROLE_USER,
+		 'ed.kool'             : Authority.ROLE_USER].
 				each { String login, String role ->
 					User user = User.findByLogin(login)
 					if (!user) {

@@ -22,12 +22,18 @@
 </g:hasErrors>
 
 <g:if test="${actionName == 'edit'}">
-    <div class="row content-menu hidden-print">
-        <div class="col-xs-20">
+    <div class="row content-menu top hidden-print">
+        <div class="col-xs-17">
             <g:prevNextPager collectionSearchCommand="${collectionSearchCommand}"/>
         </div>
 
-        <div class="col-xs-4">
+        <div class="col-xs-7 text-right">
+            <g:link action="email" id="${params.id}" params="${request.getAttribute('queryParams')}"
+                    class="btn btn-default btn-email">
+                <span class="glyphicon glyphicon-envelope"></span>
+                <g:message code="default.button.email.label"/>
+            </g:link>
+
             <g:link action="print" id="${params.id}" params="${request.getAttribute('queryParams')}"
                     class="btn btn-default btn-print">
                 <span class="glyphicon glyphicon-print"></span>

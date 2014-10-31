@@ -5,7 +5,7 @@
 </head>
 
 <body>
-<div class="row content-menu hidden-print">
+<div class="row content-menu top hidden-print">
     <div class="col-xs-24">
         <g:link action="edit" id="${params.id}" params="${request.getAttribute('queryParams')}"
                 class="btn btn-default btn-back">

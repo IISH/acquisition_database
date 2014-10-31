@@ -6,6 +6,8 @@ import org.iish.acquisition.export.CollectionXlsExport
 import org.iish.acquisition.search.CollectionSearch
 import org.iish.acquisition.search.PagedResultList
 import org.iish.acquisition.service.CollectionService
+import org.iish.acquisition.service.EmailService
+import org.iish.acquisition.util.EmailException
 import org.springframework.context.MessageSource
 
 /**
@@ -13,6 +15,7 @@ import org.springframework.context.MessageSource
  */
 class CollectionController {
 	CollectionService collectionService
+	EmailService emailService
 	MessageSource messageSource
 
 	static defaultAction = 'list'
@@ -147,7 +150,29 @@ class CollectionController {
 	 * @param collection The collection to print.
 	 */
 	def print(Collection collection) {
-		render view: 'print', model: [collection: collection]
+		ifCollectionExists(collection, params.long('id')) {
+			render view: 'print', model: [collection: collection]
+		}
+	}
+
+	/**
+	 * Sends a complementary request email for a collection.
+	 * @param collection The collection to email.
+	 */
+	def email(Collection collection) {
+		ifCollectionExists(collection, params.long('id')) {
+			try {
+				emailService.sentComplementRequestEmail(collection)
+
+				flash.message = g.message(code: 'default.mail.success.message')
+				redirect action: 'edit', id: collection.id, params: request.getAttribute('queryParams')
+			}
+			catch (EmailException e) {
+				flash.status = 'error'
+				flash.message = g.message(code: 'default.mail.fail.message', args: [e.getMessage()])
+				redirect action: 'edit', id: collection.id, params: request.getAttribute('queryParams')
+			}
+		}
 	}
 
 	/**

@@ -131,6 +131,7 @@ environments {
 		grails.logging.jul.usebridge = true
 	}
 	test {
+		grails.mail.disabled = true
 		grails.plugin.springsecurity.active = false
 	}
 	production {
