@@ -143,6 +143,14 @@ class CollectionController {
 	}
 
 	/**
+	 * Print version of an existing collection.
+	 * @param collection The collection to print.
+	 */
+	def print(Collection collection) {
+		render view: 'print', model: [collection: collection]
+	}
+
+	/**
 	 * Deleting a collection.
 	 * @param collection The collection to delete.
 	 */

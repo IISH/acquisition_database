@@ -6,7 +6,7 @@
 </head>
 
 <body>
-<div class="row">
+<div class="row content-menu hidden-print">
     <div class="col-xs-20">
         <g:paginate action="list" total="${results.getTotalCount()}" params="${params}"/>
     </div>
@@ -145,7 +145,7 @@
     </tbody>
 </table>
 
-<div class="row">
+<div class="row content-menu hidden-print">
     <div class="col-xs-20">
         <g:paginate action="list" total="${results.getTotalCount()}" params="${params}"/>
     </div>

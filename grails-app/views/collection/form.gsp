@@ -22,7 +22,19 @@
 </g:hasErrors>
 
 <g:if test="${actionName == 'edit'}">
-    <g:prevNextPager collectionSearchCommand="${collectionSearchCommand}"/>
+    <div class="row content-menu hidden-print">
+        <div class="col-xs-20">
+            <g:prevNextPager collectionSearchCommand="${collectionSearchCommand}"/>
+        </div>
+
+        <div class="col-xs-4">
+            <g:link action="print" id="${params.id}" params="${request.getAttribute('queryParams')}"
+                    class="btn btn-default btn-print">
+                <span class="glyphicon glyphicon-print"></span>
+                <g:message code="default.button.print.label"/>
+            </g:link>
+        </div>
+    </div>
 </g:if>
 
 <form class="form-horizontal" role="form" method="post" action="#" enctype="multipart/form-data">
@@ -742,7 +754,7 @@
     </div>
 </g:if>
 
-<div class="form-group">
+<div class="form-group hidden-print">
     <div class="col-xs-22 text-right">
         <button type="submit" class="btn btn-default btn-save">
             <g:message code="default.button.save.label"/>
