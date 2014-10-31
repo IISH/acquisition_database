@@ -146,15 +146,19 @@ class CollectionXlsExport {
 		}
 
 		materials.each { MaterialType materialType ->
-			setHeaderCell(row, i++, 'collection.analogMaterialCollection.extended.label', materialType.toString())
+			setHeaderCell(row, i++, 'collection.analogMaterialCollection.extended.label',
+					materialType.getNameAnalog())
 		}
 
 		materials.each { MaterialType materialType ->
-			setHeaderCell(row, i++, 'collection.digitalMaterialCollection.extended.label', materialType.toString())
+			setHeaderCell(row, i++, 'collection.digitalMaterialCollection.extended.label',
+					materialType.getNameDigital())
 		}
 
 		setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfFiles.extended.label')
 		setHeaderCell(row, i++, 'digitalMaterialCollection.totalSize.extended.label')
+		setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfDiskettes.label')
+		setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfOpticalDisks.label')
 		setHeaderCell(row, i++, 'collection.content.label')
 		setHeaderCell(row, i++, 'collection.listsAvailable.label')
 		setHeaderCell(row, i++, 'collection.toBeDone.label')
@@ -169,7 +173,7 @@ class CollectionXlsExport {
 		setHeaderCell(row, i++, 'collection.remarks.label')
 		setHeaderCell(row, i++, 'collection.originalPackageTransport.label')
 		setHeaderCell(row, i++, 'collection.status.label')
-		setHeaderCell(row, i,   'collection.collectionLevelReady.label')
+		setHeaderCell(row, i, 'collection.collectionLevelReady.label')
 
 		return i
 	}
@@ -234,6 +238,8 @@ class CollectionXlsExport {
 		setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfFiles)
 		setDataCellWithText(row, i++, digitalMaterialCollection ?
 				"${digitalMaterialCollection.totalSizeToString()} ${digitalMaterialCollection.unit}" : '')
+		setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfDiskettes)
+		setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfOpticalDisks)
 		setDataCellWithText(row, i++, collection.content)
 		setDataCellWithText(row, i++, collection.listsAvailable)
 		setDataCellWithText(row, i++, collection.toBeDone)
@@ -248,7 +254,7 @@ class CollectionXlsExport {
 		setDataCellWithText(row, i++, collection.remarks)
 		setDataCellWithText(row, i++, collection.originalPackageTransport)
 		setDataCellWithText(row, i++, collection.status?.toString())
-		setDataCellWithText(row, i,   collection.collectionLevelReady ? 'YES' : '')
+		setDataCellWithText(row, i, collection.collectionLevelReady ? 'YES' : '')
 	}
 
 	/**

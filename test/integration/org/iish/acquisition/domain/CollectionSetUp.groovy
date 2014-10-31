@@ -55,7 +55,7 @@ class CollectionSetUp {
 		setUpDigitalMaterialCollection(collection3, [
 				setUpDigitalMaterial(MaterialType.MOVING_IMAGES_ID),
 				setUpDigitalMaterial(MaterialType.PERIODICALS_ID),
-				setUpDigitalMaterial(MaterialType.OTHER_ID)
+				setUpDigitalMaterial(MaterialType.OTHER_UNKNOWN_ID)
 		])
 		collection3.save(flush: true)
 
@@ -70,7 +70,7 @@ class CollectionSetUp {
 				setUpLocation(Depot.ELSEWHERE_ID)
 		])
 		setUpAnalogMaterialCollection(collection4, [
-				setUpAnalogMaterial(MaterialType.OTHER_ID)
+				setUpAnalogMaterial(MaterialType.OTHER_UNKNOWN_ID)
 		])
 		setUpDigitalMaterialCollection(collection4, [
 				setUpDigitalMaterial(MaterialType.ARCHIVE_ID),
@@ -210,7 +210,7 @@ class CollectionSetUp {
 		 (MaterialType.POSTERS_ID)      : [name: 'Posters', inMeters: false, inNumbers: true],
 		 (MaterialType.DRAWINGS_ID)     : [name: 'Drawings', inMeters: false, inNumbers: true],
 		 (MaterialType.PHOTOS_ID)       : [name: 'Photos', inMeters: false, inNumbers: true],
-		 (MaterialType.OTHER_ID)        : [name: 'Other', inMeters: false, inNumbers: true]].
+		 (MaterialType.OTHER_UNKNOWN_ID)        : [name: 'Other', inMeters: false, inNumbers: true]].
 				each { Long id, Map materialType ->
 					if (!MaterialType.get(id)) {
 						new MaterialType([id: id] + materialType).save()

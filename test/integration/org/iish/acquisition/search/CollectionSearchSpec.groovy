@@ -230,7 +230,7 @@ class CollectionSearchSpec {
 		// ------------------------------------------------------------------------------------------- //
 
 		CollectionSearchCommand collectionSearchCommand2 = new CollectionSearchCommand()
-		collectionSearchCommand2.analog = [MaterialType.OTHER_ID]
+		collectionSearchCommand2.analog = [MaterialType.OTHER_UNKNOWN_ID]
 
 		CollectionSearch collectionSearch2 = new CollectionSearchImpl(collectionSearchCommand2)
 		collectionSearch2 = new AnalogMaterialCollectionSearchDecorator(collectionSearch2)

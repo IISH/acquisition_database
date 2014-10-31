@@ -1,5 +1,8 @@
 package org.iish.acquisition.domain
 
+import org.springframework.context.MessageSource
+import org.springframework.context.i18n.LocaleContextHolder as LCH
+
 /**
  * The material types that a collection could contain.
  */
@@ -13,7 +16,9 @@ class MaterialType {
 	static final long POSTERS_ID = 7L
 	static final long DRAWINGS_ID = 8L
 	static final long PHOTOS_ID = 9L
-	static final long OTHER_ID = 10L
+	static final long OTHER_UNKNOWN_ID = 10L
+
+	transient MessageSource messageSource
 
 	String name
 	boolean inMeters
@@ -48,6 +53,22 @@ class MaterialType {
 			analogUnits.add(AnalogUnit.NUMBER)
 		}
 		return analogUnits
+	}
+
+	/**
+	 * Returns the analog name of this material type.
+	 * @return The analog name.
+	 */
+	String getNameAnalog() {
+		return messageSource.getMessage("materialType.name.${id}.analog".toString(), new Object[0], LCH.locale)
+	}
+
+	/**
+	 * Returns the digital name of this material type.
+	 * @return The digital name.
+	 */
+	String getNameDigital() {
+		return messageSource.getMessage("materialType.name.${id}.digital".toString(), new Object[0], LCH.locale)
 	}
 
 	@Override

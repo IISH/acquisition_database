@@ -41,7 +41,8 @@ class CollectionController {
 				acquisitionTypes       : AcquisitionType.values(),
 				depots                 : Depot.list(),
 				statuses               : Status.list(),
-				materialTypes          : MaterialType.list()
+				materialTypes          : MaterialType.list(),
+				priorities             : Priority.values()
 		]
 	}
 
@@ -54,6 +55,7 @@ class CollectionController {
 				depots          : Depot.list(),
 				statuses        : Status.list(),
 				materialTypes   : MaterialType.list(),
+				priorities      : Priority.values(),
 				booleanEntrySet : [
 						(Boolean.TRUE) : g.message(code: 'default.boolean.true'),
 						(Boolean.FALSE): g.message(code: 'default.boolean.false')

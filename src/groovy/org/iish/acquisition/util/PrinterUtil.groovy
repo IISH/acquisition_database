@@ -14,7 +14,7 @@ class PrinterUtil {
 	 * @return A human-readable BigDecimal.
 	 */
 	static String printBigDecimal(BigDecimal value) {
-		if (value) {
+		if (value != null) {
 			DecimalFormatSymbols symbols = new DecimalFormatSymbols()
 			symbols.setDecimalSeparator((char) ',')
 

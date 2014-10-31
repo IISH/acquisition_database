@@ -1,23 +1,17 @@
 package org.iish.acquisition.command
-
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.iish.acquisition.domain.Status
 import org.iish.acquisition.search.*
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 /**
  * Command object which contains all valid collection search parameters.
  */
 class CollectionSearchCommand {
-	private static final Pattern ADVANCED_KEYWORDS_PATTERN = Pattern.compile("([^\"]\\S*|\".+?\")\\s*")
-
 	String keyword
 	Integer acquisitionTypeId
 	String acquisitionId
 	String collectionName
 	List<Long> location
+	String cabinet
 	Date fromDate
 	Date toDate
 	String contactPerson
@@ -25,6 +19,8 @@ class CollectionSearchCommand {
 	Boolean collectionLevelReady
 	List<Long> analog
 	List<Long> digital
+	List<Integer> priority
+	List<Integer> level
 
 	// For sorting of the search results
 	String sort
@@ -58,24 +54,19 @@ class CollectionSearchCommand {
 	}
 
 	/**
-	 * Splits a string of values (separated by spaces or by " ") into a list of individual values.
+	 * Splits a string of values (separated by spaces) into a list of individual values.
 	 * Also allows wildcards '*'.
 	 * @param property The name of the property of this object to split into a list of values.
 	 * @return A list of individual values.
 	 */
 	List<String> getAsListOfValuesAdvanced(String property) {
 		List<String> values = []
-		if (this."$property") {
-			String propertyString = this."$property".toString()
-			Matcher matcher = ADVANCED_KEYWORDS_PATTERN.matcher(propertyString)
-			while (matcher.find()) {
-				String value = matcher.group(1).trim()
-				if (value.startsWith('"')) {
-					value = value.replace('"', '').replace('*', '%')
-				}
-				if (!value.isAllWhitespace()) {
-					values << value.trim()
-				}
+		getAsListOfValues(property).each { String value ->
+			// Find all repeating wildcards and replace them by a single wildcard
+			value = value.replaceAll('(\\*)\\1+', '*')
+			// If the value is only a single wildcard, ignore it
+			if (!value.equals('*')) {
+				values << value.replace('*', '%')
 			}
 		}
 
@@ -93,12 +84,15 @@ class CollectionSearchCommand {
 		collectionSearch = new AcquisitionIdCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new NameCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new LocationCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new CabinetCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new DateCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new ContactPersonCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new StatusCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new CollectionLevelReadyCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new AnalogMaterialCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new DigitalMaterialCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new PriorityCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new LevelCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new SortCollectionSearchDecorator(collectionSearch)
 
 		return collectionSearch
@@ -116,6 +110,7 @@ class CollectionSearchCommand {
 				acquisitionId       : null,
 				collectionName      : null,
 				location            : null,
+				cabinet             : null,
 				fromDate            : null,
 				toDate              : null,
 				contactPerson       : null,
@@ -123,6 +118,8 @@ class CollectionSearchCommand {
 				collectionLevelReady: null,
 				analog              : null,
 				digital             : null,
+				priority            : null,
+				level               : null,
 				sort                : null,
 				order               : null,
 				search              : 1

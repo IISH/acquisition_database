@@ -1,3 +1,4 @@
+<%@ page import="org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -41,6 +42,10 @@
             <dt><g:message code="search.locations.name.label"/></dt>
             <dd>${depots.findAll { collectionSearchCommand.location.contains(it.id) }.join(', ')}</dd>
         </g:if>
+        <g:if test="${collectionSearchCommand.cabinet}">
+            <dt><g:message code="search.cabinet.label"/></dt>
+            <dd>${collectionSearchCommand.cabinet}</dd>
+        </g:if>
         <g:if test="${collectionSearchCommand.fromDate && collectionSearchCommand.toDate}">
             <dt><g:message code="search.date.from.label"/></dt>
             <dd>
@@ -61,20 +66,30 @@
             <dt><g:message code="search.collectionLevelReady.label"/></dt>
             <dd>
                 <g:if test="${collectionSearchCommand.collectionLevelReady}">
-                    <g:message code="default.boolean.true" />
+                    <g:message code="default.boolean.true"/>
                 </g:if>
                 <g:else>
-                    <g:message code="default.boolean.false" />
+                    <g:message code="default.boolean.false"/>
                 </g:else>
             </dd>
         </g:if>
+        <g:if test="${collectionSearchCommand.priority?.size() > 0}">
+            <dt><g:message code="search.priority.label"/></dt>
+            <dd>${priorities.findAll { collectionSearchCommand.priority.contains(it.id) }.join(', ')}</dd>
+        </g:if>
+        <g:if test="${collectionSearchCommand.level?.size() > 0}">
+            <dt><g:message code="search.level.label"/></dt>
+            <dd>${priorities.findAll { collectionSearchCommand.level.contains(it.id) }.join(', ')}</dd>
+        </g:if>
         <g:if test="${collectionSearchCommand.analog?.size() > 0}">
             <dt><g:message code="search.analog.label"/></dt>
-            <dd>${materialTypes.findAll { collectionSearchCommand.analog.contains(it.id) }.join(', ')}</dd>
+            <dd>${materialTypes.findAll { collectionSearchCommand.analog.contains(it.id) }*.getNameAnalog().
+                    join(', ')}</dd>
         </g:if>
         <g:if test="${collectionSearchCommand.digital?.size() > 0}">
             <dt><g:message code="search.digital.label"/></dt>
-            <dd>${materialTypes.findAll { collectionSearchCommand.digital.contains(it.id) }.join(', ')}</dd>
+            <dd>${materialTypes.findAll { collectionSearchCommand.digital.contains(it.id) }*.getNameDigital().
+                    join(', ')}</dd>
         </g:if>
     </dl>
 </div>

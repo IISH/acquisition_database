@@ -55,6 +55,21 @@
 		}
 	};
 
+    var deletePhoto = function (e) {
+        var deletedPhotosElem = $('#deletedPhotos');
+        var deletedPhotos = deletedPhotosElem.val().split(';');
+        if (deletedPhotos[0] === '') {
+            deletedPhotos.shift();
+        }
+
+        var deletedPhotoElem = $(e.target).parents('li');
+        var deletedPhoto = deletedPhotoElem.find('input[name="collection.uploadedPhoto.id"]').val();
+        deletedPhotoElem.remove();
+
+        deletedPhotos.push(deletedPhoto);
+        deletedPhotosElem.val(deletedPhotos.join(';'));
+    };
+
 	var onRowClick = function (e) {
 		location.href = $(this).find('.table-click-link').text();
 	};
@@ -78,6 +93,7 @@
 
 		$('button.add').click(addElement);
 		$('button.remove').click(removeElement);
+        $('button.remove-image').click(deletePhoto);
 
 		$('.btn-delete').click(deleteCollection);
 

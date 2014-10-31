@@ -211,11 +211,13 @@
                     <div class="col-xs-5">
                         <div class="checkbox">
                             <label for="collection.analogMaterialCollection[${i}].materialType">
+                                <input type="hidden" name="collection.analogMaterialCollection[${i}].materialTypeId"
+                                       value="${materialType.id}"/>
                                 <g:checkBox id="collection.analogMaterialCollection[${i}].materialType"
                                             name="collection.analogMaterialCollection[${i}].materialType"
                                             value="${materialType.id}"
-                                            checked="${materialMeter || materialNumber}"/>
-                                ${materialType.name}
+                                            checked="${materialMeter?.isSelected || materialNumber?.isSelected}"/>
+                                ${materialType.getNameAnalog()}
                             </label>
                         </div>
                     </div>
@@ -235,7 +237,8 @@
                             <g:if test="${materialType.inNumbers}">
                                 <input type="text" id="collection.analogMaterialCollection[${i}].numberSize"
                                        name="collection.analogMaterialCollection[${i}].numberSize"
-                                       class="form-control form-control-small" value="${materialNumber?.size}"/>
+                                       class="form-control form-control-small"
+                                       value="${materialNumber?.sizeToString()}"/>
                                 <span class="control-label">${AnalogUnit.NUMBER}</span>
                             </g:if>
                         </div>
@@ -277,7 +280,7 @@
                                             name="collection.digitalMaterialCollection[${i}].materialType"
                                             value="${materialType.id}"
                                             checked="${material}"/>
-                                ${materialType.name}
+                                ${materialType.getNameDigital()}
                             </label>
                         </div>
                     </div>
@@ -291,7 +294,7 @@
                                 </label>
                                 <input type="text" id="collection.digitalMaterialCollection.numberOfFiles"
                                        name="collection.digitalMaterialCollection.numberOfFiles"
-                                       class="form-control form-control-small"
+                                       class="form-control form-control-medium"
                                        value="${collection.digitalMaterialCollection?.numberOfFiles}"/>
                                 <span class="control-label">
                                     <g:message code="digitalMaterialCollection.files.label"/>
@@ -316,6 +319,34 @@
                                           class="form-control form-control-small" from="${byteUnits}"
                                           value="${collection.digitalMaterialCollection?.unit?.id}" optionKey="id"
                                           optionValue="name"/>
+                            </div>
+                        </div>
+                    </g:if>
+
+                    <g:if test="${i == 7}">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <input type="text" id="collection.digitalMaterialCollection.numberOfDiskettes"
+                                       name="collection.digitalMaterialCollection.numberOfDiskettes"
+                                       class="col-xs-offset-10 form-control form-control-small"
+                                       value="${collection.digitalMaterialCollection?.numberOfDiskettes}"/>
+                                <span class="control-label">
+                                    <g:message code="digitalMaterialCollection.numberOfDiskettes.lowercase.label"/>
+                                </span>
+                            </div>
+                        </div>
+                    </g:if>
+
+                    <g:if test="${i == 9}">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <input type="text" id="collection.digitalMaterialCollection.numberOfOpticalDisks"
+                                       name="collection.digitalMaterialCollection.numberOfOpticalDisks"
+                                       class="col-xs-offset-10 form-control form-control-small"
+                                       value="${collection.digitalMaterialCollection?.numberOfOpticalDisks}"/>
+                                <span class="control-label">
+                                    <g:message code="digitalMaterialCollection.numberOfOpticalDisks.lowercase.label"/>
+                                </span>
                             </div>
                         </div>
                     </g:if>
@@ -495,7 +526,11 @@
 
     <div class="col-xs-8">
         <input type="text" id="collection.contactPerson" name="collection.contactPerson" class="form-control"
-               value="${collection.contactPerson}"/>
+               maxlength="7" value="${collection.contactPerson}"/>
+    </div>
+
+    <div class="col-xs-12 help-block">
+        <g:message code="collection.contactPerson.help.message"/>
     </div>
 </div>
 
@@ -588,13 +623,21 @@
         </label>
 
         <div class="col-xs-16">
+            <input type="hidden" id="deletedPhotos" name="collection.deletedPhotos" value=""/>
+
             <ul class="list-unstyled form-control-static">
                 <g:each in="${collection.photos}" var="uploadedPhoto">
                     <li>
+                        <input type="hidden" name="collection.uploadedPhoto.id" value="${uploadedPhoto.id}"/>
+
                         <g:link controller="download" action="photo" id="${uploadedPhoto.id}">
                             ${uploadedPhoto.originalFilename}
                         </g:link>
                         (${uploadedPhoto.getReadableFileSize()})
+
+                        <button type="button" class="btn btn-link btn-xs remove-image">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
                     </li>
                 </g:each>
             </ul>

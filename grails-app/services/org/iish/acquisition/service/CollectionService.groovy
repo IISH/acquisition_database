@@ -50,6 +50,7 @@ class CollectionService {
 
 		processIngestDepotStatus(collection, params)
 		updateLocations(collection, collectionParams)
+		deletePhotos(collection, collectionParams)
 		processUploadedPhotos(collection, collectionParams)
 		updateAnalogMaterialCollection(collection, collectionParams)
 		updateDigitalMaterialCollection(collection, collectionParams)
@@ -116,6 +117,20 @@ class CollectionService {
 	}
 
 	/**
+	 * Removes selected uploaded photos.
+	 * @param collection The collection to update.
+	 * @param params The data as filled out by the user.
+	 */
+	private void deletePhotos(Collection collection, GrailsParameterMap params) {
+		params.deletedPhotos?.toString()?.split(';')?.each { it ->
+			if (it.isLong()) {
+				Photo photo = Photo.load(it.toLong())
+				collection.removeFromPhotos(photo)
+			}
+		}
+	}
+
+	/**
 	 * Updates the analog material collection of a given collection.
 	 * @param collection The collection to update.
 	 * @param params The data as filled out by the user.
@@ -128,26 +143,33 @@ class CollectionService {
 
 		int i = 0
 		while (params["analogMaterialCollection[$i]"]) {
-			GrailsParameterMap materialData = params["analogMaterialCollection[$i]"] as GrailsParameterMap
-			i++
+			GrailsParameterMap materialData = params["analogMaterialCollection[${i++}]"] as GrailsParameterMap
+			boolean selected = materialData.materialType?.isLong()
+			String enteredMeters = (materialData.meterSize) ? materialData.meterSize.trim() : ''
+			String enteredNumbers = (materialData.numberSize) ? materialData.numberSize.trim() : ''
 
-			// Only continue if the checkbox of the material item was checked and a valid long value is sent
-			if (materialData.materialType?.isLong()) {
-				MaterialType materialType = MaterialType.get(materialData.materialType.toLong())
+			// See if we can find the material type
+			MaterialType materialType = null
+			if (materialData.materialTypeId?.isLong()) {
+				Long materialTypeId = materialData.materialTypeId.toLong()
+				materialType = MaterialType.get(materialTypeId)
+			}
 
+			// Only continue if the checkbox of the material item was checked or a number was filled out
+			if (materialType && (selected || !enteredMeters.isEmpty() || !enteredNumbers.isEmpty())) {
 				// If the material can be added in meters, update the analog material with the given size in meters
 				AnalogMaterial meterMaterial = null
-				if (materialType?.inMeters) {
-					meterMaterial = updateAnalogMaterial(materialCollection, materialType, AnalogUnit.METER,
-							materialData.meterSize)
+				if (materialType.inMeters) {
+					meterMaterial = updateAnalogMaterial(
+							materialCollection, materialType, AnalogUnit.METER, enteredMeters, selected)
 					materials.remove(meterMaterial)
 				}
 
 				// If the material can be added in numbers, update the analog material with the given size in numbers
 				AnalogMaterial numberMaterial = null
-				if (materialType?.inNumbers) {
-					numberMaterial = updateAnalogMaterial(materialCollection, materialType, AnalogUnit.NUMBER,
-							materialData.numberSize)
+				if (materialType.inNumbers) {
+					numberMaterial = updateAnalogMaterial(
+							materialCollection, materialType, AnalogUnit.NUMBER, enteredNumbers, selected)
 					materials.remove(numberMaterial)
 				}
 
@@ -182,16 +204,18 @@ class CollectionService {
 	 * @param materialType The material type to search for.
 	 * @param unit The unit to search for.
 	 * @param size The new size to update the collection with.
+	 * @param isSelected Whether the material type checkbox was selected by the user.
 	 * @return The updated material data.
 	 */
 	private AnalogMaterial updateAnalogMaterial(AnalogMaterialCollection materialCollection, MaterialType materialType,
-	                                            AnalogUnit unit, String size) {
+	                                            AnalogUnit unit, String size, boolean isSelected) {
 		AnalogMaterial material = materialCollection.getMaterialByTypeAndUnit(materialType, unit)
 		if (!material) {
 			material = new AnalogMaterial(materialType: materialType, unit: unit)
 		}
 
 		material.size = (BigDecimal) bigDecimalConverter.convert(size)
+		material.isSelected = isSelected
 		materialCollection.addToMaterials(material)
 
 		return material
@@ -210,12 +234,12 @@ class CollectionService {
 
 		int i = 0
 		while (params["digitalMaterialCollection[$i]"]) {
-			GrailsParameterMap materialData = params["digitalMaterialCollection[$i]"] as GrailsParameterMap
-			i++
+			GrailsParameterMap materialData = params["digitalMaterialCollection[${i++}]"] as GrailsParameterMap
 
 			// Only continue if the checkbox of the material item was checked and a valid long value is sent
 			if (materialData.materialType?.isLong()) {
-				MaterialType materialType = MaterialType.get(materialData.materialType.toLong())
+				Long materialTypeId = materialData.materialType.toLong()
+				MaterialType materialType = MaterialType.get(materialTypeId)
 
 				DigitalMaterial material = updateDigitalMaterial(materialCollection, materialType)
 				materials.remove(material)
@@ -225,13 +249,16 @@ class CollectionService {
 		// Remove all material items that were previously checked and stored, but are not checked anymore
 		materialCollection.materials?.removeAll(materials)
 
-		// We only store a material collection if the collection has at least one material item
-		if (materialCollection.materials?.size() > 0) {
-			materialCollection.numberOfFiles = params.digitalMaterialCollection.int('numberOfFiles')
-			materialCollection.totalSize =
-					(BigDecimal) bigDecimalConverter.convert(params.digitalMaterialCollection.totalSize)
-			materialCollection.unit = ByteUnit.getById(params.digitalMaterialCollection.int('unit'))
+		// Save digital material collection data
+		grailsWebDataBinder.bind(materialCollection, params.digitalMaterialCollection as SimpleMapDataBindingSource,
+				['numberOfFiles', 'totalSize', 'numberOfDiskettes', 'numberOfOpticalDisks'], [])
 
+		// Enums are not (yet) supported by the data binder
+		Integer unitId = params.digitalMaterialCollection.int('unit')
+		materialCollection.unit = (materialCollection.totalSize) ? ByteUnit.getById(unitId) : null
+
+		// We only store a material collection if the collection has at least one material item or filled out data
+		if ((materialCollection.materials?.size() > 0) || materialCollection.isFilledOut()) {
 			collection.digitalMaterialCollection = materialCollection
 		}
 		else {

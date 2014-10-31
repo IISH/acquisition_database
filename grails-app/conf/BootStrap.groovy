@@ -66,17 +66,17 @@ class BootStrap {
 		 (MaterialType.POSTERS_ID)      : [name: 'Posters', inMeters: false, inNumbers: true],
 		 (MaterialType.DRAWINGS_ID)     : [name: 'Drawings', inMeters: false, inNumbers: true],
 		 (MaterialType.PHOTOS_ID)       : [name: 'Photos', inMeters: false, inNumbers: true],
-		 (MaterialType.OTHER_ID)        : [name: 'Other', inMeters: false, inNumbers: true]].
+		 (MaterialType.OTHER_UNKNOWN_ID): [name: 'Other/Unknown', inMeters: false, inNumbers: true]].
 				each { Long id, Map materialType ->
 					if (!MaterialType.get(id)) {
 						new MaterialType([id: id] + materialType).save()
 					}
 				}
 
-		[(Status.NOT_PROCESSED_ID)         : 'Not processed',
-		 (Status.IN_PROCESS_ID)            : 'In process',
-		 (Status.PROCESSED_ID)             : 'Processed',
-		 (Status.WONT_BE_PROCESSED_ID)     : 'Won\'t be processed'].
+		[(Status.NOT_PROCESSED_ID)    : 'Not processed',
+		 (Status.IN_PROCESS_ID)       : 'In process',
+		 (Status.PROCESSED_ID)        : 'Processed',
+		 (Status.WONT_BE_PROCESSED_ID): 'Won\'t be processed'].
 				each { Long id, String status ->
 					if (!Status.get(id)) {
 						new Status(id: id, status: status).save()

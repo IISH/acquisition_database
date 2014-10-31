@@ -58,6 +58,16 @@
     </div>
 
     <div class="form-group">
+        <label for="cabinet" class="col-xs-6 control-label">
+            <g:message code="search.cabinet.label"/>
+        </label>
+
+        <div class="col-xs-15">
+            <input type="text" id="cabinet" name="cabinet" class="form-control"/>
+        </div>
+    </div>
+
+    <div class="form-group">
         <label for="fromDate" class="col-xs-6 control-label">
             <g:message code="search.date.from.label"/>
         </label>
@@ -111,13 +121,47 @@
     </div>
 
     <div class="form-group">
+        <label class="col-xs-6 control-label">
+            <g:message code="search.priority.label"/>
+        </label>
+
+        <g:each in="${priorities}" var="priority">
+            <div class="col-xs-5">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="priority" value="${priority.id}" />
+                        ${priority.toString()}
+                    </label>
+                </div>
+            </div>
+        </g:each>
+    </div>
+
+    <div class="form-group">
+        <label class="col-xs-6 control-label">
+            <g:message code="search.level.label"/>
+        </label>
+
+        <g:each in="${priorities}" var="level">
+            <div class="col-xs-5">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="level" value="${level.id}" />
+                        ${level.toString()}
+                    </label>
+                </div>
+            </div>
+        </g:each>
+    </div>
+
+    <div class="form-group">
         <label for="analog" class="col-xs-6 control-label">
             <g:message code="search.analog.label"/>
         </label>
 
         <div class="col-xs-15">
             <g:select id="analog" name="analog" class="form-control" from="${materialTypes}" optionKey="id"
-                      optionValue="name" multiple="${true}" size="3"/>
+                      optionValue="nameAnalog" multiple="${true}" size="3"/>
             <span class="help-block">
                 <g:message code="default.select.help.message"/>
             </span>
@@ -131,7 +175,7 @@
 
         <div class="col-xs-15">
             <g:select id="digital" name="digital" class="form-control" from="${materialTypes}" optionKey="id"
-                      optionValue="name" multiple="${true}" size="3"/>
+                      optionValue="nameDigital" multiple="${true}" size="3"/>
             <span class="help-block">
                 <g:message code="default.select.help.message"/>
             </span>

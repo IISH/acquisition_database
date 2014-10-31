@@ -22,6 +22,6 @@ class DigitalMaterial {
 
 	@Override
 	String toString() {
-		return materialType
+		return materialType.getNameDigital()
 	}
 }

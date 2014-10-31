@@ -9,6 +9,8 @@ class DigitalMaterialCollection {
 	Integer numberOfFiles
 	BigDecimal totalSize
 	ByteUnit unit
+	Integer numberOfDiskettes
+	Integer numberOfOpticalDisks
 
 	static belongsTo = [
 			collection: Collection
@@ -19,9 +21,17 @@ class DigitalMaterialCollection {
 	]
 
 	static constraints = {
-		numberOfFiles min: 0
-		totalSize min: BigDecimal.ZERO, scale: 5, maxSize: 5
+		numberOfFiles nullable: true, min: 0
+		totalSize nullable: true, min: BigDecimal.ZERO, scale: 5
+		unit nullable: true
+		numberOfDiskettes nullable: true, min: 0
+		numberOfOpticalDisks nullable: true, min: 0
 		collection unique: true
+		materials validator: { val, obj ->
+			if (!val || val.isEmpty()) {
+				'collection.no.material.digital.collection.message'
+			}
+		}
 	}
 
 	static mapping = {
@@ -39,6 +49,14 @@ class DigitalMaterialCollection {
 		materials?.find {
 			it.materialType.id == materialType.id
 		}
+	}
+
+	/**
+	 * Returns whether all digital material collection details (except materials) were filled out.
+	 * @return Whether all digital material collection details were filled out.
+	 */
+	boolean isFilledOut() {
+		return (numberOfFiles || totalSize || unit || numberOfDiskettes || numberOfOpticalDisks)
 	}
 
 	/**
