@@ -237,7 +237,7 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	 */
 	private static String createHqlWithSubSelect(String select, List<String> sort, String subSelect) {
 		String fetch = 'FETCH'
-		String sortQuery = (sort.size() > 0) ? "ORDER BY ${sort.join(',')}" : ''
+		String sortQuery = (sort.size() > 0) ? "ORDER BY ${sort.join(',')}" : 'ORDER BY c_main.id DESC'
 
 		// Only eager fetch when we actually return collection instances
 		if (!MAIN_SELECT.equals(select)) {
