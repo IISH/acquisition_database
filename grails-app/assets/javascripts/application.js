@@ -5,13 +5,13 @@
 (function ($) {
 	var attrNames = ['name', 'id'];
 
-    var checkHasManyFields = function () {
-        $('.elements .removables').each(function(index, elem) {
-            if ($(elem).find('.removable').length === 0) {
-                addElement({target: elem});
-            }
-        });
-    };
+	var checkHasManyFields = function () {
+		$('.elements .removables').each(function (index, elem) {
+			if ($(elem).find('.removable').length === 0) {
+				addElement({target: elem});
+			}
+		});
+	};
 
 	var addElement = function (e) {
 		var container = $(e.target).parents('.elements');
@@ -55,20 +55,20 @@
 		}
 	};
 
-    var deletePhoto = function (e) {
-        var deletedPhotosElem = $('#deletedPhotos');
-        var deletedPhotos = deletedPhotosElem.val().split(';');
-        if (deletedPhotos[0] === '') {
-            deletedPhotos.shift();
-        }
+	var deletePhoto = function (e) {
+		var deletedPhotosElem = $('#deletedPhotos');
+		var deletedPhotos = deletedPhotosElem.val().split(';');
+		if (deletedPhotos[0] === '') {
+			deletedPhotos.shift();
+		}
 
-        var deletedPhotoElem = $(e.target).parents('li');
-        var deletedPhoto = deletedPhotoElem.find('input[name="collection.uploadedPhoto.id"]').val();
-        deletedPhotoElem.remove();
+		var deletedPhotoElem = $(e.target).parents('li');
+		var deletedPhoto = deletedPhotoElem.find('input[name="collection.uploadedPhoto.id"]').val();
+		deletedPhotoElem.remove();
 
-        deletedPhotos.push(deletedPhoto);
-        deletedPhotosElem.val(deletedPhotos.join(';'));
-    };
+		deletedPhotos.push(deletedPhoto);
+		deletedPhotosElem.val(deletedPhotos.join(';'));
+	};
 
 	var onRowClick = function (e) {
 		location.href = $(this).find('.table-click-link').text();
@@ -87,13 +87,13 @@
 	};
 
 	$(document).ready(function () {
-        checkHasManyFields();
+		checkHasManyFields();
 
 		$('.input-group.date').datepicker();
 
 		$('button.add').click(addElement);
 		$('button.remove').click(removeElement);
-        $('button.remove-image').click(deletePhoto);
+		$('button.remove-image').click(deletePhoto);
 
 		$('.btn-delete').click(deleteCollection);
 

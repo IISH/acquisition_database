@@ -38,7 +38,18 @@ class Location {
 	 * @return A more detailed string of the location.
 	 */
 	String toDetailedString() {
-		return "$depot, $cabinet, $shelf"
+		List<String> details = []
+		if (depot) {
+			details << depot.toString()
+		}
+		if (cabinet) {
+			details << cabinet
+		}
+		if (shelf) {
+			details << shelf
+		}
+
+		return details.join(', ')
 	}
 
 	@Override

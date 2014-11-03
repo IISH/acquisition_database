@@ -31,10 +31,6 @@
   padding: 15px;
 }
 
-.pager {
-  margin-top: 0;
-}
-
 .content-menu {
   .pagination, .pager {
     margin: 0;
@@ -123,6 +119,19 @@ table {
   ol,
   ul {
     margin: 0;
+  }
+
+  &.table {
+    &.table-condensed {
+      thead {
+        tr {
+          th {
+            white-space: nowrap;
+            padding-right: 20px;
+          }
+        }
+      }
+    }
   }
 
   &.table-click {

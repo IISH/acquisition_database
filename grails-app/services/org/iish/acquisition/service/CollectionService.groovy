@@ -172,16 +172,6 @@ class CollectionService {
 							materialCollection, materialType, AnalogUnit.NUMBER, enteredNumbers, selected)
 					materials.remove(numberMaterial)
 				}
-
-				// If both meters and numbers are allowed and one of them has no size, remove that one
-				if (materialType?.inMeters && materialType?.inNumbers) {
-					if (!meterMaterial.size && numberMaterial.size) {
-						materialCollection.removeFromMaterials(meterMaterial)
-					}
-					if (meterMaterial.size && !numberMaterial.size) {
-						materialCollection.removeFromMaterials(numberMaterial)
-					}
-				}
 			}
 		}
 

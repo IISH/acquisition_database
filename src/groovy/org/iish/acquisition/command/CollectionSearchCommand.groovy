@@ -1,7 +1,9 @@
 package org.iish.acquisition.command
+
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.iish.acquisition.domain.Status
 import org.iish.acquisition.search.*
+
 /**
  * Command object which contains all valid collection search parameters.
  */
