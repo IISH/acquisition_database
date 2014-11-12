@@ -43,9 +43,6 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 			}
 		}
 
-		// Make sure that the analog, digital material collection and the locations are always sorted by default
-		//sort.addAll(sortOnDefaultFields())
-
 		return sort
 	}
 
@@ -86,14 +83,6 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 	 * @return A list with criteria to apply sorting on collection locations.
 	 */
 	private List<String> sortByLocation() {
-		return ["d_main.name $sortOrder", "l_main.cabinet $sortOrder", "l_main.shelf $sortOrder"]
-	}
-
-	/**
-	 * By default always sort the analog material collection, digital material collection and the locations.
-	 * @return A list with criteria to apply sorting.
-	 */
-	private static List<String> sortOnDefaultFields() {
-		return ['amt_main.name ASC', 'dmt_main.name ASC', 'd_main.name ASC', 'l_main.cabinet ASC', 'l_main.shelf ASC']
+		return ["d_main.name $sortOrder", "l_main.cabinet $sortOrder"]
 	}
 }

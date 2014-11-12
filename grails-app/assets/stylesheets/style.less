@@ -132,9 +132,19 @@ table {
         }
       }
     }
+
+    &.modal-body {
+      margin: 0;
+    }
+
+    input[type='checkbox'],
+    input[type='radio'] {
+      margin: 5px 0 0 20px;
+    }
   }
 
-  &.table-click {
+  &.table-click,
+  &.checkbox-click {
     tbody tr {
       cursor: pointer;
     }

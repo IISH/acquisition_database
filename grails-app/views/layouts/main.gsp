@@ -90,6 +90,21 @@
                         </div>
                     </g:if>
 
+                    <g:if test="${flash.errors}">
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <span aria-hidden="true">&times;</span>
+                                <span class="sr-only">Close</span>
+                            </button>
+
+                            <ul>
+                                <g:each in="${flash.errors}" var="error">
+                                    <li><g:message error="${error}"/></li>
+                                </g:each>
+                            </ul>
+                        </div>
+                    </g:if>
+
                     <g:layoutBody/>
                 </div>
             </div>

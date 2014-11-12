@@ -50,10 +50,13 @@ class CollectionService {
 
 		processIngestDepotStatus(collection, params)
 		updateLocations(collection, collectionParams)
+
 		deletePhotos(collection, collectionParams)
 		processUploadedPhotos(collection, collectionParams)
+
 		updateAnalogMaterialCollection(collection, collectionParams)
 		updateDigitalMaterialCollection(collection, collectionParams)
+		updateMiscMaterialCollection(collection, collectionParams)
 
 		return collection.save()
 	}
@@ -78,8 +81,7 @@ class CollectionService {
 				location = new Location()
 			}
 
-			grailsWebDataBinder.bind(location, locationData as SimpleMapDataBindingSource,
-					['depot', 'cabinet', 'shelf'], [])
+			grailsWebDataBinder.bind(location, locationData as SimpleMapDataBindingSource, ['depot', 'cabinet'], [])
 
 			if (location.isEmpty()) {
 				locationsToRemove.add(location)
@@ -158,17 +160,15 @@ class CollectionService {
 			// Only continue if the checkbox of the material item was checked or a number was filled out
 			if (materialType && (selected || !enteredMeters.isEmpty() || !enteredNumbers.isEmpty())) {
 				// If the material can be added in meters, update the analog material with the given size in meters
-				AnalogMaterial meterMaterial = null
 				if (materialType.inMeters) {
-					meterMaterial = updateAnalogMaterial(
+					AnalogMaterial meterMaterial = updateAnalogMaterial(
 							materialCollection, materialType, AnalogUnit.METER, enteredMeters, selected)
 					materials.remove(meterMaterial)
 				}
 
 				// If the material can be added in numbers, update the analog material with the given size in numbers
-				AnalogMaterial numberMaterial = null
 				if (materialType.inNumbers) {
-					numberMaterial = updateAnalogMaterial(
+					AnalogMaterial numberMaterial = updateAnalogMaterial(
 							materialCollection, materialType, AnalogUnit.NUMBER, enteredNumbers, selected)
 					materials.remove(numberMaterial)
 				}
@@ -198,7 +198,7 @@ class CollectionService {
 	 * @return The updated material data.
 	 */
 	private AnalogMaterial updateAnalogMaterial(AnalogMaterialCollection materialCollection, MaterialType materialType,
-	                                            AnalogUnit unit, String size, boolean isSelected) {
+			AnalogUnit unit, String size, boolean isSelected) {
 		AnalogMaterial material = materialCollection.getMaterialByTypeAndUnit(materialType, unit)
 		if (!material) {
 			material = new AnalogMaterial(materialType: materialType, unit: unit)
@@ -240,11 +240,11 @@ class CollectionService {
 		materialCollection.materials?.removeAll(materials)
 
 		// Save digital material collection data
-		grailsWebDataBinder.bind(materialCollection, params.digitalMaterialCollection as SimpleMapDataBindingSource,
-				['numberOfFiles', 'totalSize', 'numberOfDiskettes', 'numberOfOpticalDisks'], [])
+		GrailsParameterMap materialCollectionData = params["digitalMaterialCollection"] as GrailsParameterMap
+		Integer unitId = materialCollectionData.int('unit')
 
-		// Enums are not (yet) supported by the data binder
-		Integer unitId = params.digitalMaterialCollection.int('unit')
+		materialCollection.setEnteredNumberOfFiles(materialCollectionData.numberOfFiles?.toString())
+		materialCollection.setEnteredTotalSize(materialCollectionData.totalSize?.toString(), bigDecimalConverter)
 		materialCollection.unit = (materialCollection.totalSize) ? ByteUnit.getById(unitId) : null
 
 		// We only store a material collection if the collection has at least one material item or filled out data
@@ -264,12 +264,78 @@ class CollectionService {
 	 * @return The updated material data.
 	 */
 	private DigitalMaterial updateDigitalMaterial(DigitalMaterialCollection materialCollection,
-	                                              MaterialType materialType) {
+			MaterialType materialType) {
 		DigitalMaterial material = materialCollection.getMaterialByType(materialType)
 		if (!material) {
 			material = new DigitalMaterial(materialType: materialType)
 		}
 
+		materialCollection.addToMaterials(material)
+
+		return material
+	}
+
+	/**
+	 * Updates the misc material collection of a given collection.
+	 * @param collection The collection to update.
+	 * @param params The data as filled out by the user.
+	 */
+	private void updateMiscMaterialCollection(Collection collection, GrailsParameterMap params) {
+		MiscMaterialCollection materialCollection = collection.miscMaterialCollection ?: new MiscMaterialCollection()
+		Set<MiscMaterial> materials = (materialCollection.materials) ?
+				new HashSet<MiscMaterial>(materialCollection.materials) : []
+
+		int i = 0
+		while (params["miscMaterialCollection[$i]"]) {
+			GrailsParameterMap materialData = params["miscMaterialCollection[${i++}]"] as GrailsParameterMap
+			boolean selected = materialData.materialType?.isLong()
+			Integer size = materialData.int('size')
+
+			// See if we can find the material type
+			MiscMaterialType materialType = null
+			if (materialData.materialTypeId?.isLong()) {
+				Long materialTypeId = materialData.materialTypeId.toLong()
+				materialType = MiscMaterialType.get(materialTypeId)
+			}
+
+			// Only continue if the checkbox of the material item was checked or a number was filled out
+			if (materialType && (selected || size)) {
+				// Update the misc material with the given size in numbers
+				MiscMaterial material = updateMiscMaterial(materialCollection, materialType, size, selected)
+				materials.remove(material)
+			}
+		}
+
+		// Remove all material items that were previously checked and stored, but are not checked anymore
+		materialCollection.materials?.removeAll(materials)
+
+		// We only store a material collection if the collection has at least one material item
+		if (materialCollection.materials?.size() > 0) {
+			collection.miscMaterialCollection = materialCollection
+		}
+		else {
+			collection.miscMaterialCollection = null
+			materialCollection.delete()
+		}
+	}
+
+	/**
+	 * Searches the misc collection for the misc material with the given type and updates it.
+	 * @param materialCollection The misc material collection to update.
+	 * @param materialType The material type to search for.
+	 * @param size The new size to update the collection with.
+	 * @param isSelected Whether the material type checkbox was selected by the user.
+	 * @return The updated material data.
+	 */
+	private MiscMaterial updateMiscMaterial(MiscMaterialCollection materialCollection, MiscMaterialType materialType,
+			Integer size, boolean isSelected) {
+		MiscMaterial material = materialCollection.getMaterialByType(materialType)
+		if (!material) {
+			material = new MiscMaterial(materialType: materialType)
+		}
+
+		material.size = size
+		material.isSelected = isSelected
 		materialCollection.addToMaterials(material)
 
 		return material

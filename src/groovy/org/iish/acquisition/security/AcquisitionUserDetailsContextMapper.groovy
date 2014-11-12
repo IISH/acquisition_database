@@ -55,21 +55,9 @@ class AcquisitionUserDetailsContextMapper implements UserDetailsContextMapper {
 				user = new User(login: username)
 			}
 
-			updateUser(user, ctx)
+			user.update(ctx)
+
 			return user
 		}
-	}
-
-	/**
-	 * Updates the given user with the provided context object.
-	 * @param user The user as represented in the acquisition database.
-	 * @param ctx The context object which contains the user information.
-	 */
-	private static void updateUser(User user, DirContextOperations ctx) {
-		user.lastName = ctx.originalAttrs.attrs['sn'].values[0]
-		user.firstName = ctx.originalAttrs.attrs['givenname'].values[0]
-		user.email = ctx.originalAttrs.attrs['mail'].values[0]
-
-		user.save(flush: true)
 	}
 }

@@ -37,7 +37,8 @@ class Collection {
 	static hasOne = [
 			ingestDepotStatus        : IngestDepotStatus,
 			analogMaterialCollection : AnalogMaterialCollection,
-			digitalMaterialCollection: DigitalMaterialCollection
+			digitalMaterialCollection: DigitalMaterialCollection,
+			miscMaterialCollection   : MiscMaterialCollection
 	]
 
 	static hasMany = [
@@ -74,8 +75,9 @@ class Collection {
 				'collection.no.material.collection.message'
 			}
 		}
+		miscMaterialCollection nullable: true
 
-		locations  validator: { val, obj ->
+		locations validator: { val, obj ->
 			if (!val || val.isEmpty()) {
 				'collection.no.location.message'
 			}
@@ -93,6 +95,7 @@ class Collection {
 		ingestDepotStatus fetch: 'join'
 		analogMaterialCollection fetch: 'join'
 		digitalMaterialCollection fetch: 'join'
+		miscMaterialCollection fetch: 'join'
 		addedBy fetch: 'join'
 		contract fetch: 'join'
 		accrual fetch: 'join'

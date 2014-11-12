@@ -63,32 +63,24 @@
 
     <div class="col-xs-20">
         <div class="row">
-            <label class="col-xs-6 control-label">
+            <label class="col-xs-8 control-label">
                 <g:message code="location.depot.label"/>
             </label>
 
-            <label class="col-xs-10 control-label">
+            <label class="col-xs-14 control-label">
                 <g:message code="location.cabinet.label"/>
-            </label>
-
-            <label class="col-xs-6 control-label">
-                <g:message code="location.shelf.label"/>
             </label>
         </div>
 
         <div>
             <g:each in="${collection.locations}" var="location" status="i">
                 <div class="row">
-                    <div class="col-xs-6">
+                    <div class="col-xs-8">
                         ${location.depot?.getName()}
                     </div>
 
-                    <div class="col-xs-10">
+                    <div class="col-xs-14">
                         ${location.cabinet}
-                    </div>
-
-                    <div class="col-xs-6">
-                        ${location.shelf}
                     </div>
                 </div>
             </g:each>
@@ -128,7 +120,7 @@
             <g:if test="${collection.digitalMaterialCollection?.numberOfFiles}">
                 <li>
                     <strong><g:message code="digitalMaterialCollection.numberOfFiles.label"/>:</strong>
-                    ${collection.digitalMaterialCollection?.numberOfFiles}
+                    ${collection.digitalMaterialCollection?.numberOfFilesToString()}
                     <g:message code="digitalMaterialCollection.files.label"/>
                 </li>
             </g:if>
@@ -140,20 +132,20 @@
                     ${collection.digitalMaterialCollection?.unit?.name()}
                 </li>
             </g:if>
+        </ul>
+    </div>
+</div>
 
-            <g:if test="${collection.digitalMaterialCollection?.numberOfDiskettes}">
-                <li>
-                    ${collection.digitalMaterialCollection?.numberOfDiskettes}
-                    <g:message code="digitalMaterialCollection.numberOfDiskettes.lowercase.label"/>
-                </li>
-            </g:if>
+<div class="row">
+    <label class="col-xs-4 control-label">
+        <g:message code="collection.miscMaterialCollection.label"/>
+    </label>
 
-            <g:if test="${collection.digitalMaterialCollection?.numberOfOpticalDisks}">
-                <li>
-                    ${collection.digitalMaterialCollection?.numberOfOpticalDisks}
-                    <g:message code="digitalMaterialCollection.numberOfOpticalDisks.lowercase.label"/>
-                </li>
-            </g:if>
+    <div class="col-xs-20">
+        <ul class="list-unstyled">
+            <g:each in="${collection.miscMaterialCollection?.materials}" var="miscMaterial">
+                <li>${miscMaterial.toString()}</li>
+            </g:each>
         </ul>
     </div>
 </div>

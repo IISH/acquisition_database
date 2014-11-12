@@ -91,6 +91,10 @@
             <dd>${materialTypes.findAll { collectionSearchCommand.digital.contains(it.id) }*.getNameDigital().
                     join(', ')}</dd>
         </g:if>
+        <g:if test="${collectionSearchCommand.misc?.size() > 0}">
+            <dt><g:message code="search.misc.label"/></dt>
+            <dd>${miscMaterialTypes.findAll { collectionSearchCommand.misc.contains(it.id) }*.name.join(', ')}</dd>
+        </g:if>
     </dl>
 </div>
 
@@ -102,6 +106,7 @@
         <th><g:sortLink field="digital_material" messageCode="results.digital.material.label"/></th>
         <th><g:sortLink field="date" messageCode="results.date.label"/></th>
         <th><g:sortLink field="location" messageCode="results.location.label"/></th>
+        <th class="visible-print"><g:message code="results.cabinet.label" /></th>
     </tr>
     </thead>
     <tbody>
@@ -130,6 +135,17 @@
                     <g:each in="${collection.digitalMaterialCollection?.materials}" var="material">
                         <li class="list-group-item">${material}</li>
                     </g:each>
+
+                    <g:if test="${collection.digitalMaterialCollection}">
+                        <li class="list-group-item">
+                            <g:message code="digitalMaterialCollection.numberOfFiles.export.label"/>:
+                            ${collection.digitalMaterialCollection.numberOfFilesToString()}
+                        </li>
+                        <li class="list-group-item">
+                            <g:message code="digitalMaterialCollection.totalSize.label"/>:
+                            ${collection.digitalMaterialCollection.totalSizeToStringWithUnit()}
+                        </li>
+                    </g:if>
                 </ul>
             </td>
             <td><g:formatDate date="${collection.dateOfArrival}"/></td>
@@ -137,6 +153,13 @@
                 <ul class="list-group">
                     <g:each in="${collection.locations}" var="location">
                         <li class="list-group-item">${location}</li>
+                    </g:each>
+                </ul>
+            </td>
+            <td class="visible-print">
+                <ul class="list-group">
+                    <g:each in="${collection.locations}" var="location">
+                        <li class="list-group-item">${location.cabinet}</li>
                     </g:each>
                 </ul>
             </td>

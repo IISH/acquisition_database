@@ -1,6 +1,7 @@
 package org.iish.acquisition.controller
 
 import org.iish.acquisition.command.CollectionSearchCommand
+import org.iish.acquisition.command.RecipientsCommand
 import org.iish.acquisition.domain.*
 import org.iish.acquisition.export.CollectionXlsExport
 import org.iish.acquisition.search.CollectionSearch
@@ -45,6 +46,7 @@ class CollectionController {
 				depots                 : Depot.list(),
 				statuses               : Status.list(),
 				materialTypes          : MaterialType.list(),
+				miscMaterialTypes      : MiscMaterialType.list(),
 				priorities             : Priority.values()
 		]
 	}
@@ -54,12 +56,13 @@ class CollectionController {
 	 */
 	def search() {
 		render view: 'search', model: [
-				acquisitionTypes: AcquisitionType.values(),
-				depots          : Depot.list(),
-				statuses        : Status.list(),
-				materialTypes   : MaterialType.list(),
-				priorities      : Priority.values(),
-				booleanEntrySet : [
+				acquisitionTypes : AcquisitionType.values(),
+				depots           : Depot.list(),
+				statuses         : Status.list(),
+				materialTypes    : MaterialType.list(),
+				miscMaterialTypes: MiscMaterialType.list(),
+				priorities       : Priority.values(),
+				booleanEntrySet  : [
 						(Boolean.TRUE) : g.message(code: 'default.boolean.true'),
 						(Boolean.FALSE): g.message(code: 'default.boolean.false')
 				].entrySet()
@@ -99,17 +102,18 @@ class CollectionController {
 		}
 
 		render view: 'form', model: [
-				collection      : collection,
-				acquisitionTypes: AcquisitionType.values(),
-				depots          : Depot.list(),
-				materialTypes   : MaterialType.list(),
-				byteUnits       : ByteUnit.values(),
-				priorities      : Priority.values(),
-				contracts       : Contract.list(),
-				accruals        : Accrual.values(),
-				appraisals      : Appraisal.list(),
-				statuses        : Status.list(),
-				uploadedPhotos  : []
+				collection       : collection,
+				acquisitionTypes : AcquisitionType.values(),
+				depots           : Depot.list(),
+				materialTypes    : MaterialType.list(),
+				miscMaterialTypes: MiscMaterialType.list(),
+				byteUnits        : ByteUnit.values(),
+				priorities       : Priority.values(),
+				contracts        : Contract.list(),
+				accruals         : Accrual.values(),
+				appraisals       : Appraisal.list(),
+				statuses         : Status.list(),
+				uploadedPhotos   : []
 		]
 	}
 
@@ -133,6 +137,7 @@ class CollectionController {
 					acquisitionTypes       : AcquisitionType.values(),
 					depots                 : Depot.list(),
 					materialTypes          : MaterialType.list(),
+					miscMaterialTypes      : MiscMaterialType.list(),
 					byteUnits              : ByteUnit.values(),
 					priorities             : Priority.values(),
 					contracts              : Contract.list(),
@@ -140,7 +145,8 @@ class CollectionController {
 					appraisals             : Appraisal.list(),
 					statuses               : Status.list(),
 					uploadedPhotos         : Photo.getPhotoMetaData(collection),
-					collectionSearchCommand: collectionSearchCommand
+					collectionSearchCommand: collectionSearchCommand,
+					recipients             : User.findAllByMayReceiveEmailAndEmailIsNotNull(true)
 			]
 		}
 	}
@@ -158,11 +164,18 @@ class CollectionController {
 	/**
 	 * Sends a complementary request email for a collection.
 	 * @param collection The collection to email.
+	 * @param recipientsCommand The recipients to email to.
 	 */
-	def email(Collection collection) {
+	def email(Collection collection, RecipientsCommand recipientsCommand) {
 		ifCollectionExists(collection, params.long('id')) {
+			if (!recipientsCommand.validate()) {
+				flash.errors = recipientsCommand.errors.allErrors
+				redirect action: 'edit', id: collection.id, params: request.getAttribute('queryParams')
+				return
+			}
+
 			try {
-				emailService.sentComplementRequestEmail(collection)
+				emailService.sentComplementRequestEmail(recipientsCommand, collection)
 
 				flash.message = g.message(code: 'default.mail.success.message')
 				redirect action: 'edit', id: collection.id, params: request.getAttribute('queryParams')

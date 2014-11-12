@@ -15,39 +15,7 @@ class CollectionSearchSpec {
 
 	@BeforeClass
 	static void setUpData() {
-		CollectionSetUp.setUpBootStrapData()
 		CollectionSetUp.setUpCollections()
-	}
-
-	@Test
-	void testKeywordSearch() {
-		// MySQL has case insensitive LIKE, while H2 is case sensitive
-		CollectionSearchCommand collectionSearchCommand1 = new CollectionSearchCommand()
-		collectionSearchCommand1.keyword = 'keywords search for'
-
-		CollectionSearch collectionSearch1 = new CollectionSearchImpl(collectionSearchCommand1)
-		collectionSearch1 = new KeywordCollectionSearchDecorator(collectionSearch1)
-
-		List<Collection> collections1 = collectionSearch1.getResults() as List<Collection>
-
-		assert collections1.size() == 2
-		assert collections1*.name.contains('First')
-		assert collections1*.name.contains('Fourth')
-
-		// ------------------------------------------------------------------------------------------- //
-
-		CollectionSearchCommand collectionSearchCommand2 = new CollectionSearchCommand()
-		collectionSearchCommand2.keyword = 'AAA'
-
-		CollectionSearch collectionSearch2 = new CollectionSearchImpl(collectionSearchCommand2)
-		collectionSearch2 = new KeywordCollectionSearchDecorator(collectionSearch2)
-
-		List<Collection> collections2 = collectionSearch2.getResults() as List<Collection>
-
-		assert collections2.size() == 3
-		assert collections2*.name.contains('First')
-		assert collections2*.name.contains('Fourth')
-		assert collections2*.name.contains('Fifth')
 	}
 
 	@Test
@@ -317,7 +285,6 @@ class CollectionSearchSpec {
 		to.set(2014, 07, 01)
 
 		CollectionSearchCommand collectionSearchCommand1 = new CollectionSearchCommand()
-		collectionSearchCommand1.keyword = 'keywords'
 		collectionSearchCommand1.collectionName = 'Fifth First Second'
 		collectionSearchCommand1.location = [Depot.FIFTH_FLOOR_ID, Depot.REGIONAL_DESK_ID]
 		collectionSearchCommand1.fromDate = from.getTime()
@@ -329,8 +296,19 @@ class CollectionSearchSpec {
 		collectionSearchCommand1.sort = 'date'
 		collectionSearchCommand1.order = 'asc'
 
-		CollectionSearch collectionSearch1 = collectionSearchCommand1.getCollectionSearch()
-		List<Collection> collections1 = collectionSearch1.getResults() as List<Collection>
+		// Test various combinations, not all of them
+		// For example: keyword search is very MySQL specific and is not going to work with HQL
+		CollectionSearch collectionSearch = new CollectionSearchImpl(collectionSearchCommand1)
+		collectionSearch = new NameCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new LocationCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new DateCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new ContactPersonCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new StatusCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new AnalogMaterialCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new DigitalMaterialCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new SortCollectionSearchDecorator(collectionSearch)
+
+		List<Collection> collections1 = collectionSearch.getResults() as List<Collection>
 
 		assert collections1.size() == 2
 		assert collections1[0].name.contains('First')

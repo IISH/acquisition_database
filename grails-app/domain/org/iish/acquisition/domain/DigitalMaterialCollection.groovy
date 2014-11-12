@@ -1,5 +1,6 @@
 package org.iish.acquisition.domain
 
+import org.iish.acquisition.converter.BigDecimalValueConverter
 import org.iish.acquisition.util.PrinterUtil
 
 /**
@@ -9,8 +10,6 @@ class DigitalMaterialCollection {
 	Integer numberOfFiles
 	BigDecimal totalSize
 	ByteUnit unit
-	Integer numberOfDiskettes
-	Integer numberOfOpticalDisks
 
 	static belongsTo = [
 			collection: Collection
@@ -21,11 +20,9 @@ class DigitalMaterialCollection {
 	]
 
 	static constraints = {
-		numberOfFiles nullable: true, min: 0
-		totalSize nullable: true, min: BigDecimal.ZERO, scale: 5
+		numberOfFiles min: 0
+		totalSize min: BigDecimal.ZERO, scale: 5
 		unit nullable: true
-		numberOfDiskettes nullable: true, min: 0
-		numberOfOpticalDisks nullable: true, min: 0
 		collection unique: true
 		materials validator: { val, obj ->
 			if (!val || val.isEmpty()) {
@@ -52,11 +49,56 @@ class DigitalMaterialCollection {
 	}
 
 	/**
+	 * No empty or 0 as value, unless '000' was entered.
+	 * @param enteredNoOfFiles The value as entered by the user.
+	 */
+	void setEnteredNumberOfFiles(String enteredNoOfFiles) {
+		if (enteredNoOfFiles?.equals('000')) {
+			numberOfFiles = 0
+		}
+		else {
+			Integer noOfFiles = enteredNoOfFiles?.isInteger() ? enteredNoOfFiles.toInteger() : null
+			numberOfFiles = (noOfFiles && noOfFiles > 0) ? noOfFiles : null
+		}
+	}
+
+	/**
+	 * No empty or 0 as value, unless '000' was entered.
+	 * @param enteredTotalSize The value as entered by the user.
+	 * @param bigDecimalConverter The converter from String to BigDecimal.
+	 */
+	void setEnteredTotalSize(String enteredTotalSize, BigDecimalValueConverter bigDecimalConverter) {
+		if (enteredTotalSize?.equals('000')) {
+			totalSize = 0
+		}
+		else {
+			BigDecimal totalSize = (BigDecimal) bigDecimalConverter.convert(enteredTotalSize)
+			this.totalSize = (totalSize && totalSize.compareTo(BigDecimal.ZERO) > 0) ? totalSize : null
+		}
+	}
+
+	/**
 	 * Returns whether all digital material collection details (except materials) were filled out.
 	 * @return Whether all digital material collection details were filled out.
 	 */
 	boolean isFilledOut() {
-		return (numberOfFiles || totalSize || unit || numberOfDiskettes || numberOfOpticalDisks)
+		return (numberOfFiles || totalSize || unit)
+	}
+
+	/**
+	 * Returns the number of files in a human-readable format.
+	 * @return The number of files in a human-readable format.
+	 */
+	String numberOfFilesToString() {
+		String nrOfFiles = ''
+		if (numberOfFiles == 0) {
+			nrOfFiles = '000'
+		}
+		else if (numberOfFiles) {
+			nrOfFiles = numberOfFiles.toString()
+		}
+
+		return nrOfFiles
 	}
 
 	/**
@@ -64,7 +106,20 @@ class DigitalMaterialCollection {
 	 * @return The total size in a human-readable format.
 	 */
 	String totalSizeToString() {
-		return PrinterUtil.printBigDecimal(totalSize)
+		return (totalSize == 0) ? '000' : PrinterUtil.printBigDecimal(totalSize)
+	}
+
+	/**
+	 * Returns the total size in a human-readable format with the unit.
+	 * @return The total size in a human-readable format with the unit.
+	 */
+	String totalSizeToStringWithUnit() {
+		if (unit) {
+			return "${totalSizeToString()} ${unit.toString()}"
+		}
+		else {
+			return totalSizeToString()
+		}
 	}
 
 	@Override

@@ -1,19 +1,18 @@
-import org.iish.acquisition.domain.Appraisal
-import org.iish.acquisition.domain.Authority
-import org.iish.acquisition.domain.Contract
-import org.iish.acquisition.domain.Depot
-import org.iish.acquisition.domain.MaterialType
-import org.iish.acquisition.domain.Status
-import org.iish.acquisition.domain.User
-import org.iish.acquisition.domain.UserAuthority
+import grails.util.Environment
+import org.iish.acquisition.domain.*
+import org.springframework.ldap.core.DirContextOperations
+import org.springframework.security.ldap.search.LdapUserSearch
 
 /**
  * Initialization of the application.
  */
 class BootStrap {
+	LdapUserSearch ldapUserSearch
+
 	def init = { servletContext ->
 		populateTables()
 		setUsersAndAuthorities()
+		updateUserData(ldapUserSearch)
 	}
 
 	def destroy = {}
@@ -73,6 +72,14 @@ class BootStrap {
 					}
 				}
 
+		[(MiscMaterialType.DISKETTES_ID): 'Diskettes',
+		 (MiscMaterialType.DVDS_CDS_ID) : 'DVD\'s / CD-rom\'s'].
+				each { Long id, String name ->
+					if (!MiscMaterialType.get(id)) {
+						new MiscMaterialType(id: id, name: name).save()
+					}
+				}
+
 		[(Status.NOT_PROCESSED_ID)    : 'Not processed',
 		 (Status.IN_PROCESS_ID)       : 'In process',
 		 (Status.PROCESSED_ID)        : 'Processed',
@@ -95,33 +102,46 @@ class BootStrap {
 	 * Creates or updates the users and their granted roles.
 	 */
 	private static void setUsersAndAuthorities() {
-		['kerim.meijer'        : Authority.ROLE_SUPER_ADMIN,
-		 'marja.musson'        : Authority.ROLE_SUPER_ADMIN,
-		 'joke.zwaan'          : Authority.ROLE_ADMIN,
-		 'bouwe.hijma'         : Authority.ROLE_USER,
-		 'huub.sanders'        : Authority.ROLE_USER,
-		 'marien.vanderheijden': Authority.ROLE_USER,
-		 'frank.dejong'        : Authority.ROLE_USER,
-		 'jacques.vangerwen'   : Authority.ROLE_USER,
-		 'stefano.bellucci'    : Authority.ROLE_USER,
-		 'rossanna.barragan'   : Authority.ROLE_USER,
-		 'eef.vermeij'         : Authority.ROLE_USER,
-		 'niels.beugeling'     : Authority.ROLE_USER,
-		 'job.schouten'        : Authority.ROLE_USER,
-		 'irina.novichenko'    : Authority.ROLE_USER,
-		 'zulfikar.ozdogan'    : Authority.ROLE_USER,
-		 'ed.kool'             : Authority.ROLE_USER].
-				each { String login, String role ->
+		['kerim.meijer'        : [role: Authority.ROLE_SUPER_ADMIN, mayReceiveEmail: false],
+		 'marja.musson'        : [role: Authority.ROLE_SUPER_ADMIN, mayReceiveEmail: true],
+		 'joke.zwaan'          : [role: Authority.ROLE_ADMIN, mayReceiveEmail: true],
+		 'bouwe.hijma'         : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'huub.sanders'        : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'marien.vanderheijden': [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'frank.dejong'        : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'jacques.vangerwen'   : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'stefano.bellucci'    : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'rossana.barragan'    : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'eef.vermeij'         : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'niels.beugeling'     : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'job.schouten'        : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'irina.novichenko'    : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'zulfikar.ozdogan'    : [role: Authority.ROLE_USER, mayReceiveEmail: true],
+		 'ed.kool'             : [role: Authority.ROLE_USER, mayReceiveEmail: true]].
+				each { String login, Map userData ->
 					User user = User.findByLogin(login)
 					if (!user) {
-						user = new User(login: login)
+						user = new User(login: login, mayReceiveEmail: userData.mayReceiveEmail)
 						user.save(flush: true)
 					}
 
-					Authority authority = Authority.findByAuthority(role)
+					Authority authority = Authority.findByAuthority(userData.role.toString())
 					if (!UserAuthority.exists(user.id, authority.id)) {
 						UserAuthority.create(user, authority)
 					}
 				}
+	}
+
+	/**
+	 * Updates the user data of all users with data from Active Directory.
+	 * @param ldapUserSearch Allows us to search for users in Active Directory.
+	 */
+	private static void updateUserData(LdapUserSearch ldapUserSearch) {
+		if (Environment.current != Environment.TEST) {
+			User.list().each { User user ->
+				DirContextOperations ctx = ldapUserSearch.searchForUser(user.login)
+				user.update(ctx)
+			}
+		}
 	}
 }

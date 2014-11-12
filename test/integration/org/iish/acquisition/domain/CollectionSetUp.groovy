@@ -140,7 +140,6 @@ class CollectionSetUp {
 	static Location setUpLocation(Long depot) {
 		return new Location(
 				cabinet: 'Cabinet',
-				shelf: 'Shelf',
 				depot: Depot.get(depot)
 		)
 	}
@@ -170,64 +169,5 @@ class CollectionSetUp {
 	static void setUpLocations(Collection collection, List<Location> locations) {
 		locations.each { collection.addToLocations(it) }
 		collection.save()
-	}
-
-	static void setUpBootStrapData() {
-		[(Appraisal.YES_ID): 'yes',
-		 (Appraisal.NO_ID) : 'no',
-		 (Appraisal.NA_ID) : 'n.a'].
-				each { Long id, String name ->
-					new Appraisal(id: id, name: name).save()
-				}
-
-		[(Contract.YES_ID)          : 'yes',
-		 (Contract.NA_ID)           : 'n.a (not applicable)',
-		 (Contract.NOT_YET_THERE_ID): 'not yet there',
-		 (Contract.UNKNOWN_ID)      : 'unknown'].
-				each { Long id, String name ->
-					new Contract(id: id, name: name).save()
-				}
-
-		[(Depot.RANGEERTERREIN_ID): 'Rangeerterrein',
-		 (Depot.SORTEERRUIMTE_ID) : 'Sorteerruimte',
-		 (Depot.THIRD_FLOOR_ID)   : '3rd floor',
-		 (Depot.FOURTH_FLOOR_ID)  : '4th floor',
-		 (Depot.FIFTH_FLOOR_ID)   : '5th floor',
-		 (Depot.REGIONAL_DESK_ID) : 'Regional Desk',
-		 (Depot.BG_DEPOT_ID)      : 'B&G depot',
-		 (Depot.ELSEWHERE_ID)     : 'Elsewhere',
-		 (Depot.ZERO_FLOOR_ID)    : '0th floor'].
-				each { Long id, String name ->
-					new Depot(id: id, name: name).save()
-				}
-
-		[(MaterialType.ARCHIVE_ID)      : [name: 'Archive', inMeters: true, inNumbers: false],
-		 (MaterialType.BOOKS_ID)        : [name: 'Books', inMeters: true, inNumbers: true],
-		 (MaterialType.PERIODICALS_ID)  : [name: 'Periodicals', inMeters: true, inNumbers: false],
-		 (MaterialType.MOVING_IMAGES_ID): [name: 'Moving images', inMeters: false, inNumbers: true],
-		 (MaterialType.EPHEMERA_ID)     : [name: 'Ephemeral', inMeters: true, inNumbers: false],
-		 (MaterialType.SOUND_ID)        : [name: 'Sound', inMeters: false, inNumbers: true],
-		 (MaterialType.POSTERS_ID)      : [name: 'Posters', inMeters: false, inNumbers: true],
-		 (MaterialType.DRAWINGS_ID)     : [name: 'Drawings', inMeters: false, inNumbers: true],
-		 (MaterialType.PHOTOS_ID)       : [name: 'Photos', inMeters: false, inNumbers: true],
-		 (MaterialType.OTHER_UNKNOWN_ID)        : [name: 'Other', inMeters: false, inNumbers: true]].
-				each { Long id, Map materialType ->
-					if (!MaterialType.get(id)) {
-						new MaterialType([id: id] + materialType).save()
-					}
-				}
-
-		[(Status.NOT_PROCESSED_ID)    : 'Not processed',
-		 (Status.IN_PROCESS_ID)       : 'In process',
-		 (Status.PROCESSED_ID)        : 'Processed',
-		 (Status.WONT_BE_PROCESSED_ID): 'Won\'t be processed'].
-				each { Long id, String status ->
-					new Status(id: id, status: status).save()
-				}
-
-		[Authority.ROLE_SUPER_ADMIN, Authority.ROLE_ADMIN, Authority.ROLE_USER].
-				each { String role ->
-					new Authority(authority: role).save()
-				}
 	}
 }

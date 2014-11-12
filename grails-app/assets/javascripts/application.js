@@ -74,6 +74,23 @@
 		location.href = $(this).find('.table-click-link').text();
 	};
 
+    var onRowCheckboxClick = function (e) {
+        if (e.target.type !== 'checkbox') {
+            $(':checkbox', this).trigger('click');
+        }
+    };
+
+    var onCheckboxClick = function (e) {
+        var checkbox = $(this);
+
+        if (checkbox.is(':checked')) {
+            checkbox.parents('tr').addClass('info');
+        }
+        else {
+            checkbox.parents('tr').removeClass('info');
+        }
+    };
+
 	var onHoldSor = function (e) {
 		if ($(this).is(':checked')) {
 			$('#startProcess').attr('checked', false);
@@ -98,6 +115,8 @@
 		$('.btn-delete').click(deleteCollection);
 
 		$('table.table-click > tbody > tr').click(onRowClick);
+        $('table.checkbox-click > tbody > tr').click(onRowCheckboxClick);
+        $('table.checkbox-click input[type=\'checkbox\']').change(onCheckboxClick);
 
 		$('#onHold').change(onHoldSor);
 		$('#startProcess').change(startProcessSor);

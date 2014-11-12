@@ -21,6 +21,7 @@ class CollectionSearchCommand {
 	Boolean collectionLevelReady
 	List<Long> analog
 	List<Long> digital
+	List<Long> misc
 	List<Integer> priority
 	List<Integer> level
 
@@ -66,9 +67,31 @@ class CollectionSearchCommand {
 		getAsListOfValues(property).each { String value ->
 			// Find all repeating wildcards and replace them by a single wildcard
 			value = value.replaceAll('(\\*)\\1+', '*')
-			// If the value is only a single wildcard, ignore it
-			if (!value.equals('*')) {
-				values << value.replace('*', '%')
+			// Anything else but alphanumeric characters and the wildcard character is not allowed
+			value = value.replaceAll('[^\\p{Alnum}\\*]', '')
+
+			// If the value is empty or only a single wildcard, ignore it
+			if (!value.isEmpty() && !value.equals('*')) {
+				// Match the start of a word, unless a wildcard was placed there
+				if (!value.startsWith('*')) {
+					value = '[[:<:]]' + value
+				}
+				else {
+					value = value.substring(1)
+				}
+
+				// Match the end of a word, unless a wildcard was placed there
+				if (!value.endsWith('*')) {
+					value = value + '[[:>:]]'
+				}
+				else {
+					value = value.substring(0, value.length() - 1)
+				}
+
+				// Now replace all occurrences of a wildcard inside a word
+				value = value.replace('*', '[[:alnum:]]*')
+
+				values << value
 			}
 		}
 
@@ -93,6 +116,7 @@ class CollectionSearchCommand {
 		collectionSearch = new CollectionLevelReadyCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new AnalogMaterialCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new DigitalMaterialCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new MiscMaterialCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new PriorityCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new LevelCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new SortCollectionSearchDecorator(collectionSearch)
@@ -120,6 +144,7 @@ class CollectionSearchCommand {
 				collectionLevelReady: null,
 				analog              : null,
 				digital             : null,
+				misc               : null,
 				priority            : null,
 				level               : null,
 				sort                : null,

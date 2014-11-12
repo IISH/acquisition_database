@@ -1,5 +1,6 @@
 package org.iish.acquisition.export
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle
 import org.apache.poi.hssf.usermodel.HSSFFont
 import org.apache.poi.hssf.usermodel.HSSFSheet
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
@@ -7,8 +8,18 @@ import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.CreationHelper
 import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.ss.util.WorkbookUtil
-import org.iish.acquisition.domain.*
+import org.iish.acquisition.domain.AnalogMaterial
+import org.iish.acquisition.domain.AnalogMaterialCollection
+import org.iish.acquisition.domain.AnalogUnit
+import org.iish.acquisition.domain.Collection
+import org.iish.acquisition.domain.DigitalMaterialCollection
+import org.iish.acquisition.domain.Location
+import org.iish.acquisition.domain.MaterialType
+import org.iish.acquisition.domain.MiscMaterial
+import org.iish.acquisition.domain.MiscMaterialCollection
+import org.iish.acquisition.domain.MiscMaterialType
 import org.iish.acquisition.search.CollectionSearch
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder as LCH
@@ -19,6 +30,11 @@ import java.text.SimpleDateFormat
  * Builds an Excel (xls) export of all collections for a search request.
  */
 class CollectionXlsExport {
+	private static final int NUMBER_OF_HEADERS = 2
+	private static final int HEADER_ROW_GROUPING = 0
+	private static final int HEADER_ROW_LABELS = 1
+	private static final int COLUMN_MAX_WIDTH = 10000
+
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat('yyyy-MM-dd')
 
 	private HSSFWorkbook workbook
@@ -26,11 +42,14 @@ class CollectionXlsExport {
 
 	private List<Collection> collections
 	private List<MaterialType> materials
+	private List<MiscMaterialType> miscMaterials
 
 	private Integer maxNumberOfLocations = 0
 	private MessageSource messageSource
 
-	private CellStyle headerStyle
+	private CellStyle headerGroupingStyle
+	private CellStyle headerLabelsStyle
+	private CellStyle textStyle
 	private CellStyle dateStyle
 
 	/**
@@ -44,11 +63,13 @@ class CollectionXlsExport {
 
 		this.collections = collectionSearch.getResults() as List<Collection>
 		this.materials = MaterialType.list()
+		this.miscMaterials = MiscMaterialType.list()
 
 		this.messageSource = messageSource
 
 		determineMaxNumberOfLocations()
 		createHeaderStyle()
+		createTextStyle()
 		createDateStyle()
 	}
 
@@ -59,7 +80,7 @@ class CollectionXlsExport {
 		int noOfColumns = createHeader()
 
 		collections.eachWithIndex { Collection collection, int i ->
-			createRow(collection, ++i)
+			createRow(collection, (NUMBER_OF_HEADERS + i))
 		}
 
 		autoSizeColumns(noOfColumns)
@@ -106,11 +127,27 @@ class CollectionXlsExport {
 	 * Creates the style necessary for the header.
 	 */
 	private void createHeaderStyle() {
-		HSSFFont headerFont = workbook.createFont()
-		headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD)
+		headerGroupingStyle = workbook.createCellStyle()
+		headerLabelsStyle = workbook.createCellStyle()
 
-		headerStyle = workbook.createCellStyle()
-		headerStyle.setFont(headerFont)
+		[headerGroupingStyle, headerLabelsStyle].each { CellStyle cellStyle ->
+			HSSFFont headerFont = workbook.createFont()
+			headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD)
+
+			cellStyle.setFont(headerFont)
+			cellStyle.setAlignment(CellStyle.ALIGN_CENTER_SELECTION)
+		}
+
+		headerGroupingStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN)
+		headerGroupingStyle.setBorderRight(HSSFCellStyle.BORDER_THIN)
+	}
+
+	/**
+	 * Creates the style necessary for text cells (wrapping of text).
+	 */
+	private void createTextStyle() {
+		textStyle = workbook.createCellStyle()
+		textStyle.setWrapText(true)
 	}
 
 	/**
@@ -129,9 +166,49 @@ class CollectionXlsExport {
 	 * @return The number of columns necessary.
 	 */
 	private int createHeader() {
-		Row row = sheet.createRow(0)
-		sheet.createFreezePane(0, 1)
+		Row groupingRow = sheet.createRow(HEADER_ROW_GROUPING)
+		Row labelsRow = sheet.createRow(HEADER_ROW_LABELS)
+		sheet.createFreezePane(0, NUMBER_OF_HEADERS)
 
+		createHeaderWithGrouping(groupingRow)
+		int nrColumns = createHeaderWithLabels(labelsRow)
+
+		return nrColumns
+	}
+
+	/**
+	 * Creates the header row of the Excel export with the grouping.
+	 * @param row The header row.
+	 */
+	private void createHeaderWithGrouping(Row row) {
+		int totalMaterialTypes = MaterialType.getTotalNumberOfUniqueTypes()
+
+		int indexStart = 0
+		int indexAnalog = indexStart + 5 + maxNumberOfLocations
+		int indexDigital = indexAnalog + totalMaterialTypes
+		int indexMisc = indexDigital + materials.size() + 2
+		int indexRemaining = indexMisc + miscMaterials.size()
+		int indexEnd = indexRemaining + 15
+
+		setHeaderCell(row, indexStart, '')
+		setHeaderCell(row, indexAnalog, 'collection.analogMaterialCollection.extended.label')
+		setHeaderCell(row, indexDigital, 'collection.digitalMaterialCollection.extended.label')
+		setHeaderCell(row, indexMisc, 'collection.miscMaterialCollection.extended.label')
+		setHeaderCell(row, indexRemaining, '')
+
+		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexStart, indexAnalog - 1))
+		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexAnalog, indexDigital - 1))
+		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexDigital, indexMisc - 1))
+		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexMisc, indexRemaining - 1))
+		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexRemaining, indexEnd - 1))
+	}
+
+	/**
+	 * Creates the header row of the Excel export with the labels.
+	 * @param row The header row.
+	 * @return The number of columns necessary.
+	 */
+	private int createHeaderWithLabels(Row row) {
 		int i = 0
 		setHeaderCell(row, i++, '#')
 		setHeaderCell(row, i++, 'collection.name.label')
@@ -146,19 +223,26 @@ class CollectionXlsExport {
 		}
 
 		materials.each { MaterialType materialType ->
-			setHeaderCell(row, i++, 'collection.analogMaterialCollection.extended.label',
-					materialType.getNameAnalog())
+			if (materialType.inMeters && materialType.inNumbers) {
+				setHeaderCell(row, i++, "${materialType.getNameAnalog()} (${AnalogUnit.METER})")
+				setHeaderCell(row, i++, "${materialType.getNameAnalog()} (${AnalogUnit.NUMBER})")
+			}
+			else {
+				setHeaderCell(row, i++, materialType.getNameAnalog())
+			}
 		}
 
 		materials.each { MaterialType materialType ->
-			setHeaderCell(row, i++, 'collection.digitalMaterialCollection.extended.label',
-					materialType.getNameDigital())
+			setHeaderCell(row, i++, materialType.getNameDigital())
 		}
 
-		setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfFiles.extended.label')
-		setHeaderCell(row, i++, 'digitalMaterialCollection.totalSize.extended.label')
-		setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfDiskettes.label')
-		setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfOpticalDisks.label')
+		setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfFiles.export.label')
+		setHeaderCell(row, i++, 'digitalMaterialCollection.totalSize.label')
+
+		miscMaterials.each { MiscMaterialType materialType ->
+			setHeaderCell(row, i++, materialType.name)
+		}
+
 		setHeaderCell(row, i++, 'collection.content.label')
 		setHeaderCell(row, i++, 'collection.listsAvailable.label')
 		setHeaderCell(row, i++, 'collection.toBeDone.label')
@@ -187,7 +271,15 @@ class CollectionXlsExport {
 	private void setHeaderCell(Row row, int columnNumber, String code, String... messageArgs) {
 		Cell cell = row.createCell(columnNumber)
 		cell.setCellValue(messageSource.getMessage(code, messageArgs, code, LCH.getLocale()))
-		cell.setCellStyle(headerStyle)
+
+		switch (row.getRowNum()) {
+			case HEADER_ROW_GROUPING:
+				cell.setCellStyle(headerGroupingStyle)
+				break
+			case HEADER_ROW_LABELS:
+				cell.setCellStyle(headerLabelsStyle)
+				break
+		}
 	}
 
 	/**
@@ -203,6 +295,7 @@ class CollectionXlsExport {
 		int noOfEmptyCells = maxNumberOfLocations - locations.size()
 		DigitalMaterialCollection digitalMaterialCollection = collection.digitalMaterialCollection
 		AnalogMaterialCollection analogMaterialCollection = collection.analogMaterialCollection
+		MiscMaterialCollection miscMaterialCollection = collection.miscMaterialCollection
 
 		setDataCellWithNumber(row, i++, collection.id)
 		setDataCellWithText(row, i++, collection.name)
@@ -222,12 +315,22 @@ class CollectionXlsExport {
 		}
 
 		materials.each { MaterialType materialType ->
-			Set<AnalogMaterial> analogMaterials = analogMaterialCollection?.getMaterialsByType(materialType)
-			if (!analogMaterials) {
-				analogMaterials = []
-			}
+			if (materialType.inMeters && materialType.inNumbers) {
+				AnalogMaterial analogMeter = analogMaterialCollection?.
+						getMaterialByTypeAndUnit(materialType, AnalogUnit.METER)
+				AnalogMaterial analogNumber = analogMaterialCollection?.
+						getMaterialByTypeAndUnit(materialType, AnalogUnit.NUMBER)
 
-			setDataCellWithText(row, i++, analogMaterials.collect { "${it.sizeToString()} $it.unit" }.join(', '))
+				setDataCellWithNumber(row, i++, analogMeter?.size)
+				setDataCellWithNumber(row, i++, analogNumber?.size)
+			}
+			else {
+				Set<AnalogMaterial> analogMaterials = analogMaterialCollection?.getMaterialsByType(materialType)
+				AnalogMaterial analogMaterial = (analogMaterials && !analogMaterials.isEmpty()) ?
+						analogMaterials.first() : null
+
+				setDataCellWithNumber(row, i++, analogMaterial?.size)
+			}
 		}
 
 		materials.each { MaterialType materialType ->
@@ -236,10 +339,14 @@ class CollectionXlsExport {
 		}
 
 		setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfFiles)
-		setDataCellWithText(row, i++, digitalMaterialCollection ?
-				"${digitalMaterialCollection.totalSizeToString()} ${digitalMaterialCollection.unit}" : '')
-		setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfDiskettes)
-		setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfOpticalDisks)
+		setDataCellWithText(row, i++,
+				digitalMaterialCollection ? digitalMaterialCollection.totalSizeToStringWithUnit() : '')
+
+		miscMaterials.each { MiscMaterialType materialType ->
+			MiscMaterial material = miscMaterialCollection?.getMaterialByType(materialType)
+			setDataCellWithNumber(row, i++, material?.size)
+		}
+
 		setDataCellWithText(row, i++, collection.content)
 		setDataCellWithText(row, i++, collection.listsAvailable)
 		setDataCellWithText(row, i++, collection.toBeDone)
@@ -267,6 +374,7 @@ class CollectionXlsExport {
 		Cell cell = row.createCell(columnNumber)
 		if (!checkEmpty(cell, value)) {
 			cell.setCellValue(value)
+			cell.setCellStyle(textStyle)
 		}
 	}
 
@@ -304,6 +412,11 @@ class CollectionXlsExport {
 	private void autoSizeColumns(int noOfColumns) {
 		(0..noOfColumns).each { int column ->
 			sheet.autoSizeColumn(column)
+
+			int width = sheet.getColumnWidth(column)
+			if (width > COLUMN_MAX_WIDTH) {
+				sheet.setColumnWidth(column, COLUMN_MAX_WIDTH)
+			}
 		}
 	}
 

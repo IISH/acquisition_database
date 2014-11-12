@@ -19,20 +19,15 @@ class KeywordCollectionSearchDecorator extends CollectionSearchDecorator {
 		getCollectionSearchCommand().getAsListOfValuesAdvanced('keyword').eachWithIndex { it, i ->
 			List<String> whereOr = []
 
-			// Each keyword has to be matched with each property four times, see comment in getParameters()
-			for (int j=0; j<4; j++) {
-				whereOr << "c.name LIKE :keywordName$i$j"
-				whereOr << "c.content LIKE :keywordContent$i$j"
-				whereOr << "c.listsAvailable LIKE :keywordListsAvailable$i$j"
-				whereOr << "c.toBeDone LIKE :keywordToBeDone$i$j"
-				whereOr << "c.owner LIKE :keywordOwner$i$j"
-				whereOr << "c.contactPerson LIKE :keywordContactPerson$i$j"
-				whereOr << "c.remarks LIKE :keywordRemarks$i$j"
-				whereOr << "c.originalPackageTransport LIKE :keywordOriginalPackageTransport$i$j"
-
-				whereOr << "l.cabinet LIKE :keywordCabinet$i$j"
-				whereOr << "l.shelf LIKE :keywordShelf$i$j"
-			}
+			whereOr << "REGEXP(c.name, :keywordName$i) = 1"
+			whereOr << "REGEXP(c.content, :keywordContent$i) = 1"
+			whereOr << "REGEXP(c.listsAvailable, :keywordListsAvailable$i) = 1"
+			whereOr << "REGEXP(c.toBeDone, :keywordToBeDone$i) = 1"
+			whereOr << "REGEXP(c.owner, :keywordOwner$i) = 1"
+			whereOr << "REGEXP(c.contactPerson, :keywordContactPerson$i) = 1"
+			whereOr << "REGEXP(c.remarks, :keywordRemarks$i) = 1"
+			whereOr << "REGEXP(c.originalPackageTransport, :keywordOriginalPackageTransport$i) = 1"
+			whereOr << "REGEXP(l.cabinet, :keywordCabinet$i) = 1"
 
 			where << "(${whereOr.join(' OR ')})"
 		}
@@ -48,25 +43,15 @@ class KeywordCollectionSearchDecorator extends CollectionSearchDecorator {
 	protected Map<String, Object> getParameters() {
 		Map<String, Object> parameters = super.getParameters()
 		getCollectionSearchCommand().getAsListOfValuesAdvanced('keyword').eachWithIndex { it, i ->
-			// We have to match a single word, however, this word may appear (0) at the end, (1) at the start,
-			// (2) somewhere in the middle or (3) it is the only word in the text.
-			String[] values = ["% $it", "$it %", "% $it %", it]
-
-			for (int j=0; j<4; j++) {
-				String value = values[j]
-
-				parameters << ["keywordName$i$j": value]
-				parameters << ["keywordContent$i$j": value]
-				parameters << ["keywordListsAvailable$i$j": value]
-				parameters << ["keywordToBeDone$i$j": value]
-				parameters << ["keywordOwner$i$j": value]
-				parameters << ["keywordContactPerson$i$j": value]
-				parameters << ["keywordRemarks$i$j": value]
-				parameters << ["keywordOriginalPackageTransport$i$j": value]
-
-				parameters << ["keywordCabinet$i$j": value]
-				parameters << ["keywordShelf$i$j": value]
-			}
+			parameters << ["keywordName$i": it]
+			parameters << ["keywordContent$i": it]
+			parameters << ["keywordListsAvailable$i": it]
+			parameters << ["keywordToBeDone$i": it]
+			parameters << ["keywordOwner$i": it]
+			parameters << ["keywordContactPerson$i": it]
+			parameters << ["keywordRemarks$i": it]
+			parameters << ["keywordOriginalPackageTransport$i": it]
+			parameters << ["keywordCabinet$i": it]
 		}
 
 		return parameters

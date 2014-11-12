@@ -23,16 +23,21 @@
 
 <g:if test="${actionName == 'edit'}">
     <div class="row content-menu top hidden-print">
-        <div class="col-xs-17">
+        <div class="col-xs-3">
+            <g:link action="list" params="${request.getAttribute('queryParams')}" class="btn btn-default btn-back">
+                &leftarrow; <g:message code="default.button.back.label"/>
+            </g:link>
+        </div>
+
+        <div class="col-xs-14">
             <g:prevNextPager collectionSearchCommand="${collectionSearchCommand}"/>
         </div>
 
         <div class="col-xs-7 text-right">
-            <g:link action="email" id="${params.id}" params="${request.getAttribute('queryParams')}"
-                    class="btn btn-default btn-email">
+            <button data-toggle="modal" data-target="#emailModal" class="btn btn-default">
                 <span class="glyphicon glyphicon-envelope"></span>
                 <g:message code="default.button.email.label"/>
-            </g:link>
+            </button>
 
             <g:link action="print" id="${params.id}" params="${request.getAttribute('queryParams')}"
                     class="btn btn-default btn-print">
@@ -106,21 +111,15 @@
 
     <div class="col-xs-20 elements">
         <div class="row control-label">
-            <div class="col-xs-6">
+            <div class="col-xs-8">
                 <label>
                     <g:message code="location.depot.label"/>
                 </label>
             </div>
 
-            <div class="col-xs-10">
+            <div class="col-xs-14">
                 <label>
                     <g:message code="location.cabinet.label"/>
-                </label>
-            </div>
-
-            <div class="col-xs-6">
-                <label>
-                    <g:message code="location.shelf.label"/>
                 </label>
             </div>
         </div>
@@ -131,21 +130,16 @@
                     <input type="hidden" id="collection.location[${i}].id" name="collection.location[${i}].id"
                            value="${location.id}"/>
 
-                    <div class="col-xs-6">
+                    <div class="col-xs-8">
                         <g:select id="collection.location[${i}].depot" name="collection.location[${i}].depot"
                                   class="form-control" from="${depots}" value="${location.depot?.id}" optionKey="id"
                                   optionValue="name" noSelection="${['null': '']}"/>
                     </div>
 
-                    <div class="col-xs-10">
+                    <div class="col-xs-14">
                         <input type="text" id="collection.location[${i}].cabinet"
                                name="collection.location[${i}].cabinet" class="form-control"
                                value="${location.cabinet}"/>
-                    </div>
-
-                    <div class="col-xs-6">
-                        <input type="text" id="collection.location[${i}].shelf" name="collection.location[${i}].shelf"
-                               class="form-control" value="${location.shelf}"/>
                     </div>
 
                     <div class="col-xs-2">
@@ -173,21 +167,16 @@
         <div class="form-group removable hidden">
             <input type="hidden" id="collection.location[].id" name="collection.location[].id" value=""/>
 
-            <div class="col-xs-6">
+            <div class="col-xs-8">
                 <g:select id="collection.location[].depot" name="collection.location[].depot"
                           class="form-control" from="${depots}" value="" optionKey="id"
                           optionValue="name" noSelection="${['null': '']}"/>
             </div>
 
-            <div class="col-xs-10">
+            <div class="col-xs-14">
                 <input type="text" id="collection.location[].cabinet"
                        name="collection.location[].cabinet" class="form-control"
                        value=""/>
-            </div>
-
-            <div class="col-xs-6">
-                <input type="text" id="collection.location[].shelf" name="collection.location[].shelf"
-                       class="form-control" value=""/>
             </div>
 
             <div class="col-xs-2">
@@ -200,186 +189,210 @@
 </div>
 
 <div class="form-group form-group-nested">
-    <label class="col-xs-4 control-label">
-        <g:message code="collection.materialCollections.label"/>
-        <span class="required">*</span>
-    </label>
+<label class="col-xs-4 control-label">
+    <g:message code="collection.materialCollections.label"/>
+    <span class="required">*</span>
+</label>
 
-    <div class="col-xs-20">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <g:message code="collection.analogMaterialCollection.label"/>
-            </div>
-
-            <div class="panel-body form-control-listing">
-                <g:if test="${true}">
-                    <div class="row">
-                </g:if>
-
-                <g:each in="${materialTypes}" var="materialType" status="i">
-                    <g:if test="${(i % 2 == 0) && (i > 0)}">
-                        <div class="row">
-                    </g:if>
-
-                    <g:set var="materialMeter" value="${collection.analogMaterialCollection?.
-                            getMaterialByTypeAndUnit(materialType, AnalogUnit.METER)}"/>
-                    <g:set var="materialNumber" value="${collection.analogMaterialCollection?.
-                            getMaterialByTypeAndUnit(materialType, AnalogUnit.NUMBER)}"/>
-
-                    <div class="col-xs-5">
-                        <div class="checkbox">
-                            <label for="collection.analogMaterialCollection[${i}].materialType">
-                                <input type="hidden" name="collection.analogMaterialCollection[${i}].materialTypeId"
-                                       value="${materialType.id}"/>
-                                <g:checkBox id="collection.analogMaterialCollection[${i}].materialType"
-                                            name="collection.analogMaterialCollection[${i}].materialType"
-                                            value="${materialType.id}"
-                                            checked="${materialMeter?.isSelected || materialNumber?.isSelected}"/>
-                                ${materialType.getNameAnalog()}
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="col-xs-7">
-                        <div class="form-group">
-                            <g:if test="${materialType.inMeters}">
-                                <input type="text" id="collection.analogMaterialCollection[${i}].meterSize"
-                                       name="collection.analogMaterialCollection[${i}].meterSize"
-                                       class="form-control form-control-small"
-                                       value="${materialMeter?.sizeToString()}"/>
-                                <span class="control-label">${AnalogUnit.METER}</span>
-                            </g:if>
-                            <g:if test="${materialType.inMeters && materialType.inNumbers}">
-                                /
-                            </g:if>
-                            <g:if test="${materialType.inNumbers}">
-                                <input type="text" id="collection.analogMaterialCollection[${i}].numberSize"
-                                       name="collection.analogMaterialCollection[${i}].numberSize"
-                                       class="form-control form-control-small"
-                                       value="${materialNumber?.sizeToString()}"/>
-                                <span class="control-label">${AnalogUnit.NUMBER}</span>
-                            </g:if>
-                        </div>
-                    </div>
-
-                    <g:if test="${i % 2 == 1}">
-                        </div>
-                    </g:if>
-                </g:each>
-
-                <g:if test="${materialTypes.size() % 2 == 1}">
-                    </div>
-                </g:if>
-            </div>
+<div class="col-xs-20">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <g:message code="collection.analogMaterialCollection.label"/>
         </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <g:message code="collection.digitalMaterialCollection.label"/>
-            </div>
+        <div class="panel-body form-control-listing">
+            <g:if test="${true}">
+                <div class="row">
+            </g:if>
 
-            <div class="panel-body form-control-listing">
-                <g:if test="${true}">
+            <g:each in="${materialTypes}" var="materialType" status="i">
+                <g:if test="${(i % 2 == 0) && (i > 0)}">
                     <div class="row">
                 </g:if>
 
-                <g:each in="${materialTypes}" var="materialType" status="i">
-                    <g:set var="material"
-                           value="${collection.digitalMaterialCollection?.getMaterialByType(materialType)}"/>
+                <g:set var="materialMeter" value="${collection.analogMaterialCollection?.
+                        getMaterialByTypeAndUnit(materialType, AnalogUnit.METER)}"/>
+                <g:set var="materialNumber" value="${collection.analogMaterialCollection?.
+                        getMaterialByTypeAndUnit(materialType, AnalogUnit.NUMBER)}"/>
 
-                    <g:if test="${(i % 2 == 0) && (i > 0)}">
-                        <div class="row">
-                    </g:if>
-
-                    <div class="col-xs-6">
-                        <div class="checkbox">
-                            <label for="collection.digitalMaterialCollection[${i}].materialType">
-                                <g:checkBox id="collection.digitalMaterialCollection[${i}].materialType"
-                                            name="collection.digitalMaterialCollection[${i}].materialType"
-                                            value="${materialType.id}"
-                                            checked="${material}"/>
-                                ${materialType.getNameDigital()}
-                            </label>
-                        </div>
+                <div class="col-xs-5">
+                    <div class="checkbox">
+                        <label for="collection.analogMaterialCollection[${i}].materialType">
+                            <input type="hidden" name="collection.analogMaterialCollection[${i}].materialTypeId"
+                                   value="${materialType.id}"/>
+                            <g:checkBox id="collection.analogMaterialCollection[${i}].materialType"
+                                        name="collection.analogMaterialCollection[${i}].materialType"
+                                        value="${materialType.id}"
+                                        checked="${materialMeter?.isSelected || materialNumber?.isSelected}"/>
+                            ${materialType.getNameAnalog()}
+                        </label>
                     </div>
+                </div>
 
-                    <g:if test="${i == 1}">
-                        <div class="col-xs-12">
-                            <div class="form-group">
-                                <label for="collection.digitalMaterialCollection.numberOfFiles"
-                                       class="col-xs-10 control-label">
-                                    <g:message code="digitalMaterialCollection.numberOfFiles.label"/>
-                                </label>
-                                <input type="text" id="collection.digitalMaterialCollection.numberOfFiles"
-                                       name="collection.digitalMaterialCollection.numberOfFiles"
-                                       class="form-control form-control-medium"
-                                       value="${collection.digitalMaterialCollection?.numberOfFiles}"/>
-                                <span class="control-label">
-                                    <g:message code="digitalMaterialCollection.files.label"/>
-                                </span>
-                            </div>
-                        </div>
-                    </g:if>
+                <div class="col-xs-7">
+                    <div class="form-group">
+                        <g:if test="${materialType.inMeters}">
+                            <input type="text" id="collection.analogMaterialCollection[${i}].meterSize"
+                                   name="collection.analogMaterialCollection[${i}].meterSize"
+                                   class="form-control form-control-small"
+                                   value="${materialMeter?.sizeToString()}"/>
+                            <span class="control-label">${AnalogUnit.METER}</span>
+                        </g:if>
+                        <g:if test="${materialType.inMeters && materialType.inNumbers}">
+                            /
+                        </g:if>
+                        <g:if test="${materialType.inNumbers}">
+                            <input type="text" id="collection.analogMaterialCollection[${i}].numberSize"
+                                   name="collection.analogMaterialCollection[${i}].numberSize"
+                                   class="form-control form-control-small"
+                                   value="${materialNumber?.sizeToString()}"/>
+                            <span class="control-label">${AnalogUnit.NUMBER}</span>
+                        </g:if>
+                    </div>
+                </div>
 
-                    <g:if test="${i == 3}">
-                        <div class="col-xs-12">
-                            <div class="form-group">
-                                <label for="collection.digitalMaterialCollection.totalSize"
-                                       class="col-xs-10 control-label">
-                                    <g:message code="digitalMaterialCollection.totalSize.label"/>
-                                </label>
-                                <input type="text" id="collection.digitalMaterialCollection.totalSize"
-                                       name="collection.digitalMaterialCollection.totalSize"
-                                       class="form-control form-control-small"
-                                       value="${collection.digitalMaterialCollection?.totalSizeToString()}"/>
-                                <g:select id="collection.digitalMaterialCollection.unit"
-                                          name="collection.digitalMaterialCollection.unit"
-                                          class="form-control form-control-small" from="${byteUnits}"
-                                          value="${collection.digitalMaterialCollection?.unit?.id}" optionKey="id"
-                                          optionValue="name"/>
-                            </div>
-                        </div>
-                    </g:if>
-
-                    <g:if test="${i == 7}">
-                        <div class="col-xs-12">
-                            <div class="form-group">
-                                <input type="text" id="collection.digitalMaterialCollection.numberOfDiskettes"
-                                       name="collection.digitalMaterialCollection.numberOfDiskettes"
-                                       class="col-xs-offset-10 form-control form-control-small"
-                                       value="${collection.digitalMaterialCollection?.numberOfDiskettes}"/>
-                                <span class="control-label">
-                                    <g:message code="digitalMaterialCollection.numberOfDiskettes.lowercase.label"/>
-                                </span>
-                            </div>
-                        </div>
-                    </g:if>
-
-                    <g:if test="${i == 9}">
-                        <div class="col-xs-12">
-                            <div class="form-group">
-                                <input type="text" id="collection.digitalMaterialCollection.numberOfOpticalDisks"
-                                       name="collection.digitalMaterialCollection.numberOfOpticalDisks"
-                                       class="col-xs-offset-10 form-control form-control-small"
-                                       value="${collection.digitalMaterialCollection?.numberOfOpticalDisks}"/>
-                                <span class="control-label">
-                                    <g:message code="digitalMaterialCollection.numberOfOpticalDisks.lowercase.label"/>
-                                </span>
-                            </div>
-                        </div>
-                    </g:if>
-
-                    <g:if test="${i % 2 == 1}">
-                        </div>
-                    </g:if>
-                </g:each>
-
-                <g:if test="${materialTypes.size() % 2 == 1}">
+                <g:if test="${i % 2 == 1}">
                     </div>
                 </g:if>
-            </div>
+            </g:each>
+
+            <g:if test="${materialTypes.size() % 2 == 1}">
+                </div>
+            </g:if>
         </div>
     </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <g:message code="collection.digitalMaterialCollection.label"/>
+        </div>
+
+        <div class="panel-body form-control-listing">
+            <g:if test="${true}">
+                <div class="row">
+            </g:if>
+
+            <g:each in="${materialTypes}" var="materialType" status="i">
+                <g:set var="material"
+                       value="${collection.digitalMaterialCollection?.getMaterialByType(materialType)}"/>
+
+                <g:if test="${(i % 2 == 0) && (i > 0)}">
+                    <div class="row">
+                </g:if>
+
+                <div class="col-xs-6">
+                    <div class="checkbox">
+                        <label for="collection.digitalMaterialCollection[${i}].materialType">
+                            <g:checkBox id="collection.digitalMaterialCollection[${i}].materialType"
+                                        name="collection.digitalMaterialCollection[${i}].materialType"
+                                        value="${materialType.id}"
+                                        checked="${material}"/>
+                            ${materialType.getNameDigital()}
+                        </label>
+                    </div>
+                </div>
+
+                <g:if test="${i == 1}">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="collection.digitalMaterialCollection.numberOfFiles"
+                                   class="col-xs-10 control-label">
+                                <g:message code="digitalMaterialCollection.numberOfFiles.label"/>
+                            </label>
+                            <input type="text" id="collection.digitalMaterialCollection.numberOfFiles"
+                                   name="collection.digitalMaterialCollection.numberOfFiles"
+                                   class="form-control form-control-medium"
+                                   value="${collection.digitalMaterialCollection?.numberOfFilesToString()}"/>
+                            <span class="control-label">
+                                <g:message code="digitalMaterialCollection.files.label"/>
+                            </span>
+                        </div>
+                    </div>
+                </g:if>
+
+                <g:if test="${i == 3}">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="collection.digitalMaterialCollection.totalSize"
+                                   class="col-xs-10 control-label">
+                                <g:message code="digitalMaterialCollection.totalSize.label"/>
+                            </label>
+                            <input type="text" id="collection.digitalMaterialCollection.totalSize"
+                                   name="collection.digitalMaterialCollection.totalSize"
+                                   class="form-control form-control-small"
+                                   value="${collection.digitalMaterialCollection?.totalSizeToString()}"/>
+                            <g:select id="collection.digitalMaterialCollection.unit"
+                                      name="collection.digitalMaterialCollection.unit"
+                                      class="form-control form-control-small" from="${byteUnits}"
+                                      value="${collection.digitalMaterialCollection?.unit?.id}" optionKey="id"
+                                      optionValue="name"/>
+                        </div>
+                    </div>
+                </g:if>
+
+                <g:if test="${i % 2 == 1}">
+                    </div>
+                </g:if>
+            </g:each>
+
+            <g:if test="${materialTypes.size() % 2 == 1}">
+                </div>
+            </g:if>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <g:message code="collection.miscMaterialCollection.label"/>
+        </div>
+
+        <div class="panel-body form-control-listing">
+            <g:if test="${true}">
+                <div class="row">
+            </g:if>
+
+            <g:each in="${miscMaterialTypes}" var="materialType" status="i">
+                <g:if test="${(i % 2 == 0) && (i > 0)}">
+                    <div class="row">
+                </g:if>
+
+                <g:set var="material" value="${collection.miscMaterialCollection?.getMaterialByType(materialType)}"/>
+
+                <div class="col-xs-6">
+                    <div class="checkbox">
+                        <label for="collection.miscMaterialCollection[${i}].materialType">
+                            <input type="hidden" name="collection.miscMaterialCollection[${i}].materialTypeId"
+                                   value="${materialType.id}"/>
+                            <g:checkBox id="collection.miscMaterialCollection[${i}].materialType"
+                                        name="collection.miscMaterialCollection[${i}].materialType"
+                                        value="${materialType.id}"
+                                        checked="${material?.isSelected}"/>
+                            ${materialType.name}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <input type="text" id="collection.miscMaterialCollection[${i}].size"
+                               name="collection.miscMaterialCollection[${i}].size"
+                               class="form-control form-control-small"
+                               value="${material?.size}"/>
+                        <span class="control-label">${AnalogUnit.NUMBER.toString()}</span>
+                    </div>
+                </div>
+
+                <g:if test="${i % 2 == 1}">
+                    </div>
+                </g:if>
+            </g:each>
+
+            <g:if test="${materialTypes.size() % 2 == 1}">
+                </div>
+            </g:if>
+        </div>
+    </div>
+</div>
 </div>
 
 <div class="form-group">
@@ -779,5 +792,47 @@
     </div>
 </div>
 </form>
+
+<g:if test="${actionName == 'edit'}">
+    <div id="emailModal" class="modal fade hidden-print" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <form role="form" method="post" action="${g.createLink(controller: 'collection', action: 'email',
+                        params: request.getAttribute('queryParams'))}">
+                    <input type="hidden" name="id" value="${collection.id}"/>
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            <g:message code="email.select.recipients.message"/>
+                        </h4>
+                    </div>
+
+                    <table class="modal-body table table-condensed table-striped table-hover checkbox-click">
+                        <tbody>
+                        <g:each in="${recipients}" var="user">
+                            <tr>
+                                <td><g:checkBox name="recipients" value="${user.id}" checked="${false}"/></td>
+                                <td>${user.toString()}</td>
+                            </tr>
+                        </g:each>
+                        </tbody>
+                    </table>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">
+                            <g:message code="default.button.email.label"/>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</g:if>
 </body>
 </html>

@@ -210,6 +210,9 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 			LEFT JOIN c.digitalMaterialCollection AS dmc
 			LEFT JOIN dmc.materials AS dm
 			LEFT JOIN dm.materialType AS dmt
+			LEFT JOIN c.miscMaterialCollection AS mmc
+			LEFT JOIN mmc.materials AS mm
+			LEFT JOIN mm.materialType AS mmt
 			LEFT JOIN c.locations AS l
 			LEFT JOIN l.depot AS d
 			$whereQuery
@@ -257,6 +260,9 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 			LEFT JOIN $fetch c_main.digitalMaterialCollection AS dmc_main
 			LEFT JOIN $fetch dmc_main.materials AS dm_main
 			LEFT JOIN $fetch dm_main.materialType AS dmt_main
+			LEFT JOIN $fetch c_main.miscMaterialCollection AS mmc_main
+			LEFT JOIN $fetch mmc_main.materials AS mm_main
+			LEFT JOIN $fetch mm_main.materialType AS mmt_main
 			LEFT JOIN $fetch c_main.locations AS l_main
 			LEFT JOIN $fetch l_main.depot AS d_main
 			LEFT JOIN $fetch c_main.ingestDepotStatus AS ids_main

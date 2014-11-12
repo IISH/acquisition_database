@@ -5,7 +5,6 @@ package org.iish.acquisition.domain
  */
 class Location {
 	String cabinet
-	String shelf
 
 	static belongsTo = [
 			collection: Collection,
@@ -15,7 +14,6 @@ class Location {
 	static constraints = {
 		depot nullable: true
 		cabinet nullable: true, maxSize: 1000
-		shelf nullable: true, maxSize: 255
 	}
 
 	static mapping = {
@@ -30,7 +28,7 @@ class Location {
 	 * @return Whether this location is empty.
 	 */
 	boolean isEmpty() {
-		return (!depot && !cabinet && !shelf)
+		return (!depot && !cabinet)
 	}
 
 	/**
@@ -44,9 +42,6 @@ class Location {
 		}
 		if (cabinet) {
 			details << cabinet
-		}
-		if (shelf) {
-			details << shelf
 		}
 
 		return details.join(', ')

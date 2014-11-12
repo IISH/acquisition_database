@@ -71,6 +71,17 @@ class MaterialType {
 		return messageSource.getMessage("materialType.name.${id}.digital".toString(), new Object[0], LCH.locale)
 	}
 
+	/**
+	 * Returns the total number of unique material types,
+	 * if you take the meters and numbers separately.
+	 * @return The total number.
+	 */
+	static int getTotalNumberOfUniqueTypes() {
+		List<Integer> meters = list().collect { it.inMeters ? 1 : 0 }
+		List<Integer> numbers = list().collect { it.inNumbers ? 1 : 0 }
+		return (int) (meters + numbers).sum()
+	}
+
 	@Override
 	String toString() {
 		return name
