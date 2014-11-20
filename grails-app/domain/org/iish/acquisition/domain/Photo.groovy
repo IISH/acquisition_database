@@ -1,5 +1,7 @@
 package org.iish.acquisition.domain
 
+import org.iish.acquisition.util.PrinterUtil
+
 import java.math.RoundingMode
 
 /**
@@ -52,19 +54,7 @@ class Photo {
 	 * @return The file size.
 	 */
 	String getReadableFileSize() {
-		if (!size) {
-			return '0 bytes'
-		}
-
-		if (size / 1024 > 1) {
-			if (size / 1048576 > 1) {
-				return "${(size / 1048576).setScale(2, RoundingMode.HALF_UP)} MB"
-			}
-
-			return "${(size / 1024).setScale(2, RoundingMode.HALF_UP)} KB"
-		}
-
-		return "${size} bytes"
+		return PrinterUtil.printFileSize(size)
 	}
 
 	@Override

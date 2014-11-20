@@ -80,7 +80,7 @@
         }
     };
 
-    var onCheckboxClick = function (e) {
+    var onCheckboxChange = function (e) {
         var checkbox = $(this);
 
         if (checkbox.is(':checked')) {
@@ -89,6 +89,15 @@
         else {
             checkbox.parents('tr').removeClass('info');
         }
+    };
+
+    var onCheckboxCheckAll = function (e) {
+        var checkbox = $(this);
+        var isChecked = checkbox.is(':checked');
+
+        checkbox.parents('table').find('tbody input[type=\'checkbox\']').each(function () {
+            $(this).prop('checked', isChecked).trigger('change');
+        });
     };
 
     var onHoldSor = function (e) {
@@ -116,7 +125,8 @@
 
         $('table.table-click > tbody > tr').click(onRowClick);
         $('table.checkbox-click > tbody > tr').click(onRowCheckboxClick);
-        $('table.checkbox-click input[type=\'checkbox\']').change(onCheckboxClick);
+        $('table.checkbox-click > tbody input[type=\'checkbox\']').change(onCheckboxChange);
+        $('table .checkAll').change(onCheckboxCheckAll);
 
         $('#onHold').change(onHoldSor);
         $('#startProcess').change(startProcessSor);

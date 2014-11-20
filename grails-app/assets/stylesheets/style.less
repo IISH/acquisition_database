@@ -32,7 +32,7 @@
 }
 
 .content-menu {
-  .pagination, .pager {
+  .pagination, .pager, .breadcrumb {
     margin: 0;
   }
 
@@ -145,8 +145,15 @@ table {
 
   &.table-click,
   &.checkbox-click {
-    tbody tr {
-      cursor: pointer;
+    tbody {
+      tr {
+        cursor: pointer;
+        td {
+          &.column-checkbox {
+            width: 70px;
+          }
+        }
+      }
     }
   }
 

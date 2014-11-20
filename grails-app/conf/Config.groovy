@@ -96,12 +96,11 @@ grails.assets.plugin."twitter-bootstrap".includes = ["bootstrap.less"]
 
 grails.plugins.twitterbootstrap.fixtaglib = true
 
-// ingest depot settings
-ingestDepot.contentType.virusReport = 'text/plain'
-ingestDepot.extension.virusReport = 'txt'
-
-ingestDepot.contentType.fileIdentificationReport = 'text/plain'
-ingestDepot.extension.fileIdentificationReport = 'txt'
+// Default ingest depot settings
+ingestDepot.ftp.host = 'localhost'
+ingestDepot.ftp.port = 21
+ingestDepot.ftp.username = ''
+ingestDepot.ftp.password = ''
 
 // Make sure grails.config.locations is initialized
 if (!grails.config.locations || !(grails.config.locations instanceof Collection)) {
