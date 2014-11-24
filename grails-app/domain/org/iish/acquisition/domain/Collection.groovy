@@ -35,7 +35,7 @@ class Collection {
 	]
 
 	static hasOne = [
-			ingestDepotStatus        : IngestDepotStatus,
+			digitalMaterialStatus    : DigitalMaterialStatus,
 			analogMaterialCollection : AnalogMaterialCollection,
 			digitalMaterialCollection: DigitalMaterialCollection,
 			miscMaterialCollection   : MiscMaterialCollection
@@ -68,7 +68,7 @@ class Collection {
 		contract nullable: true
 		appraisal nullable: true
 
-		ingestDepotStatus nullable: true
+		digitalMaterialStatus nullable: true
 		analogMaterialCollection nullable: true
 		digitalMaterialCollection nullable: true, validator: { val, obj ->
 			if (!val && !obj.analogMaterialCollection) {
@@ -92,7 +92,7 @@ class Collection {
 		locations cascade: 'all-delete-orphan', sort: 'depot'
 		photos cascade: 'all-delete-orphan'
 
-		ingestDepotStatus fetch: 'join'
+		digitalMaterialStatus fetch: 'join'
 		analogMaterialCollection fetch: 'join'
 		digitalMaterialCollection fetch: 'join'
 		miscMaterialCollection fetch: 'join'
@@ -129,23 +129,13 @@ class Collection {
 	}
 
 	/**
-	 * Returns a list of digital material collections without a folder on the ingest depot server.
-	 * @return A list of matching collections.
-	 */
-	static List<Collection> getWithoutFolder() {
-		where {
-			ingestDepotStatus.statusCode == IngestDepotStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION
-		}.list()
-	}
-
-	/**
 	 * After each insert or update, check if digital material was entered.
-	 * If so, make sure a PID is created and the ingest depot status can be tracked.
+	 * If so, make sure a PID is created and the digital material status can be tracked.
 	 */
 	private void afterInsertOrUpdate() {
-		if (digitalMaterialCollection && (!objectRepositoryPID || !ingestDepotStatus)) {
+		if (digitalMaterialCollection && (!objectRepositoryPID || !digitalMaterialStatus)) {
 			createPidIfNotExists()
-			createIngestDepotStatusIfNotExists()
+			createDigitalMaterialStatusIfNotExists()
 
 			save()
 		}
@@ -164,11 +154,14 @@ class Collection {
 	}
 
 	/**
-	 * If there is no ingest depot status created yet, a new ingest depot status is created for this collection.
+	 * If there is no digital material status created yet,
+	 * a new digital material status is created for this collection.
 	 */
-	private void createIngestDepotStatusIfNotExists() {
-		if (!ingestDepotStatus) {
-			ingestDepotStatus = new IngestDepotStatus()
+	private void createDigitalMaterialStatusIfNotExists() {
+		if (!digitalMaterialStatus) {
+			DigitalMaterialStatusCode statusCode =
+					DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION)
+			digitalMaterialStatus = new DigitalMaterialStatus(statusCode: statusCode)
 		}
 	}
 

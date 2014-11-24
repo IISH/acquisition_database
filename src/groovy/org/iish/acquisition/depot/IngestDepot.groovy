@@ -1,7 +1,7 @@
 package org.iish.acquisition.depot
 
 /**
- * Provides actions the ingest depot.
+ * Provides actions on the ingest depot.
  */
 interface IngestDepot {
 

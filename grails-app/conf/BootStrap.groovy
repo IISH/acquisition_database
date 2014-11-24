@@ -90,10 +90,23 @@ class BootStrap {
 					}
 				}
 
-		[Authority.ROLE_SUPER_ADMIN, Authority.ROLE_ADMIN, Authority.ROLE_USER].
+		[Authority.ROLE_ADMIN, Authority.ROLE_USER,
+				Authority.ROLE_OFFLOADER_1, Authority.ROLE_OFFLOADER_2, Authority.ROLE_OFFLOADER_3].
 				each { String role ->
 					if (!Authority.findByAuthority(role)) {
 						new Authority(authority: role).save()
+					}
+				}
+
+		[(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION): [status: 'No folder created yet', isSetByUser: false],
+		 (DigitalMaterialStatusCode.FOLDER_CREATED)                 : [status: 'A folder has been created', isSetByUser: false],
+		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)              : [status: 'Digital material has been uploaded', isSetByUser: true],
+		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)    : [status: 'Digital material is ready for permanent storage', isSetByUser: true],
+		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) : [status: 'Digital material is being uploaded to permanent storage', isSetByUser: false],
+		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)     : [status: 'Digital material has been moved to permanent storage', isSetByUser: false]].
+				each { Long id, Map statusInfo ->
+					if (!DigitalMaterialStatusCode.get(id)) {
+						new DigitalMaterialStatusCode([id: id] + statusInfo).save()
 					}
 				}
 	}
@@ -102,22 +115,22 @@ class BootStrap {
 	 * Creates or updates the users and their granted roles.
 	 */
 	private static void setUsersAndAuthorities() {
-		['kerim.meijer'        : [role: Authority.ROLE_SUPER_ADMIN, mayReceiveEmail: false],
-		 'marja.musson'        : [role: Authority.ROLE_SUPER_ADMIN, mayReceiveEmail: true],
-		 'joke.zwaan'          : [role: Authority.ROLE_ADMIN, mayReceiveEmail: true],
-		 'bouwe.hijma'         : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'huub.sanders'        : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'marien.vanderheijden': [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'frank.dejong'        : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'jacques.vangerwen'   : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'stefano.bellucci'    : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'rossana.barragan'    : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'eef.vermeij'         : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'niels.beugeling'     : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'job.schouten'        : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'irina.novichenko'    : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'zulfikar.ozdogan'    : [role: Authority.ROLE_USER, mayReceiveEmail: true],
-		 'ed.kool'             : [role: Authority.ROLE_USER, mayReceiveEmail: true]].
+		['kerim.meijer'        : [roles: [Authority.ROLE_ADMIN, Authority.ROLE_OFFLOADER_3], mayReceiveEmail: false],
+		 'marja.musson'        : [roles: [Authority.ROLE_ADMIN], mayReceiveEmail: true],
+		 'joke.zwaan'          : [roles: [Authority.ROLE_ADMIN], mayReceiveEmail: true],
+		 'bouwe.hijma'         : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'huub.sanders'        : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'marien.vanderheijden': [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'frank.dejong'        : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'jacques.vangerwen'   : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'stefano.bellucci'    : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'rossana.barragan'    : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'eef.vermeij'         : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'niels.beugeling'     : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'job.schouten'        : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'irina.novichenko'    : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'zulfikar.ozdogan'    : [roles: [Authority.ROLE_USER], mayReceiveEmail: true],
+		 'ed.kool'             : [roles: [Authority.ROLE_USER], mayReceiveEmail: true]].
 				each { String login, Map userData ->
 					User user = User.findByLogin(login)
 					if (!user) {
@@ -125,9 +138,11 @@ class BootStrap {
 						user.save(flush: true)
 					}
 
-					Authority authority = Authority.findByAuthority(userData.role.toString())
-					if (!UserAuthority.exists(user.id, authority.id)) {
-						UserAuthority.create(user, authority)
+					userData.roles.each { String role ->
+						Authority authority = Authority.findByAuthority(role)
+						if (!UserAuthority.exists(user.id, authority.id)) {
+							UserAuthority.create(user, authority)
+						}
 					}
 				}
 	}

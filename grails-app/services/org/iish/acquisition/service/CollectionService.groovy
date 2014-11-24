@@ -3,7 +3,6 @@ package org.iish.acquisition.service
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.transaction.Transactional
-import org.apache.commons.lang.BooleanUtils
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.grails.databinding.DataBinder
 import org.grails.databinding.SimpleMapDataBindingSource
@@ -48,7 +47,7 @@ class CollectionService {
 			collection.addedBy = (User) springSecurityService.getCurrentUser()
 		}
 
-		processIngestDepotStatus(collection, params)
+		processDigitalMaterialStatus(collection, collectionParams)
 		updateLocations(collection, collectionParams)
 
 		deletePhotos(collection, collectionParams)
@@ -198,7 +197,7 @@ class CollectionService {
 	 * @return The updated material data.
 	 */
 	private AnalogMaterial updateAnalogMaterial(AnalogMaterialCollection materialCollection, MaterialType materialType,
-			AnalogUnit unit, String size, boolean isSelected) {
+	                                            AnalogUnit unit, String size, boolean isSelected) {
 		AnalogMaterial material = materialCollection.getMaterialByTypeAndUnit(materialType, unit)
 		if (!material) {
 			material = new AnalogMaterial(materialType: materialType, unit: unit)
@@ -264,7 +263,7 @@ class CollectionService {
 	 * @return The updated material data.
 	 */
 	private DigitalMaterial updateDigitalMaterial(DigitalMaterialCollection materialCollection,
-			MaterialType materialType) {
+	                                              MaterialType materialType) {
 		DigitalMaterial material = materialCollection.getMaterialByType(materialType)
 		if (!material) {
 			material = new DigitalMaterial(materialType: materialType)
@@ -328,7 +327,7 @@ class CollectionService {
 	 * @return The updated material data.
 	 */
 	private MiscMaterial updateMiscMaterial(MiscMaterialCollection materialCollection, MiscMaterialType materialType,
-			Integer size, boolean isSelected) {
+	                                        Integer size, boolean isSelected) {
 		MiscMaterial material = materialCollection.getMaterialByType(materialType)
 		if (!material) {
 			material = new MiscMaterial(materialType: materialType)
@@ -342,20 +341,27 @@ class CollectionService {
 	}
 
 	/**
-	 * Processes any changes made to the ingest depot status.
+	 * Processes any changes made to the digital material status.
 	 * @param collection The collection to update.
 	 * @param params The data as filled out by the user.
 	 */
-	private void processIngestDepotStatus(Collection collection, GrailsParameterMap params) {
-		IngestDepotStatus ingestDepotStatus = collection.ingestDepotStatus
+	private void processDigitalMaterialStatus(Collection collection, GrailsParameterMap params) {
+		DigitalMaterialStatus digitalMaterialStatus = collection.digitalMaterialStatus
+		GrailsParameterMap digitalMaterialParams = params.digitalMaterialStatus as GrailsParameterMap
 
-		if (SpringSecurityUtils.ifAllGranted(Authority.ROLE_SUPER_ADMIN) && ingestDepotStatus &&
-				ingestDepotStatus?.canManuallySetSorProcess()) {
-			ingestDepotStatus.manualSorProcessOnHold = BooleanUtils.toBoolean(params.onHold.toString())
-			ingestDepotStatus.manualStartSorProcess = (ingestDepotStatus.manualSorProcessOnHold) ? false :
-					BooleanUtils.toBoolean(params.startProcess.toString())
+		if (digitalMaterialStatus && digitalMaterialParams) {
+			Long newStatusCodeId = digitalMaterialParams.long('statusCode.id')
+			DigitalMaterialStatusCode newStatusCode = DigitalMaterialStatusCode.get(newStatusCodeId)
+			if (newStatusCode && digitalMaterialStatus.canChangeTo(newStatusCode)) {
+				digitalMaterialStatus.statusCode = newStatusCode
+				digitalMaterialStatus.lastActionFailed = false
+			}
 
-			ingestDepotStatus.save()
+			if (digitalMaterialStatus.canDelayIngest() && digitalMaterialParams.delayIngest) {
+				digitalMaterialStatus.ingestDelayed = true
+			}
+
+			digitalMaterialStatus.save()
 		}
 	}
 }

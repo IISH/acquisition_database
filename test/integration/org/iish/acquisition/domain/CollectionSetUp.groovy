@@ -170,4 +170,8 @@ class CollectionSetUp {
 		locations.each { collection.addToLocations(it) }
 		collection.save()
 	}
+
+	static void cleanUpCollections() {
+		Collection.list().each { it.delete(flush: true) }
+	}
 }

@@ -2,26 +2,37 @@ package org.iish.acquisition.depot
 
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPFile
+import org.apache.commons.net.ftp.FTPSClient
 import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /**
- * Provides actions the ingest depot using FTP.
+ * Provides actions on the ingest depot using FTP.
  */
 class IngestDepotImpl implements IngestDepot {
 	private FTPClient client
 	private String path = '/'
 
+	/**
+	 * Constructor call for FTP access to the ingest depot.
+	 * @param grailsApplication Required for configuration properties.
+	 */
 	IngestDepotImpl(GrailsApplication grailsApplication) {
+		Boolean secure = new Boolean(grailsApplication.config.ingestDepot.ftp.secure.toString())
 		String host = grailsApplication.config.ingestDepot.ftp.host
-		Integer port = new Integer(grailsApplication.config.ingestDepot.ftp.port)
+		Integer port = new Integer(grailsApplication.config.ingestDepot.ftp.port.toString())
 		String username = grailsApplication.config.ingestDepot.ftp.username
 		String password = grailsApplication.config.ingestDepot.ftp.password
 
-		client = new FTPClient()
+		client = secure ? new FTPSClient() : new FTPClient()
 		client.connect(host, port)
 		client.login(username, password)
 	}
 
+	/**
+	 * Constructor call for FTP access to the ingest depot.
+	 * @param grailsApplication Required for configuration properties.
+	 * @param path The path of the current working directory on the ingest depot.
+	 */
 	IngestDepotImpl(GrailsApplication grailsApplication, String path) {
 		this(grailsApplication)
 		setPath(path)

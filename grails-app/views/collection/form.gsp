@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.IngestDepotReport; org.iish.acquisition.domain.IngestDepotStatusCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.AnalogUnit" %>
+<%@ page import="org.iish.acquisition.domain.DigitalMaterialStatusCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.AnalogUnit" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -20,6 +20,17 @@
         </ul>
     </div>
 </g:hasErrors>
+
+<g:if test="${collection.digitalMaterialStatus?.lastActionFailed}">
+    <div class="alert alert-danger" role="alert">
+        <button type="button" class="close" data-dismiss="alert">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Close</span>
+        </button>
+
+        <g:message code="digitalMaterialStatus.failureMessage.label"/>
+    </div>
+</g:if>
 
 <g:if test="${actionName == 'edit'}">
     <div class="row content-menu top hidden-print">
@@ -710,66 +721,77 @@
     </div>
 </div>
 
-<g:set var="ingestDepotStatus" value="${collection.ingestDepotStatus}"/>
-<g:if test="${ingestDepotStatus}">
+<g:set var="digitalMaterialStatus" value="${collection.digitalMaterialStatus}"/>
+<g:if test="${digitalMaterialStatus}">
     <div class="form-group">
         <label class="col-xs-4 control-label">
-            <g:message code="collection.ingestDepotStatus.label"/>
+            <g:message code="collection.digitalMaterialStatus.timer.label"/>
+        </label>
+
+        <div class="col-xs-12">
+            <p class="form-control-static">
+                <g:if test="${digitalMaterialStatus.statusCode.id <
+                        DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE}">
+                    <g:message code="digitalMaterialStatus.timer.label"
+                               args="${[g.formatDate(date: digitalMaterialStatus.getTimerExpirationDate(),
+                                       format: 'dd MMMMM, HH:mm')]}"/>
+                </g:if>
+                <g:else>
+                    <g:message code="digitalMaterialStatus.timerExpired.label"
+                               args="${[g.formatDate(date: digitalMaterialStatus.startIngest,
+                                       format: 'dd MMMMM, HH:mm')]}"/>
+                </g:else>
+            </p>
+        </div>
+
+        <div class="col-xs-8">
+            <g:if test="${digitalMaterialStatus.ingestDelayed}">
+                <p class="form-control-static">
+                    <em><g:message code="digitalMaterialStatus.timerExtended.label"/></em>
+                </p>
+            </g:if>
+            <g:elseif test="${digitalMaterialStatus.canDelayIngest()}">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="collection.digitalMaterialStatus.delayIngest" value="1"/>
+                        <g:message code="digitalMaterialStatus.timerExtend.label"/>
+                    </label>
+                </div>
+            </g:elseif>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-xs-4 control-label">
+            <g:message code="collection.digitalMaterialStatus.status.label"/>
         </label>
 
         <div class="col-xs-20">
-            <div class="form-control-static">
-                <span class="<g:if test="${ingestDepotStatus.getStatusSubCode() ==
-                        IngestDepotStatusCode.SUB_CODE_FAIL}">text-danger</g:if><g:else>text-success</g:else>">
-                    ${ingestDepotStatus.getHumanReadableMessage()}</span>
+            <g:each in="${digitalMaterialStatusCodes}" var="statusCode">
+                <div class="row">
+                    <g:set var="current" value="${digitalMaterialStatus.statusCode?.id == statusCode.id}"/>
+                    <g:set var="failed" value="${current && digitalMaterialStatus.lastActionFailed}"/>
 
-                <ul>
-                    <g:each in="${ingestDepotStatus.uploadStatuses}" var="uploadStatus">
-                        <li>
-                            <span class="<g:if test="${uploadStatus.getStatusSubCode() ==
-                                    IngestDepotStatusCode.SUB_CODE_FAIL}">text-danger</g:if><g:else>text-success</g:else>">
-                                ${uploadStatus.getHumanReadableMessage()}</span>
+                    <div class="col-xs-14 ${failed ? 'text-danger' : ''}">
+                        <div class="radio">
+                            <label>
+                                <g:radio id="collection.digitalMaterialStatus.statusCode.id"
+                                         name="collection.digitalMaterialStatus.statusCode.id"
+                                         value="${digitalMaterialStatus.statusCode.id}" checked="${current}"
+                                         disabled="${!digitalMaterialStatus.canChangeTo(statusCode)}"/>
+                                ${statusCode}
+                            </label>
+                        </div>
+                    </div>
 
-                            <g:if test="${IngestDepotReport.hasVirusReport(uploadStatus)}">
-                                (<g:link controller="download" action="virusReport"
-                                         id="${uploadStatus.id}"><g:message
-                                        code="ingestDepotStatus.download.virusReport.label"/></g:link>)
-                            </g:if>
-
-                            <g:if test="${IngestDepotReport.hasFileIdentificationReport(uploadStatus)}">
-                                (<g:link controller="download" action="fileIdentificationReport"
-                                         id="${uploadStatus.id}"><g:message
-                                        code="ingestDepotStatus.download.fileIdentificationReport.label"/></g:link>)
-                            </g:if>
-                        </li>
-                    </g:each>
-                </ul>
-            </div>
+                    <g:if test="${failed}">
+                        <div class="col-xs-10 text-danger radio">
+                            <g:message code="digitalMaterialStatus.failure.label"/>
+                        </div>
+                    </g:if>
+                </div>
+            </g:each>
         </div>
-
-        <sec:ifAllGranted roles="${Authority.ROLE_SUPER_ADMIN}">
-            <g:if test="${ingestDepotStatus.canManuallySetSorProcess()}">
-                <div class="col-xs-8 col-xs-push-4">
-                    <div class="checkbox">
-                        <label>
-                            <g:checkBox name="onHold" checked="${ingestDepotStatus.manualSorProcessOnHold}"/>
-                            <g:message code="ingestDepotStatus.manual.onHold.label"/>
-                        </label>
-                    </div>
-                </div>
-            </g:if>
-
-            <g:if test="${ingestDepotStatus.canManuallySetSorProcess()}">
-                <div class="col-xs-8 col-xs-push-4">
-                    <div class="checkbox">
-                        <label>
-                            <g:checkBox name="startProcess" checked="${ingestDepotStatus.manualStartSorProcess}"/>
-                            <g:message code="ingestDepotStatus.manual.startProcess.label"/>
-                        </label>
-                    </div>
-                </div>
-            </g:if>
-        </sec:ifAllGranted>
     </div>
 </g:if>
 

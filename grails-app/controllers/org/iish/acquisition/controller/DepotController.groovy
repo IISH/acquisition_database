@@ -2,7 +2,6 @@ package org.iish.acquisition.controller
 
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.iish.acquisition.depot.IngestDepot
-import org.iish.acquisition.depot.IngestDepotFile
 import org.iish.acquisition.depot.IngestDepotImpl
 
 /**
@@ -16,31 +15,37 @@ class DepotController {
 	/**
 	 * Lists the folders and files on the ingest depot.
 	 */
-	def list() {
-		String enteredPath = params.containsKey('path') ? params.path : '/'
-		IngestDepot ingestDepot = new IngestDepotImpl(grailsApplication, enteredPath)
-
-		String path = ingestDepot.getPath()
-		String[] pathAsArray = ingestDepot.getPathAsArray()
-		List<IngestDepotFile> files = ingestDepot.list()
-
-		ingestDepot.close()
-
-		render view: 'list', model: [path: path, pathAsArray: pathAsArray, files: files]
+	def list(String path) {
+		withPathInIngestDepot(path) { IngestDepot ingestDepot ->
+			render view: 'list', model: [
+					path       : ingestDepot.getPath(),
+					pathAsArray: ingestDepot.getPathAsArray(),
+					files      : ingestDepot.list()
+			]
+		}
 	}
 
 	/**
 	 * Deletes a set of given files and/or folders on the ingest depot.
 	 */
-	def delete() {
-		String enteredPath = params.containsKey('path') ? params.path : '/'
-		IngestDepot ingestDepot = new IngestDepotImpl(grailsApplication, enteredPath)
+	def delete(String path) {
+		withPathInIngestDepot(path) { IngestDepot ingestDepot ->
+			List<String> toDelete = params.list('file')
+			toDelete.each { ingestDepot.remove(it) }
 
-		List<String> toDelete = params.list('file')
-		toDelete.each { ingestDepot.remove(it) }
+			redirect action: 'list', params: [path: path]
+		}
+	}
 
+	/**
+	 * Simple wrapper method for establishing a connection to the given path on the ingest depot.
+	 * @param path The path on the ingest depot.
+	 * @param body What to do request from the ingest depot.
+	 */
+	private def withPathInIngestDepot(String path, Closure body) {
+		path = path ?: '/'
+		IngestDepot ingestDepot = new IngestDepotImpl(grailsApplication, path)
+		body(ingestDepot)
 		ingestDepot.close()
-
-		redirect action: 'list', params: [path: enteredPath]
 	}
 }

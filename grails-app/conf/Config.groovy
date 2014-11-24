@@ -97,6 +97,7 @@ grails.assets.plugin."twitter-bootstrap".includes = ["bootstrap.less"]
 grails.plugins.twitterbootstrap.fixtaglib = true
 
 // Default ingest depot settings
+ingestDepot.ftp.secure = false
 ingestDepot.ftp.host = 'localhost'
 ingestDepot.ftp.port = 21
 ingestDepot.ftp.username = ''
@@ -196,7 +197,8 @@ grails {
 						'/**/css/**'     : ['permitAll'],
 						'/**/images/**'  : ['permitAll'],
 						'/**/favicon.ico': ['permitAll'],
-						'/service/**'    : ['permitAll'], // TODO: (Web) Service controller should be protected too?
+						'/service/**'    : ['permitAll'],
+						'/admin/**'      : [Authority.ROLE_ADMIN],
 						'/**'            : [Authority.ROLE_USER]
 				]
 			}
@@ -232,8 +234,10 @@ grails {
 
 			providerNames = ['ldapAuthProvider', 'anonymousAuthenticationProvider']
 			roleHierarchy = """
-			   $Authority.ROLE_SUPER_ADMIN > $Authority.ROLE_ADMIN
-			   $Authority.ROLE_ADMIN > $Authority.ROLE_USER
+				$Authority.ROLE_OFFLOADER_3 > $Authority.ROLE_OFFLOADER_2
+				$Authority.ROLE_OFFLOADER_2 > $Authority.ROLE_OFFLOADER_1
+				$Authority.ROLE_ADMIN > $Authority.ROLE_USER
+				$Authority.ROLE_OFFLOADER_1 > $Authority.ROLE_USER
 			"""
 		}
 	}

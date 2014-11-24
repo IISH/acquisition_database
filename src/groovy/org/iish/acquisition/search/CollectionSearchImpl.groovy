@@ -265,7 +265,7 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 			LEFT JOIN $fetch mm_main.materialType AS mmt_main
 			LEFT JOIN $fetch c_main.locations AS l_main
 			LEFT JOIN $fetch l_main.depot AS d_main
-			LEFT JOIN $fetch c_main.ingestDepotStatus AS ids_main
+			LEFT JOIN $fetch c_main.digitalMaterialStatus AS dms_main
 			WHERE c_main.id IN ( $subSelect )
 			$sortQuery
 		"""

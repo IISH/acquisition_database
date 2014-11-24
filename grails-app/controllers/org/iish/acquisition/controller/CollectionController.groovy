@@ -102,18 +102,19 @@ class CollectionController {
 		}
 
 		render view: 'form', model: [
-				collection       : collection,
-				acquisitionTypes : AcquisitionType.values(),
-				depots           : Depot.list(),
-				materialTypes    : MaterialType.list(),
-				miscMaterialTypes: MiscMaterialType.list(),
-				byteUnits        : ByteUnit.values(),
-				priorities       : Priority.values(),
-				contracts        : Contract.list(),
-				accruals         : Accrual.values(),
-				appraisals       : Appraisal.list(),
-				statuses         : Status.list(),
-				uploadedPhotos   : []
+				collection                : collection,
+				acquisitionTypes          : AcquisitionType.values(),
+				depots                    : Depot.list(),
+				materialTypes             : MaterialType.list(),
+				miscMaterialTypes         : MiscMaterialType.list(),
+				byteUnits                 : ByteUnit.values(),
+				priorities                : Priority.values(),
+				contracts                 : Contract.list(),
+				accruals                  : Accrual.values(),
+				appraisals                : Appraisal.list(),
+				statuses                  : Status.list(),
+				digitalMaterialStatusCodes: DigitalMaterialStatusCode.list(),
+				uploadedPhotos            : []
 		]
 	}
 
@@ -133,20 +134,21 @@ class CollectionController {
 			}
 
 			render view: 'form', model: [
-					collection             : collection,
-					acquisitionTypes       : AcquisitionType.values(),
-					depots                 : Depot.list(),
-					materialTypes          : MaterialType.list(),
-					miscMaterialTypes      : MiscMaterialType.list(),
-					byteUnits              : ByteUnit.values(),
-					priorities             : Priority.values(),
-					contracts              : Contract.list(),
-					accruals               : Accrual.values(),
-					appraisals             : Appraisal.list(),
-					statuses               : Status.list(),
-					uploadedPhotos         : Photo.getPhotoMetaData(collection),
-					collectionSearchCommand: collectionSearchCommand,
-					recipients             : User.findAllByMayReceiveEmailAndEmailIsNotNull(true)
+					collection                : collection,
+					acquisitionTypes          : AcquisitionType.values(),
+					depots                    : Depot.list(),
+					materialTypes             : MaterialType.list(),
+					miscMaterialTypes         : MiscMaterialType.list(),
+					byteUnits                 : ByteUnit.values(),
+					priorities                : Priority.values(),
+					contracts                 : Contract.list(),
+					accruals                  : Accrual.values(),
+					appraisals                : Appraisal.list(),
+					statuses                  : Status.list(),
+					digitalMaterialStatusCodes: DigitalMaterialStatusCode.list(),
+					uploadedPhotos            : Photo.getPhotoMetaData(collection),
+					collectionSearchCommand   : collectionSearchCommand,
+					recipients                : User.findAllByMayReceiveEmailAndEmailIsNotNull(true)
 			]
 		}
 	}

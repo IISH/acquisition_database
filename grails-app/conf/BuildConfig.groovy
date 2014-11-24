@@ -61,7 +61,7 @@ grails.project.dependency.resolution = {
 		compile ":hibernate4:4.3.1.2"
 		compile ":asset-pipeline:1.9.9"
 		compile ":less-asset-pipeline:1.10.0"
-		compile ":twitter-bootstrap:3.2.0.2"
+		compile ":twitter-bootstrap:3.3.1"
 		compile ":spring-security-core:2.0-RC4"
 		compile ":spring-security-ldap:2.0-RC2"
 		compile ":mail:1.0.7"
