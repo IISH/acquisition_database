@@ -502,7 +502,6 @@
 <div class="form-group">
     <label for="collection.owner" class="col-xs-4 control-label">
         <g:message code="collection.owner.label"/>
-        <span class="required">*</span>
     </label>
 
     <div class="col-xs-8">
@@ -777,7 +776,7 @@
                             <label>
                                 <g:radio id="collection.digitalMaterialStatus.statusCode.id"
                                          name="collection.digitalMaterialStatus.statusCode.id"
-                                         value="${digitalMaterialStatus.statusCode.id}" checked="${current}"
+                                         value="${statusCode.id}" checked="${current}"
                                          disabled="${!digitalMaterialStatus.canChangeTo(statusCode)}"/>
                                 ${statusCode}
                             </label>

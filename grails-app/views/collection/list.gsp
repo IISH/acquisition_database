@@ -73,6 +73,10 @@
                 </g:else>
             </dd>
         </g:if>
+        <g:if test="${collectionSearchCommand.statusDigital?.size() > 0}">
+            <dt><g:message code="search.status.digital.label"/></dt>
+            <dd>${digitalStatuses.findAll { collectionSearchCommand.statusDigital.contains(it.id) }.join(', ')}</dd>
+        </g:if>
         <g:if test="${collectionSearchCommand.priority?.size() > 0}">
             <dt><g:message code="search.priority.label"/></dt>
             <dd>${priorities.findAll { collectionSearchCommand.priority.contains(it.id) }.join(', ')}</dd>
@@ -106,7 +110,7 @@
         <th><g:sortLink field="digital_material" messageCode="results.digital.material.label"/></th>
         <th><g:sortLink field="date" messageCode="results.date.label"/></th>
         <th><g:sortLink field="location" messageCode="results.location.label"/></th>
-        <th class="visible-print"><g:message code="results.cabinet.label" /></th>
+        <th class="visible-print"><g:message code="results.cabinet.label"/></th>
     </tr>
     </thead>
     <tbody>

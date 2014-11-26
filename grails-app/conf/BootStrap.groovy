@@ -73,7 +73,7 @@ class BootStrap {
 				}
 
 		[(MiscMaterialType.DISKETTES_ID): 'Diskettes',
-		 (MiscMaterialType.DVDS_CDS_ID) : 'DVD\'s / CD-rom\'s'].
+		 (MiscMaterialType.DVDS_CDS_ID) : 'DVDs / CD-roms'].
 				each { Long id, String name ->
 					if (!MiscMaterialType.get(id)) {
 						new MiscMaterialType(id: id, name: name).save()
@@ -91,7 +91,7 @@ class BootStrap {
 				}
 
 		[Authority.ROLE_ADMIN, Authority.ROLE_USER,
-				Authority.ROLE_OFFLOADER_1, Authority.ROLE_OFFLOADER_2, Authority.ROLE_OFFLOADER_3].
+		 Authority.ROLE_OFFLOADER_1, Authority.ROLE_OFFLOADER_2, Authority.ROLE_OFFLOADER_3].
 				each { String role ->
 					if (!Authority.findByAuthority(role)) {
 						new Authority(authority: role).save()
@@ -101,6 +101,8 @@ class BootStrap {
 		[(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION): [status: 'No folder created yet', isSetByUser: false],
 		 (DigitalMaterialStatusCode.FOLDER_CREATED)                 : [status: 'A folder has been created', isSetByUser: false],
 		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)              : [status: 'Digital material has been uploaded', isSetByUser: true],
+		 (DigitalMaterialStatusCode.BACKUP_RUNNING)                 : [status: 'A backup of the digital material is being made', isSetByUser: false],
+		 (DigitalMaterialStatusCode.BACKUP_FINISHED)                : [status: 'A backup of the digital material has been created', isSetByUser: false],
 		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)    : [status: 'Digital material is ready for permanent storage', isSetByUser: true],
 		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) : [status: 'Digital material is being uploaded to permanent storage', isSetByUser: false],
 		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)     : [status: 'Digital material has been moved to permanent storage', isSetByUser: false]].

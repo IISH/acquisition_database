@@ -18,6 +18,7 @@ class CollectionSearchCommand {
 	Date toDate
 	String contactPerson
 	List<Long> status
+	List<Long> statusDigital
 	Boolean collectionLevelReady
 	List<Long> analog
 	List<Long> digital
@@ -114,6 +115,7 @@ class CollectionSearchCommand {
 		collectionSearch = new ContactPersonCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new StatusCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new CollectionLevelReadyCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new DigitalStatusCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new AnalogMaterialCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new DigitalMaterialCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new MiscMaterialCollectionSearchDecorator(collectionSearch)
@@ -142,9 +144,10 @@ class CollectionSearchCommand {
 				contactPerson       : null,
 				status              : [Status.NOT_PROCESSED_ID],
 				collectionLevelReady: null,
+				statusDigital       : null,
 				analog              : null,
 				digital             : null,
-				misc               : null,
+				misc                : null,
 				priority            : null,
 				level               : null,
 				sort                : null,

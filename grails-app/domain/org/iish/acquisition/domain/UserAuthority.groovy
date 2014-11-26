@@ -73,24 +73,19 @@ class UserAuthority implements Serializable {
 	 * @param user The user in question.
 	 * @param authority The authority in question.
 	 * @param flush Whether to flush the Hibernate session after save.
-	 * @return Whether the action was successful.
 	 */
-	static boolean remove(User u, Authority r, boolean flush = false) {
+	static void remove(User u, Authority r, boolean flush = false) {
 		if (u == null || r == null) {
-			return false
+			return
 		}
 
-		int rowCount = where {
-			user == User.load(u.id) && authority == Authority.load(r.id)
-		}.deleteAll()
+		findByUserAndAuthority(u, r).delete()
 
 		if (flush) {
 			withSession {
 				it.flush()
 			}
 		}
-
-		return (rowCount > 0)
 	}
 
 	/**
@@ -104,9 +99,7 @@ class UserAuthority implements Serializable {
 			return
 		}
 
-		where {
-			user == User.load(u.id)
-		}.deleteAll()
+		findAllByUser(u).each { it.delete() }
 
 		if (flush) {
 			withSession {

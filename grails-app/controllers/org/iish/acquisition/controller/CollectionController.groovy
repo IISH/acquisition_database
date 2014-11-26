@@ -45,6 +45,7 @@ class CollectionController {
 				acquisitionTypes       : AcquisitionType.values(),
 				depots                 : Depot.list(),
 				statuses               : Status.list(),
+				digitalStatuses        : DigitalMaterialStatusCode.list(),
 				materialTypes          : MaterialType.list(),
 				miscMaterialTypes      : MiscMaterialType.list(),
 				priorities             : Priority.values()
@@ -59,6 +60,7 @@ class CollectionController {
 				acquisitionTypes : AcquisitionType.values(),
 				depots           : Depot.list(),
 				statuses         : Status.list(),
+				digitalStatuses  : DigitalMaterialStatusCode.list(),
 				materialTypes    : MaterialType.list(),
 				miscMaterialTypes: MiscMaterialType.list(),
 				priorities       : Priority.values(),

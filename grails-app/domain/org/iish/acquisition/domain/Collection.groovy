@@ -52,10 +52,10 @@ class Collection {
 		objectRepositoryPID nullable: true, maxSize: 15, unique: true
 		content blank: false
 		listsAvailable blank: false
-		toBeDone nullable: true, maxSize: 255
+		toBeDone nullable: true
 		priority nullable: true
 		level nullable: true
-		owner blank: false, maxSize: 255
+		owner nullable: true, maxSize: 255
 		contactPerson blank: false, maxSize: 7, validator: { val, obj ->
 			if (!val || !val.matches('^[A-Za-z]{3}(/[A-Za-z]{3})?$')) {
 				'collection.wrong.contactPerson.message'
@@ -70,12 +70,12 @@ class Collection {
 
 		digitalMaterialStatus nullable: true
 		analogMaterialCollection nullable: true
-		digitalMaterialCollection nullable: true, validator: { val, obj ->
-			if (!val && !obj.analogMaterialCollection) {
+		digitalMaterialCollection nullable: true
+		miscMaterialCollection nullable: true, validator: { val, obj ->
+			if (!val && !obj.analogMaterialCollection && !obj.digitalMaterialCollection) {
 				'collection.no.material.collection.message'
 			}
 		}
-		miscMaterialCollection nullable: true
 
 		locations validator: { val, obj ->
 			if (!val || val.isEmpty()) {
@@ -111,14 +111,6 @@ class Collection {
 		deleted index: 'collections_deleted_idx'
 	}
 
-	void afterInsert() {
-		afterInsertOrUpdate()
-	}
-
-	void afterUpdate() {
-		afterInsertOrUpdate()
-	}
-
 	/**
 	 * Searches for a specific location of this collection with the given id.
 	 * @param id The id of the location part of this collection.
@@ -132,7 +124,7 @@ class Collection {
 	 * After each insert or update, check if digital material was entered.
 	 * If so, make sure a PID is created and the digital material status can be tracked.
 	 */
-	private void afterInsertOrUpdate() {
+	protected void afterInsertOrUpdate() {
 		if (digitalMaterialCollection && (!objectRepositoryPID || !digitalMaterialStatus)) {
 			createPidIfNotExists()
 			createDigitalMaterialStatusIfNotExists()

@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.Status" %>
+<%@ page import="org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.Status" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,6 +35,12 @@
                 </div>
 
                 <div>
+                    <sec:ifAnyGranted roles="${Authority.ROLE_ADMIN}">
+                        <g:link controller="admin" action="index"><g:message
+                                code="page.collection.admin.label"/></g:link>
+                        |
+                    </sec:ifAnyGranted>
+
                     <g:link controller="logout">
                         <g:message code="springSecurity.loggedin.logout.label"/>
                     </g:link>

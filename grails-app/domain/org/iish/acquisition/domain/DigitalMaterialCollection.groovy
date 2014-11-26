@@ -37,6 +37,14 @@ class DigitalMaterialCollection {
 		collection fetch: 'join'
 	}
 
+	void afterInsert() {
+		collection.afterInsertOrUpdate()
+	}
+
+	void beforeUpdate() {
+		collection.afterInsertOrUpdate()
+	}
+
 	/**
 	 * Searches the collection for a specific material type.
 	 * @param materialType The material type to search for.

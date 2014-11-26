@@ -1,5 +1,7 @@
 package org.iish.acquisition.domain
 
+import grails.plugin.springsecurity.SpringSecurityUtils
+
 /**
  * Holds the status of the digital material located in the ingest depot.
  */
@@ -59,8 +61,8 @@ class DigitalMaterialStatus {
 	 */
 	boolean canDelayIngest() {
 		return (!ingestDelayed &&
-				(statusCode.id < DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)/* &&
-				SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_3)*/)
+				(statusCode.id < DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE) &&
+				SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_3))
 	}
 
 	/**
@@ -76,11 +78,11 @@ class DigitalMaterialStatus {
 		if (!lastActionFailed && newStatusCode.isSetByUser && (newStatusCode.id > statusCode.id)) {
 			switch (newStatusCode.id) {
 				case DigitalMaterialStatusCode.MATERIAL_UPLOADED:
-					return ((statusCode.id >= DigitalMaterialStatusCode.FOLDER_CREATED)/* &&
-							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1)*/)
+					return ((statusCode.id >= DigitalMaterialStatusCode.FOLDER_CREATED) &&
+							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1))
 				case DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE:
-					return ((statusCode.id >= DigitalMaterialStatusCode.FOLDER_CREATED)/* &&
-							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_2)*/)
+					return ((statusCode.id >= DigitalMaterialStatusCode.BACKUP_FINISHED) &&
+							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_2))
 			}
 		}
 
@@ -94,6 +96,16 @@ class DigitalMaterialStatus {
 	static List<Collection> getWithoutFolder() {
 		Collection.where {
 			digitalMaterialStatus.statusCode.id == DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION
+		}.findAll()
+	}
+
+	/**
+	 * Returns a list of digital material collections ready for backup.
+	 * @return A list of matching collections.
+	 */
+	static List<Collection> getReadyForBackup() {
+		Collection.where {
+			digitalMaterialStatus.statusCode.id == DigitalMaterialStatusCode.MATERIAL_UPLOADED
 		}.findAll()
 	}
 

@@ -1,3 +1,4 @@
+<%@ page import="grails.plugin.springsecurity.SpringSecurityUtils; org.iish.acquisition.domain.Authority" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -8,14 +9,18 @@
 <form role="form" method="post"
       action="${g.createLink(controller: 'depot', action: 'delete', params: [path: params.path])}">
     <div class="row content-menu top hidden-print">
-        <div class="col-xs-5">
-            <button type="submit" class="btn btn-default">
-                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                <g:message code="ingestDepot.delete.button"/>
-            </button>
-        </div>
+        <g:set var="isOffloader2" value="${SpringSecurityUtils.ifAnyGranted(Authority.ROLE_OFFLOADER_2)}"/>
 
-        <div class="col-xs-19">
+        <g:if test="${isOffloader2}">
+            <div class="col-xs-5">
+                <button type="submit" class="btn btn-default">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    <g:message code="ingestDepot.delete.button"/>
+                </button>
+            </div>
+        </g:if>
+
+        <div class="${isOffloader2 ? 'col-xs-19' : 'col-xs-24'}">
             <ol class="breadcrumb">
                 <g:set var="parentPath" value=""/>
 
@@ -48,11 +53,13 @@
         </div>
     </div>
 
-    <table class="table <g:if
-            test="${files.size() > 0}">table-condensed table-striped table-hover checkbox-click</g:if>">
+    <table class="table <g:if test="${files.size() > 0}">table-condensed table-striped table-hover
+        ${isOffloader2 ? 'checkbox-click' : ''}</g:if>">
         <thead>
         <tr>
-            <th class="column-checkbox"><input type="checkbox" class="checkAll"/></th>
+            <g:if test="${isOffloader2}">
+                <th class="column-checkbox"><input type="checkbox" class="checkAll"/></th>
+            </g:if>
             <th><g:message code="ingestDepot.name.label"/></th>
             <th><g:message code="ingestDepot.size.label"/></th>
         </tr>
@@ -60,16 +67,18 @@
         <tbody>
         <g:if test="${files.size() == 0}">
             <tr>
-                <td colspan="3" class="text-center">
+                <td colspan="${isOffloader2 ? '3' : '2'}" class="text-center">
                     <em><g:message code="default.no.files.message"/></em>
                 </td>
             </tr>
         </g:if>
         <g:each in="${files}" var="file">
             <tr>
-                <td class="column-checkbox">
-                    <input type="checkbox" name="file" value="${file.getPath()}"/>
-                </td>
+                <g:if test="${isOffloader2}">
+                    <td class="column-checkbox">
+                        <input type="checkbox" name="file" value="${file.getPath()}"/>
+                    </td>
+                </g:if>
                 <td>
                     <g:if test="${file.isDirectory()}">
                         <span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span>

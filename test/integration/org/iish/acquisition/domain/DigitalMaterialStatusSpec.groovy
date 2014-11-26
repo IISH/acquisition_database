@@ -23,7 +23,7 @@ class DigitalMaterialStatusSpec {
 
 		assert withoutFolder2.size() == 2
 		assert withoutFolder2*.objectRepositoryPID.contains('10622/BULK00001')
-		assert withoutFolder2*.objectRepositoryPID.contains('10622/BULK00005')
+		assert withoutFolder2*.objectRepositoryPID.contains('10622/BULK00006')
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -32,8 +32,38 @@ class DigitalMaterialStatusSpec {
 
 		assert withoutFolder3.size() == 3
 		assert withoutFolder3*.objectRepositoryPID.contains('10622/BULK00001')
-		assert withoutFolder3*.objectRepositoryPID.contains('10622/BULK00005')
-		assert withoutFolder3*.objectRepositoryPID.contains('10622/BULK00007')
+		assert withoutFolder3*.objectRepositoryPID.contains('10622/BULK00006')
+		assert withoutFolder3*.objectRepositoryPID.contains('10622/BULK00008')
+
+		// ------------------------------------------------------------------------------------------- //
+
+		CollectionSetUp.cleanUpCollections()
+	}
+
+	@Test
+	void testReadyForBackup() {
+		setUp1()
+		List<Collection> readyForBackup1 = DigitalMaterialStatus.getReadyForBackup()
+
+		assert readyForBackup1.size() == 1
+		assert readyForBackup1*.objectRepositoryPID.contains('10622/BULK00005')
+
+		// ------------------------------------------------------------------------------------------- //
+
+		setUp2()
+		List<Collection> readyForBackup2 = DigitalMaterialStatus.getReadyForBackup()
+
+		assert readyForBackup2.size() == 2
+		assert readyForBackup2*.objectRepositoryPID.contains('10622/BULK00005')
+		assert readyForBackup2*.objectRepositoryPID.contains('10622/BULK00007')
+
+		// ------------------------------------------------------------------------------------------- //
+
+		setUp3()
+		List<Collection> readyForBackup3 = DigitalMaterialStatus.getReadyForBackup()
+
+		assert readyForBackup3.size() == 1
+		assert readyForBackup3*.objectRepositoryPID.contains('10622/BULK00007')
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -75,8 +105,8 @@ class DigitalMaterialStatusSpec {
 
 		assert readyForIngest2.size() == 3
 		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00002')
-		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00005')
 		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00006')
+		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00007')
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -85,8 +115,8 @@ class DigitalMaterialStatusSpec {
 
 		assert readyForIngest3.size() == 3
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00002')
-		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00005')
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00006')
+		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00007')
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -161,10 +191,6 @@ class DigitalMaterialStatusSpec {
 		calendar.set(2014, 05, 14)
 		collection4.setDateCreated(calendar.getTime())
 		collection4.save(flush: true, validate: false)
-	}
-
-	static void setUp2() {
-		Calendar calendar = Calendar.getInstance()
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -173,15 +199,19 @@ class DigitalMaterialStatusSpec {
 				objectRepositoryPID  : '10622/BULK00005',
 				digitalMaterialStatus: new DigitalMaterialStatus(
 						statusCode: DigitalMaterialStatusCode.
-								get(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION),
-						ingestDelayed: true
+								get(DigitalMaterialStatusCode.MATERIAL_UPLOADED),
+						lastActionFailed: true
 				)
 		])
 		collection5.save(flush: true, validate: false)
 
-		calendar.set(2014, 04, 06)
+		calendar.set(2014, 05, 15)
 		collection5.setDateCreated(calendar.getTime())
 		collection5.save(flush: true, validate: false)
+	}
+
+	static void setUp2() {
+		Calendar calendar = Calendar.getInstance()
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -190,15 +220,32 @@ class DigitalMaterialStatusSpec {
 				objectRepositoryPID  : '10622/BULK00006',
 				digitalMaterialStatus: new DigitalMaterialStatus(
 						statusCode: DigitalMaterialStatusCode.
-								get(DigitalMaterialStatusCode.MATERIAL_UPLOADED),
+								get(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION),
 						ingestDelayed: true
 				)
 		])
 		collection6.save(flush: true, validate: false)
 
-		calendar.set(2014, 04, 05)
+		calendar.set(2014, 04, 06)
 		collection6.setDateCreated(calendar.getTime())
 		collection6.save(flush: true, validate: false)
+
+		// ------------------------------------------------------------------------------------------- //
+
+		Collection collection7 = CollectionSetUp.setUpCollection([
+				name                 : 'Test collection 7',
+				objectRepositoryPID  : '10622/BULK00007',
+				digitalMaterialStatus: new DigitalMaterialStatus(
+						statusCode: DigitalMaterialStatusCode.
+								get(DigitalMaterialStatusCode.MATERIAL_UPLOADED),
+						ingestDelayed: true
+				)
+		])
+		collection7.save(flush: true, validate: false)
+
+		calendar.set(2014, 04, 05)
+		collection7.setDateCreated(calendar.getTime())
+		collection7.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -214,9 +261,9 @@ class DigitalMaterialStatusSpec {
 
 		// ------------------------------------------------------------------------------------------- //
 
-		Collection collection7 = CollectionSetUp.setUpCollection([
-				name                 : 'Test collection 7',
-				objectRepositoryPID  : '10622/BULK00007',
+		Collection collection8 = CollectionSetUp.setUpCollection([
+				name                 : 'Test collection 8',
+				objectRepositoryPID  : '10622/BULK00008',
 				dateCreated          : calendar.getTime(),
 				digitalMaterialStatus: new DigitalMaterialStatus(
 						statusCode: DigitalMaterialStatusCode.
@@ -224,10 +271,17 @@ class DigitalMaterialStatusSpec {
 						startIngest: new Date()
 				)
 		])
-		collection7.save(flush: true, validate: false)
+		collection8.save(flush: true, validate: false)
 
 		calendar.set(2014, 04, 04)
-		collection7.setDateCreated(calendar.getTime())
-		collection7.save(flush: true, validate: false)
+		collection8.setDateCreated(calendar.getTime())
+		collection8.save(flush: true, validate: false)
+
+		// ------------------------------------------------------------------------------------------- //
+
+		Collection collection5 = Collection.findByObjectRepositoryPID('10622/BULK00005')
+		collection5.digitalMaterialStatus.statusCode =
+				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.BACKUP_RUNNING)
+		collection5.save(flush: true, validate: false)
 	}
 }

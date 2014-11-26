@@ -39,7 +39,7 @@
             $(removable).find('input, select, textarea').each(function () {
                 var element = $(this);
                 for (var i = 0; i < attrNames.length; i++) {
-                    element.attr(attrNames[i], element.attr(attrNames[i]).replace(/\[\d\]/, '[' + number + ']'));
+                    element.attr(attrNames[i], element.attr(attrNames[i]).replace(/\[\d+\]/, '[' + number + ']'));
                 }
             });
         });

@@ -121,6 +121,20 @@
 </div>
 
 <div class="form-group">
+    <label for="status" class="col-xs-6 control-label">
+        <g:message code="search.status.digital.label"/>
+    </label>
+
+    <div class="col-xs-15">
+        <g:select id="statusDigital" name="statusDigital" class="form-control" from="${digitalStatuses}" optionKey="id"
+                  optionValue="status" multiple="${true}" size="3"/>
+        <span class="help-block">
+            <g:message code="default.select.help.message"/>
+        </span>
+    </div>
+</div>
+
+<div class="form-group">
     <label class="col-xs-6 control-label">
         <g:message code="search.priority.label"/>
     </label>

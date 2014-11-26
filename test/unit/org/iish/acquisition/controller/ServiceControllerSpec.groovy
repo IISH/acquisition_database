@@ -67,6 +67,16 @@ class ServiceControllerSpec extends Specification {
 		controller.response.json.pids instanceof java.util.Collection
 	}
 
+	void "test startBackup"() {
+		when:
+		controller.startBackup()
+
+		then:
+		controller.response.getStatus() == HttpServletResponse.SC_OK
+		controller.response.getContentType().startsWith('text/json')
+		controller.response.json.pids instanceof java.util.Collection
+	}
+
 	void "test status 1"() {
 		given:
 		Collection collection = Collection.findByObjectRepositoryPID('10622/BULK00001')

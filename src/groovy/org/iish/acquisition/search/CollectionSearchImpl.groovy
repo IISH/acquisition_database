@@ -215,6 +215,7 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 			LEFT JOIN mm.materialType AS mmt
 			LEFT JOIN c.locations AS l
 			LEFT JOIN l.depot AS d
+			LEFT JOIN c.digitalMaterialStatus AS dms
 			$whereQuery
 		""")
 	}

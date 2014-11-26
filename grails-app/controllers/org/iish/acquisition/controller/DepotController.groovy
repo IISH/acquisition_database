@@ -43,9 +43,16 @@ class DepotController {
 	 * @param body What to do request from the ingest depot.
 	 */
 	private def withPathInIngestDepot(String path, Closure body) {
-		path = path ?: '/'
-		IngestDepot ingestDepot = new IngestDepotImpl(grailsApplication, path)
-		body(ingestDepot)
-		ingestDepot.close()
+		try {
+			path = path ?: '/'
+			IngestDepot ingestDepot = new IngestDepotImpl(grailsApplication, path)
+			body(ingestDepot)
+			ingestDepot.close()
+		}
+		catch (IOException ioe) {
+			flash.status = 'error'
+			flash.message = g.message(code: 'default.depot.fail.message', args: [ioe.getMessage()])
+			redirect controller: 'collection', action: 'list'
+		}
 	}
 }
