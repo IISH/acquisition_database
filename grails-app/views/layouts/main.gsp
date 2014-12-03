@@ -73,12 +73,12 @@
                                 <g:message code="page.collection.search.label"/>
                             </g:link>
                         </li>
-                        <li <g:if test="${controllerName == 'depot' && actionName ==
+                        %{--<li <g:if test="${controllerName == 'depot' && actionName ==
                                 'list'}">class="active"</g:if>>
                             <g:link controller="depot" action="list">
                                 <g:message code="page.collection.depot.label"/>
                             </g:link>
-                        </li>
+                        </li>--}%
                     </ul>
                 </nav>
             </div>
