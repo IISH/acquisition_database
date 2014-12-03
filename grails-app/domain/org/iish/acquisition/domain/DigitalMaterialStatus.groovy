@@ -94,9 +94,10 @@ class DigitalMaterialStatus {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getWithoutFolder() {
-		Collection.where {
-			digitalMaterialStatus.statusCode.id == DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION
-		}.findAll()
+		Collection.withCriteria {
+			createAlias('digitalMaterialStatus', 'status')
+			eq('status.statusCode.id', DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION)
+		}
 	}
 
 	/**
@@ -104,9 +105,10 @@ class DigitalMaterialStatus {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getReadyForBackup() {
-		Collection.where {
-			digitalMaterialStatus.statusCode.id == DigitalMaterialStatusCode.MATERIAL_UPLOADED
-		}.findAll()
+		Collection.withCriteria {
+			createAlias('digitalMaterialStatus', 'status')
+			eq('status.statusCode.id', DigitalMaterialStatusCode.MATERIAL_UPLOADED)
+		}
 	}
 
 	/**
