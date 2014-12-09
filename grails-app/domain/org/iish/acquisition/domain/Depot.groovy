@@ -11,9 +11,10 @@ class Depot {
 	static final long SORTEERRUIMTE_ID = 5L
 	static final long RANGEERTERREIN_ID = 6L
 	static final long BG_DEPOT_ID = 7L
-	static final long DIGITAL_INGEST_DEPOT_ID = 8L
-	static final long REGIONAL_DESK_ID = 9L
-	static final long ELSEWHERE_ID = 10L
+    static final long COLD_STORAGE_ID = 8L
+	static final long DIGITAL_INGEST_DEPOT_ID = 9L
+	static final long REGIONAL_DESK_ID = 10L
+	static final long ELSEWHERE_ID = 11L
 
 	String name
 

@@ -47,6 +47,7 @@ class BootStrap {
 		 (Depot.SORTEERRUIMTE_ID)       : 'Sorteerruimte',
 		 (Depot.RANGEERTERREIN_ID)      : 'Rangeerterrein',
 		 (Depot.BG_DEPOT_ID)            : 'B&G depot',
+		 (Depot.COLD_STORAGE_ID)        : 'Cold storage',
 		 (Depot.DIGITAL_INGEST_DEPOT_ID): 'Digital ingest depot',
 		 (Depot.REGIONAL_DESK_ID)       : 'Regional Desk',
 		 (Depot.ELSEWHERE_ID)           : 'Elsewhere'].
