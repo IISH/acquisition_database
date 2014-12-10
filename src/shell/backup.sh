@@ -16,10 +16,11 @@ curl --data "pid=$pid&status=$statusBackupRunning&failure=false" "$applicationUr
 backupLocation="$ingestLocation/$pid"
 chown -R root "$backupLocation"
 # Do the backup ...
+success=$? # What is the exit code of the backup?
 chown -R "$owner" "$backupLocation"
 
 # Update the status using the 'status' web service
-if [ ] # Did backup fail or succeed? ...
+if [ ${success} -eq 0 ] # Did backup fail or succeed? ...
 then
 	curl --data "pid=$pid&status=$statusBackupFinished&failure=false" "$applicationUrl/service/status"
 else
