@@ -18,8 +18,6 @@ do
 	pid="${pid%\"}"
 	pid="${pid#\"}"
 
-	# Start backup for the current PID
-	curl --data "pid=$pid&status=$statusBackupRunning&failure=false" "$applicationUrl/service/status"
-
-	# ... ... ...
+	# Start backup for the current PID as a seperate process
+	"$scriptLocation/backup.sh" "$pid" &
 done

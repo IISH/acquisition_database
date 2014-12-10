@@ -103,6 +103,9 @@ ingestDepot.ftp.port = 21
 ingestDepot.ftp.username = ''
 ingestDepot.ftp.password = ''
 
+ingestDepot.timer.initial.minutes = 60 * 24 * 7 * 4 // 4 weeks
+ingestDepot.timer.extended.minutes = 60 * 24 * 7 * 8 // 8 weeks
+
 // Make sure grails.config.locations is initialized
 if (!grails.config.locations || !(grails.config.locations instanceof Collection)) {
 	grails.config.locations = []

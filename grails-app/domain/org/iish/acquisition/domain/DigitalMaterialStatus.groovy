@@ -1,13 +1,13 @@
 package org.iish.acquisition.domain
 
 import grails.plugin.springsecurity.SpringSecurityUtils
+import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /**
  * Holds the status of the digital material located in the ingest depot.
  */
 class DigitalMaterialStatus {
-	public static final int TIMER_DURATION_WEEKS = 4
-	public static final int TIMER_EXTENDED_DURATION_WEEKS = 8
+	static GrailsApplication grailsApplication
 
 	Date startIngest
 	boolean ingestDelayed = false
@@ -28,6 +28,12 @@ class DigitalMaterialStatus {
 		collection fetch: 'join'
 	}
 
+	void beforeUpdate() {
+		if (statusCode.id == DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) {
+			startIngest = new Date()
+		}
+	}
+
 	/**
 	 * Returns the expiration date/time of the timer.
 	 * After this date/time, the digital material on the ingest depot will automatically be moved to the SOR.
@@ -38,10 +44,10 @@ class DigitalMaterialStatus {
 		calendar.setTime(collection.dateCreated)
 
 		if (ingestDelayed) {
-			calendar.add(Calendar.WEEK_OF_YEAR, TIMER_EXTENDED_DURATION_WEEKS)
+			calendar.add(Calendar.MINUTE, getTimerExtendedInMinutes())
 		}
 		else {
-			calendar.add(Calendar.WEEK_OF_YEAR, TIMER_DURATION_WEEKS)
+			calendar.add(Calendar.MINUTE, getTimerInitialInMinutes())
 		}
 
 		return calendar.getTime()
@@ -87,6 +93,22 @@ class DigitalMaterialStatus {
 		}
 
 		return false
+	}
+
+	/**
+	 * Returns the initial timer duration in minutes.
+	 * @return The initial timer duration in minutes.
+	 */
+	static int getTimerInitialInMinutes() {
+		return new Integer(grailsApplication.config.ingestDepot.timer.initial.minutes.toString())
+	}
+
+	/**
+	 * Returns the extended timer duration in minutes.
+	 * @return The extended timer duration in minutes.
+	 */
+	static int getTimerExtendedInMinutes() {
+		return new Integer(grailsApplication.config.ingestDepot.timer.extended.minutes.toString())
 	}
 
 	/**
@@ -139,17 +161,18 @@ class DigitalMaterialStatus {
 	/**
 	 * Returns the latest creation date for which the timer has not yet expired.
 	 * @param ingestDelayed Whether we should take into account extended timers.
+	 * @param date Which date to take to calculate the timer expiration creation date, by default 'now'.
 	 * @return The latest creation date for which the timer has not yet expired.
 	 */
-	private static Date getLatestCreationDateExpired(boolean extended) {
+	static Date getLatestCreationDateExpired(boolean extended, Date date = new Date()) {
 		Calendar calendar = Calendar.getInstance()
-		calendar.setTime(new Date())
+		calendar.setTime(date)
 
 		if (extended) {
-			calendar.add(Calendar.WEEK_OF_YEAR, -TIMER_EXTENDED_DURATION_WEEKS)
+			calendar.add(Calendar.MINUTE, -getTimerExtendedInMinutes())
 		}
 		else {
-			calendar.add(Calendar.WEEK_OF_YEAR, -TIMER_DURATION_WEEKS)
+			calendar.add(Calendar.MINUTE, -getTimerInitialInMinutes())
 		}
 
 		return calendar.getTime()

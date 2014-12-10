@@ -78,15 +78,7 @@ class DigitalMaterialStatusSpec {
 		DigitalMaterialStatus.metaClass.static.getLatestCreationDateExpired = { Boolean extended ->
 			Calendar calendar = Calendar.getInstance()
 			calendar.set(2014, 06, 01)
-
-			if (extended) {
-				calendar.add(Calendar.WEEK_OF_YEAR, -DigitalMaterialStatus.TIMER_EXTENDED_DURATION_WEEKS)
-			}
-			else {
-				calendar.add(Calendar.WEEK_OF_YEAR, -DigitalMaterialStatus.TIMER_DURATION_WEEKS)
-			}
-
-			return calendar.getTime()
+			return DigitalMaterialStatus.getLatestCreationDateExpired(extended, calendar.getTime())
 		}
 
 		// ------------------------------------------------------------------------------------------- //

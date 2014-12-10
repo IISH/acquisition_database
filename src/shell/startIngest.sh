@@ -18,10 +18,10 @@ do
 	pid="${pid%\"}"
 	pid="${pid#\"}"
 
-	# Create an empty ingest.txt file for the PID
+	# Create an empty ingest.txt file for the PID ...
 	touch "$ingestLocation/$pid/ingest.txt"
 
-	# Update the status using the 'status' web service
+	# Update the status using the 'status' web service ...
 	if [ -f "$ingestLocation/$pid/ingest.txt" ]
 	then
 		curl --data "pid=$pid&status=$statusUploadingToPermanentStorage&failure=false" "$applicationUrl/service/status"

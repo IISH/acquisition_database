@@ -19,7 +19,8 @@ do
 	pid="${pid#\"}"
 
 	# Create a folder for the PID
-	mkdir -p "$ingestLocation/$pid"
+	mkdir -pm 764 "$ingestLocation/$pid"
+	chown -R "$owner" "$ingestLocation"
 
 	# Update the status using the 'status' web service
 	if [ -d "$ingestLocation/$pid" ]

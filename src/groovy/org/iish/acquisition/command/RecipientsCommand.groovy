@@ -1,11 +1,12 @@
 package org.iish.acquisition.command
 
+import grails.validation.Validateable
 import org.iish.acquisition.domain.User
 
 /**
  * Command object which contains all email recipients.
  */
-@grails.validation.Validateable
+@Validateable
 class RecipientsCommand {
 	List<Long> recipients
 
