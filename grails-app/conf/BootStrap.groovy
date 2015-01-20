@@ -129,7 +129,7 @@ class BootStrap {
         }
     }
 
-    private static void addRole(String login, Authority _authority) {
+    private static void addRole(String login, String _authority) {
 
         User user = User.findByLogin(login)
         def userData = [roles: [_authority], mayReceiveEmail: true]
