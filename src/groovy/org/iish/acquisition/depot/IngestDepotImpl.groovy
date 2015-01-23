@@ -18,14 +18,18 @@ class IngestDepotImpl implements IngestDepot {
 	 */
 	IngestDepotImpl(GrailsApplication grailsApplication) {
 		Boolean secure = new Boolean(grailsApplication.config.ingestDepot.ftp.secure.toString())
-		String host = grailsApplication.config.ingestDepot.ftp.host
-		Integer port = new Integer(grailsApplication.config.ingestDepot.ftp.port.toString())
-		String username = grailsApplication.config.ingestDepot.ftp.username
-		String password = grailsApplication.config.ingestDepot.ftp.password
+        Boolean isImplicit = grailsApplication.config.ingestDepot.ftp.isImplicit
+        Boolean enterLocalPassiveMode = grailsApplication.config.ingestDepot.ftp.enterLocalPassiveMode
+        String host = grailsApplication.config.ingestDepot.ftp.host
+        Integer port = new Integer(grailsApplication.config.ingestDepot.ftp.port.toString())
+        String username = grailsApplication.config.ingestDepot.ftp.username
+        String password = grailsApplication.config.ingestDepot.ftp.password
 
-		client = secure ? new FTPSClient() : new FTPClient()
+
+		client = secure ? new FTPSClient(isImplicit) : new FTPClient()
 		client.connect(host, port)
 		client.login(username, password)
+        if (enterLocalPassiveMode) client.enterLocalPassiveMode();
 	}
 
 	/**

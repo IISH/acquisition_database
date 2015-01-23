@@ -98,6 +98,8 @@ grails.plugins.twitterbootstrap.fixtaglib = true
 
 // Default ingest depot settings
 ingestDepot.ftp.secure = false
+ingestDepot.ftp.isImplicit = false
+ingestDepot.ftp.enterLocalPassiveMode = false
 ingestDepot.ftp.host = 'localhost'
 ingestDepot.ftp.port = 21
 ingestDepot.ftp.username = ''
