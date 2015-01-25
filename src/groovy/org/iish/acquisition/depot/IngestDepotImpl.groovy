@@ -2,11 +2,14 @@ package org.iish.acquisition.depot
 
 import org.apache.commons.net.PrintCommandListener
 import org.apache.commons.net.ftp.*
+import org.apache.log4j.Logger
 
 /**
  * Provides actions on the ingest depot using FTP.
  */
 class IngestDepotImpl implements IngestDepot {
+
+    Logger log = Logger.getLogger('org.iish.acquisition.depot.IngestDepotImpl')
     private FTPClient client
     private String path = '/'
 
@@ -21,7 +24,10 @@ class IngestDepotImpl implements IngestDepot {
      */
     IngestDepotImpl(String host, int port, String username, String password, boolean secure, boolean enterLocalPassiveMode) {
         client = (secure) ? new FTPSClient() : new FTPClient()
-        client.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
+
+        if (log.isDebugEnabled()) {
+            client.addProtocolCommandListener(new PrintCommandListener(new PrintWriterImp(System.out)))
+        }
 
         client.connect(host, port)
         if (FTPReply.isNegativePermanent(client.replyCode)) {
@@ -29,7 +35,7 @@ class IngestDepotImpl implements IngestDepot {
             throw new Exception('Connection failed ' + client.getReplyString())
         }
 
-        if ( !client.login(username, password) ) {
+        if (!client.login(username, password)) {
             throw new Exception('Login failed.')
         }
 
@@ -156,5 +162,21 @@ class IngestDepotImpl implements IngestDepot {
      */
     private static boolean isValidName(String name) {
         return (!name.isAllWhitespace() && !name.equals('.') && !name.equals('..'))
+    }
+
+    /**
+     * Prints out lines of text and applies a filter to hide user credentials
+     */
+    class PrintWriterImp extends PrintWriter {
+
+        PrintWriterImp(OutputStream out) {
+            super(out)
+        }
+
+        @Override
+        void write(String s) {
+            String line = (s.startsWith('PASS ')) ? "PASS *\n" : s
+            super.write(line)
+        }
     }
 }
