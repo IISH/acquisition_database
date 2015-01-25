@@ -43,9 +43,17 @@ class DepotController {
 	 * @param body What to do request from the ingest depot.
 	 */
 	private def withPathInIngestDepot(String path, Closure body) {
-		try {
-			path = path ?: '/'
-			IngestDepot ingestDepot = new IngestDepotImpl(grailsApplication, path)
+
+        Boolean secure = new Boolean(grailsApplication.config.ingestDepot.ftp.secure.toString())
+        Boolean enterLocalPassiveMode = new Boolean(grailsApplication.config.ingestDepot.ftp.enterLocalPassiveMode.toString())
+        String host = grailsApplication.config.ingestDepot.ftp.host
+        Integer port = new Integer(grailsApplication.config.ingestDepot.ftp.port.toString())
+        String username = grailsApplication.config.ingestDepot.ftp.username
+        String password = grailsApplication.config.ingestDepot.ftp.password
+        path = path ?: '/'
+
+        try {
+			IngestDepot ingestDepot = new IngestDepotImpl(host, port, username, password, secure, enterLocalPassiveMode, path)
 			body(ingestDepot)
 			ingestDepot.close()
 		}
