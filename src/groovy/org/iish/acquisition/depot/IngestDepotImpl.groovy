@@ -23,7 +23,10 @@ class IngestDepotImpl implements IngestDepot {
      * @param enterLocalPassiveMode Use passive connections
      */
     IngestDepotImpl(String host, int port, String username, String password, boolean secure, boolean enterLocalPassiveMode) {
+
         client = (secure) ? new FTPSClient() : new FTPClient()
+
+        client.controlEncoding = 'UTF-8'
 
         if (log.isDebugEnabled()) {
             client.addProtocolCommandListener(new PrintCommandListener(new PrintWriterImp(System.out)))
