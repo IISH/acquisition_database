@@ -153,8 +153,13 @@ class BootStrap {
     private static void updateUserData(LdapUserSearch ldapUserSearch) {
         if (Environment.current != Environment.TEST) {
             User.list().each { User user ->
-                DirContextOperations ctx = ldapUserSearch.searchForUser(user.login)
-                user.update(ctx)
+                DirContextOperations ctx;
+                try {
+                    ctx = ldapUserSearch.searchForUser(user.login)
+                    if (ctx) user.update(ctx)
+                } catch (  org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+                    log.error(e)
+                }
             }
         }
     }

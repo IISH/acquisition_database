@@ -218,8 +218,6 @@ grails {
 			ldap {
 				search {
 					searchSubtree = true
-					base = 'dc=iisg,dc=net'
-					filter = 'sAMAccountName={0}'
 				}
 
 				auth {
