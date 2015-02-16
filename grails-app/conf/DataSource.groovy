@@ -15,7 +15,7 @@ hibernate {
 environments {
 	development {
 		dataSource {
-			dbCreate = "validate" //"create-drop"
+			dbCreate = "validate" // first time "create-drop", after that "validate"
 			dialect = org.iish.acquisition.util.CustomMySQL5InnoDBDialect
 			logSql = true
 			properties {

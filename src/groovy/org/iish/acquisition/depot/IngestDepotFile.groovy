@@ -10,6 +10,7 @@ class IngestDepotFile {
 	String name
 	long size
 	boolean isDirectory
+	Calendar date
 
 	/**
 	 * Returns the path in which this file is located.
@@ -36,11 +37,27 @@ class IngestDepotFile {
 	}
 
 	/**
+	 * Returns the date of the file or directory in question.
+	 * @return The date of the file or directory in question.
+	 */
+	Calendar getDate() {
+		return date
+	}
+
+	/**
 	 * Sets the name of the file or directory in question.
 	 * @param name The name of the file or directory in question.
 	 */
 	void setName(String name) {
 		this.name = name
+	}
+
+	/**
+	 * Sets the date of the file or directory in question.
+	 * @param name The date of the file or directory in question.
+	 */
+	void setDate(Calendar date) {
+		this.date = date
 	}
 
 	/**

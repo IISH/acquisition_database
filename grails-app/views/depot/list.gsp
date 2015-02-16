@@ -60,7 +60,8 @@
             <g:if test="${isOffloader2}">
                 <th class="column-checkbox"><input type="checkbox" class="checkAll"/></th>
             </g:if>
-            <th><g:message code="ingestDepot.name.label"/></th>
+	        <th><g:message code="ingestDepot.name.label"/></th>
+	        <th><g:message code="ingestDepot.date.label"/></th>
             <th><g:message code="ingestDepot.size.label"/></th>
         </tr>
         </thead>
@@ -91,6 +92,9 @@
                         ${file.getName()}
                     </g:else>
                 </td>
+	            <td>
+		            <g:formatDate formatName="default.datetime.format" date="${file.getDate().time}" />
+	            </td>
                 <td>
                     <g:if test="${!file.isDirectory()}">
                         ${file.getReadableFileSize()}

@@ -1,3 +1,4 @@
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.codehaus.groovy.grails.web.util.WebUtils
 import org.hibernate.SessionFactory
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletRequest
  * All application filters, procedures that have to run before or after certain requests.
  */
 class ApplicationFilters {
+	GrailsApplication grailsApplication
 	SessionFactory sessionFactory
 
 	/**
@@ -18,6 +20,16 @@ class ApplicationFilters {
 			before = {
 				parseQueryStringParams(request)
 				enableSoftDeleteFilter()
+			}
+		}
+
+		all(controller: 'service', action: '*') {
+			before = {
+				def app_token =  grailsApplication.config.access_token.replace("-", "")
+				def url_token = params.access_token.replace("-", "")
+				if ( app_token != url_token ) {
+					return response.sendError(403, "Access denied")
+				}
 			}
 		}
 	}

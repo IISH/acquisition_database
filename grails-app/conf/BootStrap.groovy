@@ -1,4 +1,5 @@
 import grails.util.Environment
+import org.apache.log4j.Logger
 import org.iish.acquisition.domain.*
 import org.springframework.ldap.core.DirContextOperations
 import org.springframework.security.ldap.search.LdapUserSearch
@@ -8,6 +9,7 @@ import org.springframework.security.ldap.search.LdapUserSearch
  */
 class BootStrap {
 
+	static final Logger log = Logger.getLogger(this.class)
     LdapUserSearch ldapUserSearch
     def grailsApplication
 
@@ -120,7 +122,6 @@ class BootStrap {
      * Creates or updates the users and their granted roles.
      */
     private void setUsersAndAuthorities() {
-
         grailsApplication.config.role_admin.split(',').each {
             addRole(it, Authority.ROLE_ADMIN)
         }
@@ -153,13 +154,13 @@ class BootStrap {
     private static void updateUserData(LdapUserSearch ldapUserSearch) {
         if (Environment.current != Environment.TEST) {
             User.list().each { User user ->
-                DirContextOperations ctx;
-                try {
-                    ctx = ldapUserSearch.searchForUser(user.login)
-                    if (ctx) user.update(ctx)
-                } catch (  org.springframework.security.core.userdetails.UsernameNotFoundException e) {
-                    log.error(e)
-                }
+	            // try to update the user data with information from the Active Directory
+	            try {
+		            DirContextOperations ctx = ldapUserSearch.searchForUser(user.login)
+		            user.update(ctx)
+	            } catch(e) {
+		            log.warn("Cannot find user in LDAP: ${user.login}")
+	            }
             }
         }
     }

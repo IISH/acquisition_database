@@ -23,10 +23,7 @@ class IngestDepotImpl implements IngestDepot {
      * @param enterLocalPassiveMode Use passive connections
      */
     IngestDepotImpl(String host, int port, String username, String password, boolean secure, boolean enterLocalPassiveMode) {
-
         client = (secure) ? new FTPSClient() : new FTPClient()
-
-        client.controlEncoding = 'UTF-8'
 
         if (log.isDebugEnabled()) {
             client.addProtocolCommandListener(new PrintCommandListener(new PrintWriterImp(System.out)))
@@ -107,6 +104,7 @@ class IngestDepotImpl implements IngestDepot {
             ingestDepotFile.path = getValidPath(path + '/' + file.getName())
             ingestDepotFile.name = file.getName()
             ingestDepotFile.size = file.getSize()
+	        ingestDepotFile.date = file.getTimestamp()
             ingestDepotFile.isDirectory = file.isDirectory()
 
             return ingestDepotFile
