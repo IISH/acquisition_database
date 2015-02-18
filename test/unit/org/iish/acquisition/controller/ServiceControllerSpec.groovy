@@ -18,12 +18,12 @@ class ServiceControllerSpec extends Specification {
 
 	def setup() {
 		[
-		 (DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION): [status: '1', isSetByUser: false],
-		 (DigitalMaterialStatusCode.FOLDER_CREATED)                 : [status: '2', isSetByUser: false],
-		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)              : [status: '3', isSetByUser: true],
-		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)    : [status: '4', isSetByUser: true],
-		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) : [status: '5', isSetByUser: false],
-		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)     : [status: '6', isSetByUser: false]
+		 (DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION): [status: '10', isSetByUser: false],
+		 (DigitalMaterialStatusCode.FOLDER_CREATED)                 : [status: '30', isSetByUser: false],
+		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)              : [status: '40', isSetByUser: true],
+		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)    : [status: '100', isSetByUser: true],
+		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) : [status: '110', isSetByUser: false],
+		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)     : [status: '120', isSetByUser: false]
 		].
 				each { Long id, Map statusInfo ->
 					if (!DigitalMaterialStatusCode.get(id)) {
