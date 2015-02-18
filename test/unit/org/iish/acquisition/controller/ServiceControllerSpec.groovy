@@ -27,7 +27,9 @@ class ServiceControllerSpec extends Specification {
 		].
 				each { Long id, Map statusInfo ->
 					if (!DigitalMaterialStatusCode.get(id)) {
-						new DigitalMaterialStatusCode([id: id] + statusInfo).save()
+						DigitalMaterialStatusCode digitalMaterialStatusCode = new DigitalMaterialStatusCode(statusInfo)
+						digitalMaterialStatusCode.setId(id)
+						digitalMaterialStatusCode.save()
 					}
 				}
 
@@ -103,7 +105,7 @@ class ServiceControllerSpec extends Specification {
 
 	void "test invalid status 3"() {
 		when:
-		controller.status('10622/BULK00003', 10L, false)
+		controller.status('10622/BULK00003', 999L, false)
 
 		then:
 		controller.response.getStatus() == HttpServletResponse.SC_BAD_REQUEST
