@@ -66,7 +66,7 @@ class ServiceControllerSpec extends Specification {
 		Collection collection = Collection.findByObjectRepositoryPID('10622/BULK00001')
 
 		when:
-		controller.status('10622/BULK00001', DigitalMaterialStatusCode.FOLDER_CREATED, false)
+		controller.status('10622/BULK00001', DigitalMaterialStatusCode.FOLDER_CREATED, false, null)
 
 		then:
 		controller.response.getStatus() == HttpServletResponse.SC_OK
@@ -79,7 +79,7 @@ class ServiceControllerSpec extends Specification {
 		Collection collection = Collection.findByObjectRepositoryPID('10622/BULK00002')
 
 		when:
-		controller.status('10622/BULK00002', DigitalMaterialStatusCode.MATERIAL_UPLOADED, true)
+		controller.status('10622/BULK00002', DigitalMaterialStatusCode.MATERIAL_UPLOADED, true, null)
 
 		then:
 		controller.response.getStatus() == HttpServletResponse.SC_OK
@@ -89,7 +89,7 @@ class ServiceControllerSpec extends Specification {
 
 	void "test invalid status 1"() {
 		when:
-		controller.status('10622/BULK00003', null, null)
+		controller.status('10622/BULK00003', null, null, null)
 
 		then:
 		controller.response.getStatus() == HttpServletResponse.SC_BAD_REQUEST
@@ -97,7 +97,7 @@ class ServiceControllerSpec extends Specification {
 
 	void "test invalid status 2"() {
 		when:
-		controller.status('10622/BULK00004', DigitalMaterialStatusCode.FOLDER_CREATED, false)
+		controller.status('10622/BULK00004', DigitalMaterialStatusCode.FOLDER_CREATED, false, null)
 
 		then:
 		controller.response.getStatus() == HttpServletResponse.SC_NOT_FOUND
@@ -105,7 +105,7 @@ class ServiceControllerSpec extends Specification {
 
 	void "test invalid status 3"() {
 		when:
-		controller.status('10622/BULK00003', 999L, false)
+		controller.status('10622/BULK00003', 999L, false, null)
 
 		then:
 		controller.response.getStatus() == HttpServletResponse.SC_BAD_REQUEST
