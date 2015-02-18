@@ -270,7 +270,7 @@
             <g:if test="${materialTypes.size() % 2 == 1}">
                 </div>
             </g:if>
-	        <div><g:message code="collection.use.comma"/></div>
+	        <div class="help-block"><g:message code="collection.use.comma"/></div>
         </div>
     </div>
 

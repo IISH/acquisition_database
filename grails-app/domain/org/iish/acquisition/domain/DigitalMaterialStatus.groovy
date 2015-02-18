@@ -85,10 +85,18 @@ class DigitalMaterialStatus {
 		if (!lastActionFailed && newStatusCode.isSetByUser && (newStatusCode.id > statusCode.id)) {
 			switch (newStatusCode.id) {
 				case DigitalMaterialStatusCode.MATERIAL_UPLOADED:
-					return ((statusCode.id >= DigitalMaterialStatusCode.FOLDER_CREATED) &&
-							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1))
+					// TODO GCU remove println
+					//println "statusCode: " + statusCode.id
+					//println "FOLDER_CREATED: " + DigitalMaterialStatusCode.FOLDER_CREATED
+					//println "ROLE_OFFLOADER_1: " + SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1)
+					return ((statusCode.id >= DigitalMaterialStatusCode.FOLDER_CREATED)
+							&& SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1) )
 				case DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE:
 				case DigitalMaterialStatusCode.READY_FOR_RESTORE:
+					// TODO GCU remove println
+					//println "statusCode: " + statusCode.id
+					//println "BACKUP_FINISHED: " + DigitalMaterialStatusCode.BACKUP_FINISHED
+					//println "ROLE_OFFLOADER_2: " + SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_2)
 					return ((statusCode.id >= DigitalMaterialStatusCode.BACKUP_FINISHED) &&
 							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_2))
 			}
@@ -154,20 +162,21 @@ class DigitalMaterialStatus {
 		Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
 
-			isNull('status.startIngest')
-			eq('status.lastActionFailed', false)
+			// TODO GCU, temporarily disabled, check with original programmer
+//			isNull('status.startIngest')
+//			eq('status.lastActionFailed', false)
 
-			or {
+//			or {
 				eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)
-				and {
-					eq('status.ingestDelayed', false)
-					lt('dateCreated', getLatestCreationDateExpired(false))
-				}
-				and {
-					eq('status.ingestDelayed', true)
-					lt('dateCreated', getLatestCreationDateExpired(true))
-				}
-			}
+//				and {
+//					eq('status.ingestDelayed', false)
+//					lt('dateCreated', getLatestCreationDateExpired(false))
+//				}
+//				and {
+//					eq('status.ingestDelayed', true)
+//					lt('dateCreated', getLatestCreationDateExpired(true))
+//				}
+//			}
 		}
 	}
 
