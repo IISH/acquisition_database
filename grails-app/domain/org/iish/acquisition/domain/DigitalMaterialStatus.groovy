@@ -10,8 +10,9 @@ class DigitalMaterialStatus {
 	static GrailsApplication grailsApplication
 
 	Date startIngest
-	boolean ingestDelayed = false
+    boolean ingestDelayed = false
 	boolean lastActionFailed = false
+    String message
 
 	static belongsTo = [
 			collection: Collection,
@@ -21,14 +22,14 @@ class DigitalMaterialStatus {
 	static constraints = {
 		collection unique: true
 		startIngest nullable: true
+        message nullable: true, blank: true
 	}
-
-	static mapping = {
+    static mapping = {
 		table 'digital_material_statuses'
 		collection fetch: 'join'
 	}
 
-	void beforeUpdate() {
+    void beforeUpdate() {
 		if (statusCode.id == DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) {
 			startIngest = new Date()
 		}

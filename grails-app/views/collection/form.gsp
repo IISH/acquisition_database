@@ -786,7 +786,7 @@
 
                     <g:if test="${failed}">
                         <div class="col-xs-10 text-danger radio">
-                            <g:message code="digitalMaterialStatus.failure.label"/>
+                            <g:message code="digitalMaterialStatus.failure.label"/>: ${digitalMaterialStatus.message}
                         </div>
                     </g:if>
                 </div>

@@ -56,7 +56,7 @@ class ServiceController {
 	/**
 	 * Updates the status of the digital material running for the given PID on the ingest depot.
 	 */
-	def status(String pid, Long status, Boolean failure) {
+	def status(String pid, Long status, Boolean failure, String message) {
 		doWithPid(pid) { Collection collection ->
 			DigitalMaterialStatus digitalMaterialStatus = collection.digitalMaterialStatus
 			DigitalMaterialStatusCode statusCode = DigitalMaterialStatusCode.get(status)
@@ -64,6 +64,7 @@ class ServiceController {
 			if (digitalMaterialStatus && statusCode) {
 				digitalMaterialStatus.statusCode = statusCode
 				digitalMaterialStatus.lastActionFailed = failure
+                digitalMaterialStatus.message = message
 				digitalMaterialStatus.save(flush: true)
 
 				render 'OK'
