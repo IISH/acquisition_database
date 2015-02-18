@@ -25,9 +25,25 @@ class ApplicationFilters {
 
 		all(controller: 'service', action: '*') {
 			before = {
-				def app_token =  grailsApplication.config.access_token.replace("-", "")
-				def url_token = params.access_token.replace("-", "")
+				// get application access token
+				def app_token =  grailsApplication.config.access_token
+				if ( !app_token ) {
+					app_token = ""
+				} else {
+					app_token = app_token.replace("-", "")
+				}
+
+				// get access token from url
+				def url_token = params.access_token
+				if ( !url_token ) {
+					url_token = ""
+				} else {
+					url_token = url_token.replace("-", "")
+				}
+
+				// compare tokens
 				if ( app_token != url_token ) {
+					// deny access
 					return response.sendError(403, "Access denied")
 				}
 			}

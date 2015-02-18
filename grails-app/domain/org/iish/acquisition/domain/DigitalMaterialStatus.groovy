@@ -87,6 +87,7 @@ class DigitalMaterialStatus {
 					return ((statusCode.id >= DigitalMaterialStatusCode.FOLDER_CREATED) &&
 							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1))
 				case DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE:
+				case DigitalMaterialStatusCode.READY_FOR_RESTORE:
 					return ((statusCode.id >= DigitalMaterialStatusCode.BACKUP_FINISHED) &&
 							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_2))
 			}
@@ -130,6 +131,17 @@ class DigitalMaterialStatus {
 		Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
 			eq('status.statusCode.id', DigitalMaterialStatusCode.MATERIAL_UPLOADED)
+		}
+	}
+
+	/**
+	 * Returns a list of digital material collections ready for restore.
+	 * @return A list of matching collections.
+	 */
+	static List<Collection> getReadyForRestore() {
+		Collection.withCriteria {
+			createAlias('digitalMaterialStatus', 'status')
+			eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_RESTORE)
 		}
 	}
 

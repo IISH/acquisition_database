@@ -11,10 +11,11 @@ import javax.servlet.http.HttpServletResponse
  * Web service for communication with the processes running on the ingest depot.
  */
 class ServiceController {
-	static allowedMethods = [folders    : 'GET',
-	                         startBackup: 'GET',
-	                         startIngest: 'GET',
-	                         status     : 'POST']
+	static allowedMethods = [folders      : 'GET',
+	                         startBackup  : 'GET',
+	                         startIngest  : 'GET',
+	                         startRestore : 'GET',
+	                         status       : 'POST']
 
 	/**
 	 * Returns all of the PIDs without a folder on the ingest depot.
@@ -40,6 +41,15 @@ class ServiceController {
 	def startIngest() {
 		endWithResponse {
 			[pids: DigitalMaterialStatus.getReadyForIngest()*.objectRepositoryPID]
+		}
+	}
+
+	/**
+	 * Returns all of the PIDs for which a restore may start.
+	 */
+	def startRestore() {
+		endWithResponse {
+			[pids: DigitalMaterialStatus.getReadyForRestore()*.objectRepositoryPID]
 		}
 	}
 
