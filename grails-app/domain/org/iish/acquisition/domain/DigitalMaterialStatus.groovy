@@ -10,9 +10,9 @@ class DigitalMaterialStatus {
 	static GrailsApplication grailsApplication
 
 	Date startIngest
-    boolean ingestDelayed = false
+	boolean ingestDelayed = false
 	boolean lastActionFailed = false
-    String message
+	String message
 
 	static belongsTo = [
 			collection: Collection,
@@ -22,14 +22,14 @@ class DigitalMaterialStatus {
 	static constraints = {
 		collection unique: true
 		startIngest nullable: true
-        message nullable: true, blank: true
+		message nullable: true, blank: true
 	}
-    static mapping = {
+	static mapping = {
 		table 'digital_material_statuses'
 		collection fetch: 'join'
 	}
 
-    void beforeUpdate() {
+	void beforeUpdate() {
 		if (statusCode.id == DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) {
 			startIngest = new Date()
 		}
@@ -46,8 +46,7 @@ class DigitalMaterialStatus {
 
 		if (ingestDelayed) {
 			calendar.add(Calendar.MINUTE, getTimerExtendedInMinutes())
-		}
-		else {
+		} else {
 			calendar.add(Calendar.MINUTE, getTimerInitialInMinutes())
 		}
 
@@ -85,18 +84,10 @@ class DigitalMaterialStatus {
 		if (!lastActionFailed && newStatusCode.isSetByUser && (newStatusCode.id > statusCode.id)) {
 			switch (newStatusCode.id) {
 				case DigitalMaterialStatusCode.MATERIAL_UPLOADED:
-					// TODO GCU remove println
-					//println "statusCode: " + statusCode.id
-					//println "FOLDER_CREATED: " + DigitalMaterialStatusCode.FOLDER_CREATED
-					//println "ROLE_OFFLOADER_1: " + SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1)
 					return ((statusCode.id >= DigitalMaterialStatusCode.FOLDER_CREATED)
-							&& SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1) )
+							&& SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1))
 				case DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE:
 				case DigitalMaterialStatusCode.READY_FOR_RESTORE:
-					// TODO GCU remove println
-					//println "statusCode: " + statusCode.id
-					//println "BACKUP_FINISHED: " + DigitalMaterialStatusCode.BACKUP_FINISHED
-					//println "ROLE_OFFLOADER_2: " + SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_2)
 					return ((statusCode.id >= DigitalMaterialStatusCode.BACKUP_FINISHED) &&
 							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_2))
 			}
@@ -139,7 +130,21 @@ class DigitalMaterialStatus {
 	static List<Collection> getReadyForBackup() {
 		Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.MATERIAL_UPLOADED)
+
+			// TODO GCU, new, check with original programmer
+//			and {
+				eq('status.statusCode.id', DigitalMaterialStatusCode.MATERIAL_UPLOADED)
+
+//				and {
+//					eq('status.ingestDelayed', false)
+//					ge('dateCreated', getLatestCreationDateExpired(false))
+//				}
+
+//				and {
+//					eq('status.ingestDelayed', true)
+//					ge('dateCreated', getLatestCreationDateExpired(true))
+//				}
+//			}
 		}
 	}
 
@@ -163,18 +168,20 @@ class DigitalMaterialStatus {
 			createAlias('digitalMaterialStatus', 'status')
 
 			// TODO GCU, temporarily disabled, check with original programmer
-//			isNull('status.startIngest')
-//			eq('status.lastActionFailed', false)
-
-//			or {
-				eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)
-//				and {
-//					eq('status.ingestDelayed', false)
-//					lt('dateCreated', getLatestCreationDateExpired(false))
-//				}
-//				and {
-//					eq('status.ingestDelayed', true)
-//					lt('dateCreated', getLatestCreationDateExpired(true))
+//			and {
+//				isNull('status.startIngest')
+//				eq('status.lastActionFailed', false)
+//
+//				or {
+					eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)
+//					and {
+//						eq('status.ingestDelayed', false)
+//						lt('dateCreated', getLatestCreationDateExpired(false))
+//					}
+//					and {
+//						eq('status.ingestDelayed', true)
+//						lt('dateCreated', getLatestCreationDateExpired(true))
+//					}
 //				}
 //			}
 		}
@@ -192,8 +199,7 @@ class DigitalMaterialStatus {
 
 		if (extended) {
 			calendar.add(Calendar.MINUTE, -getTimerExtendedInMinutes())
-		}
-		else {
+		} else {
 			calendar.add(Calendar.MINUTE, -getTimerInitialInMinutes())
 		}
 

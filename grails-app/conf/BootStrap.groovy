@@ -104,17 +104,18 @@ class BootStrap {
 				}
 
 		[
-		 (DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION) : [status: 'No folder created yet', isSetByUser: false],
-		 (DigitalMaterialStatusCode.FOLDER_CREATION_RUNNING)         : [status: 'A folder is being created', isSetByUser: false],
-		 (DigitalMaterialStatusCode.FOLDER_CREATED)                  : [status: 'A folder has been created', isSetByUser: false],
-		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)               : [status: 'Digital material has been uploaded', isSetByUser: true],
-		 (DigitalMaterialStatusCode.BACKUP_FINISHED)                 : [status: 'A backup of the digital material has been created', isSetByUser: false],
-		 (DigitalMaterialStatusCode.READY_FOR_RESTORE)               : [status: 'Request restore of the digital material', isSetByUser: true],
-		 (DigitalMaterialStatusCode.RESTORE_RUNNING)                 : [status: 'A restore of the digital material is being performed', isSetByUser: false],
-		 (DigitalMaterialStatusCode.RESTORE_FINISHED)                : [status: 'A restore of the digital material has been done', isSetByUser: false],
-		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)     : [status: 'Digital material is ready for permanent storage', isSetByUser: true],
-		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE)  : [status: 'Digital material is being uploaded to permanent storage', isSetByUser: false],
-		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)      : [status: 'Digital material has been moved to permanent storage', isSetByUser: false]
+		 (DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION) : [status: '1. No folder created yet', isSetByUser: false],
+		 (DigitalMaterialStatusCode.FOLDER_CREATION_RUNNING)         : [status: '2. A folder is being created', isSetByUser: false],
+		 (DigitalMaterialStatusCode.FOLDER_CREATED)                  : [status: '3. A folder has been created', isSetByUser: false],
+		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)               : [status: '4. Digital material has been uploaded, request creation of backup', isSetByUser: true],
+		 (DigitalMaterialStatusCode.BACKUP_RUNNING)                  : [status: '5. A backup of the digital material is being made', isSetByUser: false],
+		 (DigitalMaterialStatusCode.BACKUP_FINISHED)                 : [status: '6. A backup of the digital material has been created', isSetByUser: false],
+		 (DigitalMaterialStatusCode.READY_FOR_RESTORE)               : [status: '7. Request restore of the digital material', isSetByUser: true],
+		 (DigitalMaterialStatusCode.RESTORE_RUNNING)                 : [status: '8. A restore of the digital material is being performed', isSetByUser: false],
+		 (DigitalMaterialStatusCode.RESTORE_FINISHED)                : [status: '9. A restore of the digital material has been done', isSetByUser: false],
+		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)     : [status: '10. Digital material is ready for permanent storage (SOR)', isSetByUser: true],
+		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE)  : [status: '11. Digital material is being uploaded to permanent storage (SOR)', isSetByUser: false],
+		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)      : [status: '12. Digital material has been moved to permanent storage (SOR)', isSetByUser: false]
 		].
 				each { Long id, Map statusInfo ->
 					if (!DigitalMaterialStatusCode.get(id)) {

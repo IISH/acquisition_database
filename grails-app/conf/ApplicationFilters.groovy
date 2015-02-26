@@ -1,3 +1,4 @@
+import grails.util.Environment
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.codehaus.groovy.grails.web.util.WebUtils
@@ -25,26 +26,30 @@ class ApplicationFilters {
 
 		all(controller: 'service', action: '*') {
 			before = {
-				// get application access token
-				def app_token =  grailsApplication.config.access_token
-				if ( !app_token ) {
-					app_token = ""
-				} else {
-					app_token = app_token.replace("-", "")
-				}
+				if (Environment.current != Environment.TEST) {
 
-				// get access token from url
-				def url_token = params.access_token
-				if ( !url_token ) {
-					url_token = ""
-				} else {
-					url_token = url_token.replace("-", "")
-				}
+						// get application access token
+					def app_token =  grailsApplication.config.access_token
+					if ( !app_token ) {
+						app_token = ""
+					} else {
+						app_token = app_token.replace("-", "")
+					}
 
-				// compare tokens
-				if ( app_token != url_token ) {
-					// deny access
-					return response.sendError(403, "Access denied")
+					// get access token from url
+					def url_token = params.access_token
+					if ( !url_token ) {
+						url_token = ""
+					} else {
+						url_token = url_token.replace("-", "")
+					}
+
+					// compare tokens
+					if ( app_token != url_token ) {
+						// deny access
+						return response.sendError(403, "Access denied")
+					}
+
 				}
 			}
 		}
