@@ -2,20 +2,14 @@ package org.iish.acquisition.domain
 
 import org.iish.acquisition.util.PrinterUtil
 
-import java.math.RoundingMode
-
 /**
- * Represents an uploaded photo of the collection as delivered.
+ * Represents an uploaded file from the ingest depot.
  */
-class Photo {
+class DigitalMaterialFile {
 	String originalFilename
 	Long size
 	String contentType
-	byte[] photo
-
-	static belongsTo = [
-			collection: Collection
-	]
+	byte[] file
 
 	static constraints = {
 		originalFilename maxSize: 255
@@ -23,18 +17,18 @@ class Photo {
 	}
 
 	static mapping = {
-		table 'photos'
-		photo sqlType: 'mediumblob'
+		table 'digital_material_files'
+		file sqlType: 'mediumblob'
 	}
 
 	/**
-	 * Returns Photo objects from the database, without the photo data.
-	 * @param collection The collection to return the Photos of.
-	 * @return Photo objects.
+	 * Returns a DigitalMaterialFile object from the database, without the file data.
+	 * @param id The id of the digital material file.
+	 * @return DigitalMaterialFile object.
 	 */
-	static List<Photo> getPhotoMetaData(Collection collection) {
+	static DigitalMaterialFile getFileMetaData(Long id) {
 		return withCriteria {
-			eq('collection', collection)
+			eq('id', id)
 			projections {
 				property('id')
 				property('originalFilename')
@@ -42,10 +36,14 @@ class Photo {
 				property('contentType')
 			}
 		}.collect {
-			Photo photo = new Photo(originalFilename: it[1], size: new Long(it[2].toString()), contentType: it[3])
-			photo.setId(new Long(it[0].toString()))
-			return photo
-		}
+			DigitalMaterialFile digitalMaterialFile = new DigitalMaterialFile(
+					originalFilename: it[1],
+					size: new Long(it[2].toString()),
+					contentType: it[3]
+			)
+			digitalMaterialFile.setId(new Long(it[0].toString()))
+			return digitalMaterialFile
+		}.first()
 	}
 
 	/**

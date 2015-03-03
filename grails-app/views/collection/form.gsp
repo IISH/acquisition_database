@@ -342,6 +342,16 @@
                     </div>
                 </g:if>
 
+                <g:if test="${(i == 7) && (digitalMaterialStatus?.manifestCsvId)}">
+                    <div class="col-xs-12 text-center">
+                        <g:link controller="download" action="manifest" id="${digitalMaterialStatus.manifestCsvId}"
+                                class="btn btn-default">
+                            <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                            <g:message code="digitalMaterialCollection.downloadManifest.label"/>
+                        </g:link>
+                    </div>
+                </g:if>
+
                 <g:if test="${i % 2 == 1}">
                     </div>
                 </g:if>
@@ -721,7 +731,6 @@
     </div>
 </div>
 
-<g:set var="digitalMaterialStatus" value="${collection.digitalMaterialStatus}"/>
 <g:if test="${digitalMaterialStatus}">
     <div class="form-group">
         <label class="col-xs-4 control-label">

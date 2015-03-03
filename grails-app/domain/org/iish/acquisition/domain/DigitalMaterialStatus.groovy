@@ -1,29 +1,34 @@
 package org.iish.acquisition.domain
 
+import grails.util.Holders
 import grails.plugin.springsecurity.SpringSecurityUtils
-import org.codehaus.groovy.grails.commons.GrailsApplication
 
 /**
  * Holds the status of the digital material located in the ingest depot.
  */
 class DigitalMaterialStatus {
-	static GrailsApplication grailsApplication
-
 	Date startIngest
 	boolean ingestDelayed = false
 	boolean lastActionFailed = false
 	String message
 
 	static belongsTo = [
-			collection: Collection,
-			statusCode: DigitalMaterialStatusCode
+			collection : Collection,
+			statusCode : DigitalMaterialStatusCode,
+
+			manifestCsv: DigitalMaterialFile,
+			manifestXml: DigitalMaterialFile
 	]
 
 	static constraints = {
 		collection unique: true
 		startIngest nullable: true
 		message nullable: true, blank: true
+
+		manifestCsv nullable: true
+		manifestXml nullable: true
 	}
+
 	static mapping = {
 		table 'digital_material_statuses'
 		collection fetch: 'join'
@@ -46,19 +51,12 @@ class DigitalMaterialStatus {
 
 		if (ingestDelayed) {
 			calendar.add(Calendar.MINUTE, getTimerExtendedInMinutes())
-		} else {
+		}
+		else {
 			calendar.add(Calendar.MINUTE, getTimerInitialInMinutes())
 		}
 
 		return calendar.getTime()
-	}
-
-	/**
-	 * Returns whether the timer expired.
-	 * @return Whether the timer expired.
-	 */
-	boolean isTimerExpired() {
-		return (getTimerExpirationDate().compareTo(new Date()) < 0)
 	}
 
 	/**
@@ -101,7 +99,7 @@ class DigitalMaterialStatus {
 	 * @return The initial timer duration in minutes.
 	 */
 	static int getTimerInitialInMinutes() {
-		return new Integer(grailsApplication.config.ingestDepot.timer.initial.minutes.toString())
+		return new Integer(Holders.config.ingestDepot.timer.initial.minutes.toString())
 	}
 
 	/**
@@ -109,7 +107,7 @@ class DigitalMaterialStatus {
 	 * @return The extended timer duration in minutes.
 	 */
 	static int getTimerExtendedInMinutes() {
-		return new Integer(grailsApplication.config.ingestDepot.timer.extended.minutes.toString())
+		return new Integer(Holders.config.ingestDepot.timer.extended.minutes.toString())
 	}
 
 	/**
@@ -128,24 +126,12 @@ class DigitalMaterialStatus {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getReadyForBackup() {
-		Collection.withCriteria {
+		List<Collection> readyForBackup = Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
-
-			// TODO GCU, new, check with original programmer
-//			and {
-				eq('status.statusCode.id', DigitalMaterialStatusCode.MATERIAL_UPLOADED)
-
-//				and {
-//					eq('status.ingestDelayed', false)
-//					ge('dateCreated', getLatestCreationDateExpired(false))
-//				}
-
-//				and {
-//					eq('status.ingestDelayed', true)
-//					ge('dateCreated', getLatestCreationDateExpired(true))
-//				}
-//			}
+			eq('status.statusCode.id', DigitalMaterialStatusCode.MATERIAL_UPLOADED)
 		}
+
+		return getIngestNotStartedOrNotEligible(readyForBackup)
 	}
 
 	/**
@@ -153,10 +139,12 @@ class DigitalMaterialStatus {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getReadyForRestore() {
-		Collection.withCriteria {
+		List<Collection> readyForRestore = Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
 			eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_RESTORE)
 		}
+
+		return getIngestNotStartedOrNotEligible(readyForRestore)
 	}
 
 	/**
@@ -167,43 +155,71 @@ class DigitalMaterialStatus {
 		Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
 
-			// TODO GCU, temporarily disabled, check with original programmer
-//			and {
-//				isNull('status.startIngest')
-//				eq('status.lastActionFailed', false)
-//
-//				or {
+			and {
+				isNull('status.startIngest')
+				eq('status.lastActionFailed', false)
+
+				or {
 					eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)
-//					and {
-//						eq('status.ingestDelayed', false)
-//						lt('dateCreated', getLatestCreationDateExpired(false))
-//					}
-//					and {
-//						eq('status.ingestDelayed', true)
-//						lt('dateCreated', getLatestCreationDateExpired(true))
-//					}
-//				}
-//			}
+					and {
+						eq('status.ingestDelayed', false)
+						lt('dateCreated', getLatestCreationDateInitialExpired())
+					}
+					and {
+						eq('status.ingestDelayed', true)
+						lt('dateCreated', getLatestCreationDateExtendedExpired())
+					}
+				}
+			}
 		}
 	}
 
 	/**
+	 * Returns the latest creation date for which the initial timer has not yet expired.
+	 * @param date Which date to take to calculate the timer expiration creation date, by default 'now'.
+	 * @return The latest creation date for which the initial timer has not yet expired.
+	 */
+	static Date getLatestCreationDateInitialExpired(Date date = new Date()) {
+		return getLatestCreationDateExpired(getTimerInitialInMinutes(), date)
+	}
+
+	/**
+	 * Returns the latest creation date for which the extended timer has not yet expired.
+	 * @param date Which date to take to calculate the timer expiration creation date, by default 'now'.
+	 * @return The latest creation date for which the extended timer has not yet expired.
+	 */
+	static Date getLatestCreationDateExtendedExpired(Date date = new Date()) {
+		return getLatestCreationDateExpired(getTimerExtendedInMinutes(), date)
+	}
+
+	/**
 	 * Returns the latest creation date for which the timer has not yet expired.
-	 * @param ingestDelayed Whether we should take into account extended timers.
+	 * @param minutes The number of minutes on the timer.
 	 * @param date Which date to take to calculate the timer expiration creation date, by default 'now'.
 	 * @return The latest creation date for which the timer has not yet expired.
 	 */
-	static Date getLatestCreationDateExpired(boolean extended, Date date = new Date()) {
+	private static Date getLatestCreationDateExpired(Integer minutes, Date date = new Date()) {
 		Calendar calendar = Calendar.getInstance()
 		calendar.setTime(date)
-
-		if (extended) {
-			calendar.add(Calendar.MINUTE, -getTimerExtendedInMinutes())
-		} else {
-			calendar.add(Calendar.MINUTE, -getTimerInitialInMinutes())
-		}
+		calendar.add(Calendar.MINUTE, -minutes)
 
 		return calendar.getTime()
+	}
+
+	/**
+	 * Removes from the given list of digital material collections
+	 * those that have started ingest or are eligible for ingest.
+	 * @param collections The list of collections to be filtered.
+	 * @return The filtered list of collections.
+	 */
+	private static List<Collection> getIngestNotStartedOrNotEligible(List<Collection> collections) {
+		List<Collection> ingestStarted = Collection.withCriteria {
+			createAlias('digitalMaterialStatus', 'status')
+			isNotNull('status.startIngest')
+		}
+		List<Collection> readyForIngest = getReadyForIngest()
+
+		return collections - ingestStarted - readyForIngest
 	}
 
 	@Override

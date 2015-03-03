@@ -2,19 +2,12 @@ package org.iish.acquisition.domain
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.IntegrationTestMixin
-import org.hibernate.SessionFactory
 import org.junit.Test
 
 @TestMixin(IntegrationTestMixin)
 class DigitalMaterialStatusSpec {
 
-	// TODO: Temp disable integration test: problem generator assigned id in h2?
 	@Test
-	void dummyTest() {
-		assert true
-	}
-
-	/*@Test
 	void testWithoutFolder() {
 		setUp1()
 		List<Collection> withoutFolder1 = DigitalMaterialStatus.getWithoutFolder()
@@ -45,32 +38,35 @@ class DigitalMaterialStatusSpec {
 		// ------------------------------------------------------------------------------------------- //
 
 		CollectionSetUp.cleanUpCollections()
-	}*/
+	}
 
-	/*@Test
+	@Test
 	void testReadyForBackup() {
+		setUpTimer()
+
 		setUp1()
 		List<Collection> readyForBackup1 = DigitalMaterialStatus.getReadyForBackup()
 
 		assert readyForBackup1.size() == 1
-		assert readyForBackup1*.objectRepositoryPID.contains('10622/BULK00005')
+		assert readyForBackup1*.objectRepositoryPID.contains('10622/BULK00005') // Ready for backup
 
 		// ------------------------------------------------------------------------------------------- //
 
 		setUp2()
 		List<Collection> readyForBackup2 = DigitalMaterialStatus.getReadyForBackup()
 
-		assert readyForBackup2.size() == 2
-		assert readyForBackup2*.objectRepositoryPID.contains('10622/BULK00005')
-		assert readyForBackup2*.objectRepositoryPID.contains('10622/BULK00007')
+		assert readyForBackup2.size() == 1
+		assert readyForBackup2*.objectRepositoryPID.contains('10622/BULK00005') // Ready for backup
+		assert !readyForBackup2*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
 
 		// ------------------------------------------------------------------------------------------- //
 
 		setUp3()
 		List<Collection> readyForBackup3 = DigitalMaterialStatus.getReadyForBackup()
 
-		assert readyForBackup3.size() == 1
-		assert readyForBackup3*.objectRepositoryPID.contains('10622/BULK00007')
+		assert readyForBackup3.size() == 0
+		assert !readyForBackup3*.objectRepositoryPID.contains('10622/BULK00005') // Backup is now running
+		assert !readyForBackup3*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -79,23 +75,14 @@ class DigitalMaterialStatusSpec {
 
 	@Test
 	void testReadyForIngest() {
-		// Override method to make sure a static date 01/07/2014 is used (months start with 0)
-		// Timer expired: June 3
-		// Extended timer expired: May 6
-		DigitalMaterialStatus.metaClass.static.getLatestCreationDateExpired = { Boolean extended ->
-			Calendar calendar = Calendar.getInstance()
-			calendar.set(2014, 06, 01)
-			return DigitalMaterialStatus.getLatestCreationDateExpired(extended, calendar.getTime())
-		}
-
-		// ------------------------------------------------------------------------------------------- //
+		setUpTimer()
 
 		setUp1()
 		List<Collection> readyForIngest1 = DigitalMaterialStatus.getReadyForIngest()
 
 		assert readyForIngest1.size() == 2
-		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00002')
-		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00003')
+		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage
+		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00003') // Timer expired
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -103,9 +90,10 @@ class DigitalMaterialStatusSpec {
 		List<Collection> readyForIngest2 = DigitalMaterialStatus.getReadyForIngest()
 
 		assert readyForIngest2.size() == 3
-		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00002')
-		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00006')
-		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00007')
+		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage
+		assert !readyForIngest2*.objectRepositoryPID.contains('10622/BULK00003') // Time expired, but failure
+		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired
+		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -113,19 +101,28 @@ class DigitalMaterialStatusSpec {
 		List<Collection> readyForIngest3 = DigitalMaterialStatus.getReadyForIngest()
 
 		assert readyForIngest3.size() == 3
-		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00002')
-		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00006')
-		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00007')
+		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage
+		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00003') // Time expired, but failure
+		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired
+		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
+		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00008') // Ingest already started
 
 		// ------------------------------------------------------------------------------------------- //
 
 		CollectionSetUp.cleanUpCollections()
-	}*/
+	}
 
 	static void setUp1() {
 		Calendar calendar = Calendar.getInstance()
 
 		// ------------------------------------------------------------------------------------------- //
+
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: June 12 (no extended timer)                                   (2014, 05, 12)
+		// TIMER NOT EXPIRED!
 
 		Collection collection1 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 1',
@@ -142,6 +139,13 @@ class DigitalMaterialStatusSpec {
 		collection1.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
+
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: June 13 (no extended timer)                                   (2014, 05, 13)
+		// TIMER NOT EXPIRED!
 
 		Collection collection2 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 2',
@@ -160,6 +164,13 @@ class DigitalMaterialStatusSpec {
 
 		// ------------------------------------------------------------------------------------------- //
 
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: June 2 (no extended timer)                                    (2014, 05, 02)
+		// TIMER EXPIRED!
+
 		Collection collection3 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 3',
 				objectRepositoryPID  : '10622/BULK00003',
@@ -175,6 +186,13 @@ class DigitalMaterialStatusSpec {
 		collection3.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
+
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: June 14 (no extended timer, but failure)                      (2014, 05, 14)
+		// TIMER NOT EXPIRED!
 
 		Collection collection4 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 4',
@@ -192,6 +210,13 @@ class DigitalMaterialStatusSpec {
 		collection4.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
+
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: June 15 (no extended timer, but failure)                      (2014, 05, 15)
+		// TIMER NOT EXPIRED!
 
 		Collection collection5 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 5',
@@ -214,6 +239,13 @@ class DigitalMaterialStatusSpec {
 
 		// ------------------------------------------------------------------------------------------- //
 
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: May 6 (extended timer)                                        (2014, 04, 06)
+		// TIMER EXPIRED!
+
 		Collection collection6 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 6',
 				objectRepositoryPID  : '10622/BULK00006',
@@ -230,6 +262,13 @@ class DigitalMaterialStatusSpec {
 		collection6.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
+
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: May 5 (extended timer)                                        (2014, 04, 05)
+		// TIMER EXPIRED!
 
 		Collection collection7 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 7',
@@ -248,6 +287,20 @@ class DigitalMaterialStatusSpec {
 
 		// ------------------------------------------------------------------------------------------- //
 
+		// BEFORE:
+		//
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: June 2 (no extended timer)                                    (2014, 05, 02)
+		// TIMER EXPIRED!
+		//
+		// NOW:
+		//
+		// (failure)
+		// TIMER NOT EXPIRED!
+
 		Collection collection3 = Collection.findByObjectRepositoryPID('10622/BULK00003')
 		collection3.digitalMaterialStatus.statusCode =
 				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.FOLDER_CREATED)
@@ -259,6 +312,13 @@ class DigitalMaterialStatusSpec {
 		Calendar calendar = Calendar.getInstance()
 
 		// ------------------------------------------------------------------------------------------- //
+
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: May 4 (no extended timer)                                     (2014, 04, 04)
+		// TIMER EXPIRED!
 
 		Collection collection8 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 8',
@@ -278,9 +338,38 @@ class DigitalMaterialStatusSpec {
 
 		// ------------------------------------------------------------------------------------------- //
 
+		// BEFORE:
+		//
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created on: May 6                             (2014, 04, 06)
+		//
+		// Collection created on: June 15 (no extended timer, but failure)                      (2014, 05, 15)
+		// TIMER NOT EXPIRED!
+		//
+		// NOW:
+		// TIMER NOT EXPIRED!
+
 		Collection collection5 = Collection.findByObjectRepositoryPID('10622/BULK00005')
 		collection5.digitalMaterialStatus.statusCode =
 				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.BACKUP_RUNNING)
 		collection5.save(flush: true, validate: false)
+	}
+
+	static void setUpTimer() {
+		// Override method to make sure a static date 01/07/2014 is used (months start with 0)  (2014, 06, 01)
+		// Timer expired for collections created on: June 3                                     (2014, 05, 03)
+		// Extended timer expired for collections created o: May 6                              (2014, 04, 06)
+		DigitalMaterialStatus.metaClass.static.getLatestCreationDateInitialExpired = {
+			Calendar calendar = Calendar.getInstance()
+			calendar.set(2014, 06, 01)
+			return DigitalMaterialStatus.getLatestCreationDateInitialExpired(calendar.getTime())
+		}
+
+		DigitalMaterialStatus.metaClass.static.getLatestCreationDateExtendedExpired = {
+			Calendar calendar = Calendar.getInstance()
+			calendar.set(2014, 06, 01)
+			return DigitalMaterialStatus.getLatestCreationDateExtendedExpired(calendar.getTime())
+		}
 	}
 }

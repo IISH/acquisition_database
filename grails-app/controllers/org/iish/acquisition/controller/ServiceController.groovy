@@ -2,8 +2,10 @@ package org.iish.acquisition.controller
 
 import grails.converters.JSON
 import org.iish.acquisition.domain.Collection
+import org.iish.acquisition.domain.DigitalMaterialFile
 import org.iish.acquisition.domain.DigitalMaterialStatus
 import org.iish.acquisition.domain.DigitalMaterialStatusCode
+import org.springframework.web.multipart.MultipartFile
 
 import javax.servlet.http.HttpServletResponse
 
@@ -11,11 +13,12 @@ import javax.servlet.http.HttpServletResponse
  * Web service for communication with the processes running on the ingest depot.
  */
 class ServiceController {
-	static allowedMethods = [folders      : 'GET',
-	                         startBackup  : 'GET',
-	                         startIngest  : 'GET',
-	                         startRestore : 'GET',
-	                         status       : 'POST']
+	static allowedMethods = [folders     : 'GET',
+	                         startBackup : 'GET',
+	                         startIngest : 'GET',
+	                         startRestore: 'GET',
+	                         status      : 'POST',
+	                         manifest    : 'POST']
 
 	/**
 	 * Returns all of the PIDs without a folder on the ingest depot.
@@ -64,7 +67,48 @@ class ServiceController {
 			if (digitalMaterialStatus && statusCode) {
 				digitalMaterialStatus.statusCode = statusCode
 				digitalMaterialStatus.lastActionFailed = failure
-                digitalMaterialStatus.message = message
+				digitalMaterialStatus.message = message
+				digitalMaterialStatus.save(flush: true)
+
+				render 'OK'
+				return
+			}
+
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST)
+		}
+	}
+
+	/**
+	 * Uploads a manifest of the digital material for the given PID on the ingest depot.
+	 */
+	def manifest(String pid) {
+		doWithPid(pid) { Collection collection ->
+			MultipartFile manifestCsv = (MultipartFile) params['manifest_csv']
+			MultipartFile manifestXml = (MultipartFile) params['manifest_xml']
+			DigitalMaterialStatus digitalMaterialStatus = collection.digitalMaterialStatus
+
+			if (digitalMaterialStatus && !manifestCsv.isEmpty() && !manifestXml.isEmpty()) {
+				digitalMaterialStatus.manifestCsv?.delete()
+				digitalMaterialStatus.manifestXml?.delete()
+
+				DigitalMaterialFile csvFile = new DigitalMaterialFile(
+						originalFilename: manifestCsv.getOriginalFilename(),
+						contentType: 'text/csv',
+						size: manifestCsv.getSize(),
+						file: manifestCsv.getBytes()
+				)
+				csvFile.save()
+
+				DigitalMaterialFile xmlFile = new DigitalMaterialFile(
+						originalFilename: manifestXml.getOriginalFilename(),
+						contentType: 'text/xml',
+						size: manifestXml.getSize(),
+						file: manifestXml.getBytes()
+				)
+				xmlFile.save()
+
+				digitalMaterialStatus.setManifestCsv(csvFile)
+				digitalMaterialStatus.setManifestXml(xmlFile)
 				digitalMaterialStatus.save(flush: true)
 
 				render 'OK'
