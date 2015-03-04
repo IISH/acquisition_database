@@ -55,6 +55,13 @@
         }
     };
 
+    var confirmation = function (e) {
+        var confirmed = confirm('Are you sure?');
+        if (!confirmed) {
+            e.preventDefault();
+        }
+    };
+
     var deletePhoto = function (e) {
         var deletedPhotosElem = $('#deletedPhotos');
         var deletedPhotos = deletedPhotosElem.val().split(';');
@@ -112,6 +119,20 @@
         }
     };
 
+    var onDecimalField = function (e) {
+        // Don't allow a dot (key code = 46)
+        if (e.which === 46) {
+            return false;
+        }
+    };
+
+    var onIntegerField = function (e) {
+        // Don't allow a dot (key code = 46) or a comma (key code = 44)
+        if (e.which === 46 || e.which === 44) {
+            return false;
+        }
+    };
+
     $(document).ready(function () {
         checkHasManyFields();
 
@@ -122,6 +143,7 @@
         $('button.remove-image').click(deletePhoto);
 
         $('.btn-delete').click(deleteCollection);
+        $('.confirm').click(confirmation);
 
         $('table.table-click > tbody > tr').click(onRowClick);
         $('table.checkbox-click > tbody > tr').click(onRowCheckboxClick);
@@ -130,5 +152,8 @@
 
         $('#onHold').change(onHoldSor);
         $('#startProcess').change(startProcessSor);
+
+        $('.decimal').keypress(onDecimalField);
+        $('.integer').keypress(onIntegerField);
     });
 })(jQuery);

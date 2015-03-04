@@ -111,6 +111,10 @@ a {
   }
 }
 
+.panel-title {
+  font-size: inherit;
+}
+
 .required {
   color: red;
 }
@@ -167,6 +171,15 @@ table {
 
 .help-block {
   margin-bottom: 0;
+
+  &.important {
+    color: #a94442;
+  }
+}
+
+.message {
+  margin-left: 20px;
+  margin-top: 5px;
 }
 
 div {
@@ -174,6 +187,11 @@ div {
     display: inline-block;
     margin-bottom: 7px;
     margin-top: 7px;
+  }
+
+  &.panel .help-block {
+    margin-top: 5px;
+    margin-bottom: 0;
   }
 }
 

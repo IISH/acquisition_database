@@ -23,7 +23,9 @@ class DigitalMaterialStatusCode {
 	public static final long MOVED_TO_PERMANENT_STORAGE = 120L
 
 	String status
+	String groupName
 	boolean isSetByUser
+	boolean confirmRequired
 
 	static hasMany = [
 		digitalMaterialStatuses: DigitalMaterialStatus

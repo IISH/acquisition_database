@@ -245,7 +245,7 @@
                         <g:if test="${materialType.inMeters}">
                             <input type="text" id="collection.analogMaterialCollection[${i}].meterSize"
                                    name="collection.analogMaterialCollection[${i}].meterSize"
-                                   class="form-control form-control-small"
+                                   class="form-control form-control-small decimal"
                                    value="${materialMeter?.sizeToString()}"/>
                             <span class="control-label">${AnalogUnit.METER}</span>
                         </g:if>
@@ -255,7 +255,7 @@
                         <g:if test="${materialType.inNumbers}">
                             <input type="text" id="collection.analogMaterialCollection[${i}].numberSize"
                                    name="collection.analogMaterialCollection[${i}].numberSize"
-                                   class="form-control form-control-small"
+                                   class="form-control form-control-small integer"
                                    value="${materialNumber?.sizeToString()}"/>
                             <span class="control-label">${AnalogUnit.NUMBER}</span>
                         </g:if>
@@ -270,7 +270,10 @@
             <g:if test="${materialTypes.size() % 2 == 1}">
                 </div>
             </g:if>
-	        <div class="help-block"><g:message code="collection.use.comma"/></div>
+
+	        <p class="help-block important">
+                <g:message code="collection.use.comma"/>
+            </p>
         </div>
     </div>
 
@@ -313,7 +316,7 @@
                             </label>
                             <input type="text" id="collection.digitalMaterialCollection.numberOfFiles"
                                    name="collection.digitalMaterialCollection.numberOfFiles"
-                                   class="form-control form-control-medium"
+                                   class="form-control form-control-medium integer"
                                    value="${collection.digitalMaterialCollection?.numberOfFilesToString()}"/>
                             <span class="control-label">
                                 <g:message code="digitalMaterialCollection.files.label"/>
@@ -331,7 +334,7 @@
                             </label>
                             <input type="text" id="collection.digitalMaterialCollection.totalSize"
                                    name="collection.digitalMaterialCollection.totalSize"
-                                   class="form-control form-control-small"
+                                   class="form-control form-control-small decimal"
                                    value="${collection.digitalMaterialCollection?.totalSizeToString()}"/>
                             <g:select id="collection.digitalMaterialCollection.unit"
                                       name="collection.digitalMaterialCollection.unit"
@@ -342,7 +345,13 @@
                     </div>
                 </g:if>
 
-                <g:if test="${(i == 7) && (digitalMaterialStatus?.manifestCsvId)}">
+                <g:if test="${i == 5}">
+                    <div class="col-xs-12 help-block text-center">
+                        <g:message code="collection.unknown.help.message"/>
+                    </div>
+                </g:if>
+
+                <g:if test="${(i == 9) && (digitalMaterialStatus?.manifestCsvId)}">
                     <div class="col-xs-12 text-center">
                         <g:link controller="download" action="manifest" id="${digitalMaterialStatus.manifestCsvId}"
                                 class="btn btn-default">
@@ -398,7 +407,7 @@
                     <div class="form-group">
                         <input type="text" id="collection.miscMaterialCollection[${i}].size"
                                name="collection.miscMaterialCollection[${i}].size"
-                               class="form-control form-control-small"
+                               class="form-control form-control-small integer"
                                value="${material?.size}"/>
                         <span class="control-label">${AnalogUnit.NUMBER.toString()}</span>
                     </div>
@@ -776,30 +785,49 @@
         </label>
 
         <div class="col-xs-20">
-            <g:each in="${digitalMaterialStatusCodes}" var="statusCode">
-                <div class="row">
-                    <g:set var="current" value="${digitalMaterialStatus.statusCode?.id == statusCode.id}"/>
-                    <g:set var="failed" value="${current && digitalMaterialStatus.lastActionFailed}"/>
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+            <g:each in="${digitalMaterialStatusCodes*.groupName.unique()}" var="groupName" status="i">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="heading${i}">
+                        <a class="panel-title" data-toggle="collapse" href="#panel${i}" aria-expanded="true" aria-controls="panel${i}">
+                            ${groupName}
+                        </a>
+                    </div>
+                    <div id="panel${i}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading${i}">
+                        <div class="panel-body">
+                        <g:each in="${digitalMaterialStatusCodes.findAll { it.groupName == groupName }}" var="statusCode">
+                            <g:set var="current" value="${digitalMaterialStatus.statusCode?.id == statusCode.id}"/>
+                            <g:set var="failed" value="${current && digitalMaterialStatus.lastActionFailed}"/>
 
-                    <div class="col-xs-14 ${failed ? 'text-danger' : ''}">
-                        <div class="radio">
-                            <label>
-                                <g:radio id="collection.digitalMaterialStatus.statusCode.id"
-                                         name="collection.digitalMaterialStatus.statusCode.id"
-                                         value="${statusCode.id}" checked="${current}"
-                                         disabled="${!digitalMaterialStatus.canChangeTo(statusCode)}"/>
-                                ${statusCode}
-                            </label>
+                            <div class="digital-material-status ${failed ? 'text-danger' : ''} ${!failed && current ? 'text-info' : ''}">
+                                <div class="radio">
+                                    <label>
+                                        <g:radio id="collection.digitalMaterialStatus.statusCode.id"
+                                                 name="collection.digitalMaterialStatus.statusCode.id"
+                                                 value="${statusCode.id}" checked="${current}"
+                                                 class="${statusCode.confirmRequired ? 'confirm' : ''}"
+                                                 disabled="${!digitalMaterialStatus.canChangeTo(statusCode)}"/>
+                                        ${statusCode}
+                                    </label>
+                                </div>
+
+                                <g:if test="${failed}">
+                                    <div class="message">
+                                        <g:message code="digitalMaterialStatus.failure.label"/>: ${digitalMaterialStatus.message}
+                                    </div>
+                                </g:if>
+                                <g:elseif test="${current && digitalMaterialStatus.message}">
+                                    <div class="message">
+                                        ${digitalMaterialStatus.message}
+                                    </div>
+                                </g:elseif>
+                            </div>
+                        </g:each>
                         </div>
                     </div>
-
-                    <g:if test="${failed}">
-                        <div class="col-xs-10 text-danger radio">
-                            <g:message code="digitalMaterialStatus.failure.label"/>: ${digitalMaterialStatus.message}
-                        </div>
-                    </g:if>
                 </div>
             </g:each>
+            </div>
         </div>
     </div>
 </g:if>
