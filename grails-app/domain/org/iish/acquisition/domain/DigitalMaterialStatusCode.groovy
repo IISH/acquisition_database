@@ -32,6 +32,7 @@ class DigitalMaterialStatusCode {
 	]
 
 	static constraints = {
+		id bindable: true
 		status blank: false, maxSize: 255, unique: true
 	}
 
