@@ -113,7 +113,8 @@ class CollectionSetUp {
 				contactPerson: 'AAA',
 				remarks: 'Remarks',
 				originalPackageTransport: 'Original package transport',
-				status: Status.get(Status.WONT_BE_PROCESSED_ID)
+				status: Status.get(Status.WONT_BE_PROCESSED_ID),
+				contract: Contract.get(Contract.UNKNOWN_ID)
 		)
 
 		collection.properties << properties
