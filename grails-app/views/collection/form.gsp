@@ -533,6 +533,7 @@
 <div class="form-group">
     <label for="collection.contract" class="col-xs-4 control-label">
         <g:message code="collection.contract.label"/>
+        <span class="required">*</span>
     </label>
 
     <div class="col-xs-8">

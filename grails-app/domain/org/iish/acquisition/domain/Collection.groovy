@@ -65,7 +65,6 @@ class Collection {
 		originalPackageTransport nullable: true
 
 		addedBy nullable: true
-		contract nullable: true
 		appraisal nullable: true
 
 		digitalMaterialStatus nullable: true
