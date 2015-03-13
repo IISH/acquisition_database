@@ -814,11 +814,14 @@
 
                                 <g:if test="${failed}">
                                     <div class="message">
-                                        <g:message code="digitalMaterialStatus.failure.label"/>: ${digitalMaterialStatus.message}
+                                        <g:message code="digitalMaterialStatus.failure.label"/>:
+                                        (<g:formatDate date="${digitalMaterialStatus.lastStatusChange}" formatName="default.datetime.format"/>)
+                                        ${digitalMaterialStatus.message}
                                     </div>
                                 </g:if>
                                 <g:elseif test="${current && digitalMaterialStatus.message}">
                                     <div class="message">
+                                        (<g:formatDate date="${digitalMaterialStatus.lastStatusChange}" formatName="default.datetime.format"/>)
                                         ${digitalMaterialStatus.message}
                                     </div>
                                 </g:elseif>

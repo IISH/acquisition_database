@@ -87,28 +87,41 @@ class ServiceController {
 			MultipartFile manifestXml = (MultipartFile) params['manifest_xml']
 			DigitalMaterialStatus digitalMaterialStatus = collection.digitalMaterialStatus
 
-			if (digitalMaterialStatus && !manifestCsv.isEmpty() && !manifestXml.isEmpty()) {
-				digitalMaterialStatus.manifestCsv?.delete()
-				digitalMaterialStatus.manifestXml?.delete()
+			boolean manifestCsvExists = manifestCsv && !manifestCsv.isEmpty()
+			boolean manifestXmlExists = manifestXml && !manifestXml.isEmpty()
 
-				DigitalMaterialFile csvFile = new DigitalMaterialFile(
-						originalFilename: manifestCsv.getOriginalFilename(),
-						contentType: 'text/csv',
-						size: manifestCsv.getSize(),
-						file: manifestCsv.getBytes()
-				)
-				csvFile.save()
+			// There should be a digital material status and at least one type of manifest
+			if (digitalMaterialStatus && (manifestCsvExists || manifestXmlExists)) {
+				// If there is a CSV manifest
+				if (manifestCsvExists) {
+					digitalMaterialStatus.manifestCsv?.delete()
 
-				DigitalMaterialFile xmlFile = new DigitalMaterialFile(
-						originalFilename: manifestXml.getOriginalFilename(),
-						contentType: 'text/xml',
-						size: manifestXml.getSize(),
-						file: manifestXml.getBytes()
-				)
-				xmlFile.save()
+					DigitalMaterialFile csvFile = new DigitalMaterialFile(
+							originalFilename: manifestCsv.getOriginalFilename(),
+							contentType: 'text/csv',
+							size: manifestCsv.getSize(),
+							file: manifestCsv.getBytes()
+					)
+					csvFile.save()
 
-				digitalMaterialStatus.setManifestCsv(csvFile)
-				digitalMaterialStatus.setManifestXml(xmlFile)
+					digitalMaterialStatus.setManifestCsv(csvFile)
+				}
+
+				// If there is an XML manifest
+				if (manifestXmlExists) {
+					digitalMaterialStatus.manifestXml?.delete()
+
+					DigitalMaterialFile xmlFile = new DigitalMaterialFile(
+							originalFilename: manifestXml.getOriginalFilename(),
+							contentType: 'text/xml',
+							size: manifestXml.getSize(),
+							file: manifestXml.getBytes()
+					)
+					xmlFile.save()
+
+					digitalMaterialStatus.setManifestXml(xmlFile)
+				}
+
 				digitalMaterialStatus.save(flush: true)
 
 				render 'OK'

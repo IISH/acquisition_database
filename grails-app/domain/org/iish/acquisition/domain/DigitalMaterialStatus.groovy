@@ -10,6 +10,7 @@ class DigitalMaterialStatus {
 	Date startIngest
 	boolean ingestDelayed = false
 	boolean lastActionFailed = false
+	Date lastStatusChange = new Date()
 	String message
 
 	static belongsTo = [
@@ -35,6 +36,8 @@ class DigitalMaterialStatus {
 	}
 
 	void beforeUpdate() {
+		lastStatusChange = new Date()
+
 		if (statusCode.id == DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) {
 			startIngest = new Date()
 		}
