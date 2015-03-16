@@ -160,13 +160,13 @@ class BootStrap {
 	 * @param ldapUserSearch Allows us to search for users in Active Directory.
 	 */
 	private static void updateUserData(LdapUserSearch ldapUserSearch) {
-		if (false && Environment.current != Environment.TEST) {
+		if (Environment.current == Environment.PRODUCTION) {
 			User.list().each { User user ->
 				DirContextOperations ctx;
 				try {
 					ctx = ldapUserSearch.searchForUser(user.login)
 					if (ctx) user.update(ctx)
-				} catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+				} catch (Exception e) {
 					log.error(e)
 				}
 			}
