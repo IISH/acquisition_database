@@ -80,18 +80,20 @@ class DigitalMaterialStatusSpec {
 		setUp1()
 		List<Collection> readyForIngest1 = DigitalMaterialStatus.getReadyForIngest()
 
-		assert readyForIngest1.size() == 2
-		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage
+		assert readyForIngest1.size() == 3
+		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage (not failed)
 		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00003') // Timer expired
+		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00004') // Ready for permanent storage (failed)
 
 		// ------------------------------------------------------------------------------------------- //
 
 		setUp2()
 		List<Collection> readyForIngest2 = DigitalMaterialStatus.getReadyForIngest()
 
-		assert readyForIngest2.size() == 3
-		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage
+		assert readyForIngest2.size() == 4
+		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage (not failed)
 		assert !readyForIngest2*.objectRepositoryPID.contains('10622/BULK00003') // Time expired, but failure
+		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00004') // Ready for permanent storage (failed)
 		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired
 		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
 
@@ -100,12 +102,13 @@ class DigitalMaterialStatusSpec {
 		setUp3()
 		List<Collection> readyForIngest3 = DigitalMaterialStatus.getReadyForIngest()
 
-		assert readyForIngest3.size() == 3
-		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage
+		assert readyForIngest3.size() == 5
+		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage (not failed)
 		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00003') // Time expired, but failure
+		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00004') // Ready for permanent storage (failed)
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
-		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00008') // Ingest already started
+		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00008') // Ingest already started according to start date which is not taken into account
 
 		// ------------------------------------------------------------------------------------------- //
 
