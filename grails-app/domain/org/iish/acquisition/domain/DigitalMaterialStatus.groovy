@@ -161,8 +161,8 @@ class DigitalMaterialStatus {
 			// TODO check query
 			// return in list:
 			// a) when status is manually set to 'ready for permanent storage (100)'
-			// b) OR when ingest is not delayed AND 'not delayed' date has expired AND last action did not fail
-			// c) OR when ingest is delayed AND 'delayed' date has expired AND last action did not faile
+			// b) OR when ingest is not delayed AND 'not delayed' date has expired AND last action did not fail AND ingest not started
+			// c) OR when ingest is delayed AND 'delayed' date has expired AND last action did not faile AND ingest not started
 			// Remark: if previous action has failed, the collection will never show in 'ready for ingest' list until you manually set it on 'ready for permanent storage (100)'
 
 //			and {
@@ -176,12 +176,14 @@ class DigitalMaterialStatus {
 						eq('status.ingestDelayed', false)
 						lt('dateCreated', getLatestCreationDateInitialExpired())
 						eq('status.lastActionFailed', false)
+						isNull('status.startIngest') // date when ingest started
 					}
 
 					and {
 						eq('status.ingestDelayed', true)
 						lt('dateCreated', getLatestCreationDateExtendedExpired())
 						eq('status.lastActionFailed', false)
+						isNull('status.startIngest') // date when ingest started
 					}
 				}
 //			}
