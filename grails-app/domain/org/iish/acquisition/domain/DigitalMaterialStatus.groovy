@@ -158,22 +158,33 @@ class DigitalMaterialStatus {
 		Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
 
-			and {
-				isNull('status.startIngest')
-				eq('status.lastActionFailed', false)
+			// TODO check query
+			// return in list:
+			// a) when status is manually set to 'ready for permanent storage (100)'
+			// b) OR when ingest is not delayed AND 'not delayed' date has expired AND last action did not fail
+			// c) OR when ingest is delayed AND 'delayed' date has expired AND last action did not faile
+			// Remark: if previous action has failed, the collection will never show in 'ready for ingest' list until you manually set it on 'ready for permanent storage (100)'
+
+//			and {
+//				isNull('status.startIngest') // date when ingest started
+//				eq('status.lastActionFailed', false)
 
 				or {
 					eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)
+
 					and {
 						eq('status.ingestDelayed', false)
 						lt('dateCreated', getLatestCreationDateInitialExpired())
+						eq('status.lastActionFailed', false)
 					}
+
 					and {
 						eq('status.ingestDelayed', true)
 						lt('dateCreated', getLatestCreationDateExtendedExpired())
+						eq('status.lastActionFailed', false)
 					}
 				}
-			}
+//			}
 		}
 	}
 
