@@ -102,13 +102,13 @@ class DigitalMaterialStatusSpec {
 		setUp3()
 		List<Collection> readyForIngest3 = DigitalMaterialStatus.getReadyForIngest()
 
-		assert readyForIngest3.size() == 5
+		assert readyForIngest3.size() == 4
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage (not failed)
 		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00003') // Time expired, but failure
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00004') // Ready for permanent storage (failed)
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
-		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00008') // Ingest already started according to start date which is not taken into account
+		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00008') // Ingest already started
 
 		// ------------------------------------------------------------------------------------------- //
 
