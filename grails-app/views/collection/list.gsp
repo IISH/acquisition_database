@@ -126,7 +126,7 @@
             <td class="hidden table-click-link">
                 <g:createLink params="${params}" controller="collection" action="edit" id="${collection.id}"/>
             </td>
-            <td>${collection.name}</td>
+            <td><span class="badge">${collection.id}</span> ${collection.name}</td>
             <td>
                 <ul class="list-group">
                     <g:each in="${collection.analogMaterialCollection?.materials}" var="material">
