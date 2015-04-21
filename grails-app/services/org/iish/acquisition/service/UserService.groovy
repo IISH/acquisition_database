@@ -36,6 +36,9 @@ class UserService {
 				User.withNewSession {
 					user = new User(login: userData.login)
 					DirContextOperations ctx = ldapUserSearch.searchForUser(user.login)
+
+					user.mayReceiveEmail = true
+
 					user.update(ctx)
 					user.save(flush: true)
 				}
@@ -50,9 +53,6 @@ class UserService {
 			authoritiesToRemove.each { String authority ->
 				UserAuthority.remove(user, Authority.findByAuthority(authority))
 			}
-
-			user.mayReceiveEmail = true
-			user.save(flush: true)
 		}
 
 		// Do not delete the user, to keep track of the users added collections.
@@ -60,8 +60,6 @@ class UserService {
 		usersToRemove.each { User user ->
 			UserAuthority.removeAll(user)
 
-			user.mayReceiveEmail = false
-			user.save(flush: true)
 		}
 
 		// Update the security session, to correctly reflect the updated information
