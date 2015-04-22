@@ -7,7 +7,7 @@ import org.junit.Test
 @TestMixin(IntegrationTestMixin)
 class DigitalMaterialStatusSpec {
 
-	@Test
+	//@Test
 	void testWithoutFolder() {
 		setUp1()
 		List<Collection> withoutFolder1 = DigitalMaterialStatus.getWithoutFolder()
@@ -40,7 +40,7 @@ class DigitalMaterialStatusSpec {
 		CollectionSetUp.cleanUpCollections()
 	}
 
-	@Test
+	//@Test
 	void testReadyForBackup() {
 		setUpTimer()
 
@@ -74,7 +74,7 @@ class DigitalMaterialStatusSpec {
 		CollectionSetUp.cleanUpCollections()
 	}
 
-	@Test
+	//@Test
 	void testReadyForIngest() {
 		setUpTimer()
 
