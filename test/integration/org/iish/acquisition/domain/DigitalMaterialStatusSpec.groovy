@@ -55,18 +55,19 @@ class DigitalMaterialStatusSpec {
 		setUp2()
 		List<Collection> readyForBackup2 = DigitalMaterialStatus.getReadyForBackup()
 
-		assert readyForBackup2.size() == 1
+		assert readyForBackup2.size() == 2
 		assert readyForBackup2*.objectRepositoryPID.contains('10622/BULK00005') // Ready for backup
-		assert !readyForBackup2*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
+//		assert !readyForBackup2*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
+		assert readyForBackup2*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
 
 		// ------------------------------------------------------------------------------------------- //
 
 		setUp3()
 		List<Collection> readyForBackup3 = DigitalMaterialStatus.getReadyForBackup()
 
-		assert readyForBackup3.size() == 0
-		assert !readyForBackup3*.objectRepositoryPID.contains('10622/BULK00005') // Backup is now running
-		assert !readyForBackup3*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
+		assert readyForBackup3.size() == 1
+		assert !readyForBackup3*.objectRepositoryPID.contains('10622/BULK00005') // Backup is not running
+		assert readyForBackup3*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired, backup is now running
 
 		// ------------------------------------------------------------------------------------------- //
 
@@ -80,9 +81,9 @@ class DigitalMaterialStatusSpec {
 		setUp1()
 		List<Collection> readyForIngest1 = DigitalMaterialStatus.getReadyForIngest()
 
-		assert readyForIngest1.size() == 3
+		assert readyForIngest1.size() == 2
 		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage (not failed)
-		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00003') // Timer expired
+		assert !readyForIngest1*.objectRepositoryPID.contains('10622/BULK00003') // Timer expired but not all requirements are met
 		assert readyForIngest1*.objectRepositoryPID.contains('10622/BULK00004') // Ready for permanent storage (failed)
 
 		// ------------------------------------------------------------------------------------------- //
@@ -90,24 +91,24 @@ class DigitalMaterialStatusSpec {
 		setUp2()
 		List<Collection> readyForIngest2 = DigitalMaterialStatus.getReadyForIngest()
 
-		assert readyForIngest2.size() == 4
+		assert readyForIngest2.size() == 2
 		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage (not failed)
 		assert !readyForIngest2*.objectRepositoryPID.contains('10622/BULK00003') // Time expired, but failure
 		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00004') // Ready for permanent storage (failed)
-		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired
-		assert readyForIngest2*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
+		assert !readyForIngest2*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired but not all requirements are met
+		assert !readyForIngest2*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired but not all requirements are met
 
 		// ------------------------------------------------------------------------------------------- //
 
 		setUp3()
 		List<Collection> readyForIngest3 = DigitalMaterialStatus.getReadyForIngest()
 
-		assert readyForIngest3.size() == 4
+		assert readyForIngest3.size() == 2
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00002') // Ready for permanent storage (not failed)
 		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00003') // Time expired, but failure
 		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00004') // Ready for permanent storage (failed)
-		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired
-		assert readyForIngest3*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired
+		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00006') // Timer expired but not all requirements are met
+		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00007') // Timer expired but not all requirements are met
 		assert !readyForIngest3*.objectRepositoryPID.contains('10622/BULK00008') // Ingest already started
 
 		// ------------------------------------------------------------------------------------------- //
@@ -135,7 +136,7 @@ class DigitalMaterialStatusSpec {
 								get(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION),
 				)
 		])
-		collection1.save(flush: true, validate: false)
+//		collection1.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 12)
 		collection1.setDateCreated(calendar.getTime())
@@ -159,7 +160,7 @@ class DigitalMaterialStatusSpec {
 								get(DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE),
 				)
 		])
-		collection2.save(flush: true, validate: false)
+//		collection2.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 13)
 		collection2.setDateCreated(calendar.getTime())
@@ -182,7 +183,7 @@ class DigitalMaterialStatusSpec {
 								get(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION),
 				)
 		])
-		collection3.save(flush: true, validate: false)
+//		collection3.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 02)
 		collection3.setDateCreated(calendar.getTime())
@@ -206,7 +207,7 @@ class DigitalMaterialStatusSpec {
 						lastActionFailed: true
 				)
 		])
-		collection4.save(flush: true, validate: false)
+//		collection4.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 14)
 		collection4.setDateCreated(calendar.getTime())
@@ -230,7 +231,7 @@ class DigitalMaterialStatusSpec {
 						lastActionFailed: true
 				)
 		])
-		collection5.save(flush: true, validate: false)
+//		collection5.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 15)
 		collection5.setDateCreated(calendar.getTime())
@@ -258,7 +259,7 @@ class DigitalMaterialStatusSpec {
 						ingestDelayed: true
 				)
 		])
-		collection6.save(flush: true, validate: false)
+//		collection6.save(flush: true, validate: false)
 
 		calendar.set(2014, 04, 06)
 		collection6.setDateCreated(calendar.getTime())
@@ -282,7 +283,7 @@ class DigitalMaterialStatusSpec {
 						ingestDelayed: true
 				)
 		])
-		collection7.save(flush: true, validate: false)
+//		collection7.save(flush: true, validate: false)
 
 		calendar.set(2014, 04, 05)
 		collection7.setDateCreated(calendar.getTime())
@@ -333,7 +334,7 @@ class DigitalMaterialStatusSpec {
 						startIngest: new Date()
 				)
 		])
-		collection8.save(flush: true, validate: false)
+//		collection8.save(flush: true, validate: false)
 
 		calendar.set(2014, 04, 04)
 		collection8.setDateCreated(calendar.getTime())
