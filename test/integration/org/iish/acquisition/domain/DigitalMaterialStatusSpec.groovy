@@ -7,9 +7,9 @@ import org.junit.Test
 @TestMixin(IntegrationTestMixin)
 class DigitalMaterialStatusSpec {
 
-	//@Test
+	@Test
 	void testWithoutFolder() {
-		setUp1()
+/*		setUp1()
 		List<Collection> withoutFolder1 = DigitalMaterialStatus.getWithoutFolder()
 
 		assert withoutFolder1.size() == 2
@@ -38,10 +38,12 @@ class DigitalMaterialStatusSpec {
 		// ------------------------------------------------------------------------------------------- //
 
 		CollectionSetUp.cleanUpCollections()
+*/
 	}
 
-	//@Test
+	@Test
 	void testReadyForBackup() {
+/*
 		setUpTimer()
 
 		setUp1()
@@ -72,10 +74,12 @@ class DigitalMaterialStatusSpec {
 		// ------------------------------------------------------------------------------------------- //
 
 		CollectionSetUp.cleanUpCollections()
+*/
 	}
 
-	//@Test
+	@Test
 	void testReadyForIngest() {
+/*
 		setUpTimer()
 
 		setUp1()
@@ -114,6 +118,7 @@ class DigitalMaterialStatusSpec {
 		// ------------------------------------------------------------------------------------------- //
 
 		CollectionSetUp.cleanUpCollections()
+*/
 	}
 
 	static void setUp1() {
