@@ -13,7 +13,7 @@
 
         <g:if test="${isOffloader2}">
             <div class="col-xs-5">
-                <button type="submit" class="btn btn-default">
+                <button type="submit" class="btn btn-default btn-delete">
                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     <g:message code="ingestDepot.delete.button"/>
                 </button>
