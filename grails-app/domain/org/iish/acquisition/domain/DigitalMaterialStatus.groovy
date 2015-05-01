@@ -7,6 +7,7 @@ import grails.plugin.springsecurity.SpringSecurityUtils
  * Holds the status of the digital material located in the ingest depot.
  */
 class DigitalMaterialStatus {
+	Date timerStarted
 	Date startIngest
 	boolean ingestDelayed = false
 	boolean lastActionFailed = false
@@ -33,6 +34,7 @@ class DigitalMaterialStatus {
 	static mapping = {
 		table 'digital_material_statuses'
 		collection fetch: 'join'
+		timerStarted index: 'digital_material_statuses_timer_started_idx'
 	}
 
 	void beforeUpdate() {
@@ -50,7 +52,7 @@ class DigitalMaterialStatus {
 	 */
 	Date getTimerExpirationDate() {
 		Calendar calendar = Calendar.getInstance()
-		calendar.setTime(collection.dateCreated)
+		calendar.setTime(timerStarted)
 
 		if (ingestDelayed) {
 			calendar.add(Calendar.MINUTE, getTimerExtendedInMinutes())
@@ -174,14 +176,14 @@ class DigitalMaterialStatus {
 
 					and {
 						eq('status.ingestDelayed', false)
-						lt('dateCreated', getLatestCreationDateInitialExpired())
+						lt('status.timerStarted', getLatestCreationDateInitialExpired())
 						eq('status.lastActionFailed', false)
 						isNull('status.startIngest') // date when ingest started
 					}
 
 					and {
 						eq('status.ingestDelayed', true)
-						lt('dateCreated', getLatestCreationDateExtendedExpired())
+						lt('status.timerStarted', getLatestCreationDateExtendedExpired())
 						eq('status.lastActionFailed', false)
 						isNull('status.startIngest') // date when ingest started
 					}

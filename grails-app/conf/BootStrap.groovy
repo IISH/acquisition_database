@@ -104,18 +104,18 @@ class BootStrap {
 				}
 
 		[
-		 (DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION) : [status: '1. No folder created yet', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.FOLDER_CREATION_RUNNING)         : [status: '2. A folder is being created', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.FOLDER_CREATED)                  : [status: '3. A folder has been created', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)               : [status: '4. Digital material has been uploaded, request creation of backup', groupName: 'Backup', isSetByUser: true, confirmRequired: false],
-		 (DigitalMaterialStatusCode.BACKUP_RUNNING)                  : [status: '5. A backup of the digital material is being made', groupName: 'Backup', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.BACKUP_FINISHED)                 : [status: '6. A backup of the digital material has been created', groupName: 'Backup', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.READY_FOR_RESTORE)               : [status: '7. Request restore of the digital material', groupName: 'Restore', isSetByUser: true, confirmRequired: true],
-		 (DigitalMaterialStatusCode.RESTORE_RUNNING)                 : [status: '8. A restore of the digital material is being performed', groupName: 'Restore', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.RESTORE_FINISHED)                : [status: '9. A restore of the digital material has been done', groupName: 'Restore', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)     : [status: '10. Digital material is ready for permanent storage (SOR)', groupName: 'Permanent storage', isSetByUser: true, confirmRequired: false],
-		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE)  : [status: '11. Digital material is being uploaded to permanent storage (SOR)', groupName: 'Permanent storage', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)      : [status: '12. Digital material has been moved to permanent storage (SOR)', groupName: 'Permanent storage', isSetByUser: false, confirmRequired: false]
+		 (DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION) : [status: '1. No folder created yet.', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
+		 (DigitalMaterialStatusCode.FOLDER_CREATION_RUNNING)         : [status: '2. A folder is being created.', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
+		 (DigitalMaterialStatusCode.FOLDER_CREATED)                  : [status: '3. A folder has been created. You can start offloading now.', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
+		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)               : [status: '4. Digital material has been uploaded, request creation of backup.', groupName: 'Backup', isSetByUser: true, confirmRequired: false],
+		 (DigitalMaterialStatusCode.BACKUP_RUNNING)                  : [status: '5. A backup of the digital material is being made.', groupName: 'Backup', isSetByUser: false, confirmRequired: false],
+		 (DigitalMaterialStatusCode.BACKUP_FINISHED)                 : [status: '6. A backup of the digital material has been created.', groupName: 'Backup', isSetByUser: false, confirmRequired: false],
+		 (DigitalMaterialStatusCode.READY_FOR_RESTORE)               : [status: '7. Request restore of the digital material.', groupName: 'Restore', isSetByUser: true, confirmRequired: true],
+		 (DigitalMaterialStatusCode.RESTORE_RUNNING)                 : [status: '8. A restore of the digital material is being performed.', groupName: 'Restore', isSetByUser: false, confirmRequired: false],
+		 (DigitalMaterialStatusCode.RESTORE_FINISHED)                : [status: '9. A restore of the digital material has been done.', groupName: 'Restore', isSetByUser: false, confirmRequired: false],
+		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)     : [status: '10. Digital material is ready for permanent storage (SOR).', groupName: 'Permanent storage', isSetByUser: true, confirmRequired: false],
+		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE)  : [status: '11. Digital material is being uploaded to permanent storage (SOR).', groupName: 'Permanent storage', isSetByUser: false, confirmRequired: false],
+		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)      : [status: '12. Digital material has been moved to permanent storage (SOR).', groupName: 'Permanent storage', isSetByUser: false, confirmRequired: false]
 		].
 				each { Long id, Map statusInfo ->
 					if (!DigitalMaterialStatusCode.get(id)) {

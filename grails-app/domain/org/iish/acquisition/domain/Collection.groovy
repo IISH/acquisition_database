@@ -152,7 +152,7 @@ class Collection {
 		if (!digitalMaterialStatus) {
 			DigitalMaterialStatusCode statusCode =
 					DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION)
-			digitalMaterialStatus = new DigitalMaterialStatus(statusCode: statusCode)
+			digitalMaterialStatus = new DigitalMaterialStatus(statusCode: statusCode, timerStarted: new Date())
 		}
 	}
 
