@@ -434,7 +434,7 @@
 
     <div class="col-xs-16">
         <textarea id="collection.content" name="collection.content" class="form-control"
-                  rows="9">${collection.content}</textarea>
+                  rows="9">${collection.content.decodeHTML()}</textarea>
     </div>
 </div>
 

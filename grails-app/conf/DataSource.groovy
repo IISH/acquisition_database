@@ -22,6 +22,8 @@ environments {
 				dbProperties {
 					// tinyint is a boolean
 					tinyInt1isBit = false
+					// prevent exception '0000-00-00 00:00:00' can not be represented as java.sql.Timestamp
+					zeroDateTimeBehavior = 'convertToNull'
 				}
 			}
 		}
@@ -102,6 +104,8 @@ environments {
 					noDatetimeStringSync = true
 					// tinyint is a boolean
 					tinyInt1isBit = false
+					// prevent exception '0000-00-00 00:00:00' can not be represented as java.sql.Timestamp
+					zeroDateTimeBehavior = 'convertToNull'
 				}
 			}
 		}
