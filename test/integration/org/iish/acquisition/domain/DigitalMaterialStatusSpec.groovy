@@ -144,7 +144,7 @@ class DigitalMaterialStatusSpec {
 //		collection1.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 12)
-		collection1.setDateCreated(calendar.getTime())
+		collection1.digitalMaterialStatus.setStartIngest(calendar.getTime())
 		collection1.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
@@ -159,16 +159,16 @@ class DigitalMaterialStatusSpec {
 		Collection collection2 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 2',
 				objectRepositoryPID  : '10622/BULK00002',
-				dateCreated          : calendar.getTime(),
 				digitalMaterialStatus: new DigitalMaterialStatus(
-						statusCode: DigitalMaterialStatusCode.
+						timerStarted : calendar.getTime(),
+						statusCode   : DigitalMaterialStatusCode.
 								get(DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE),
 				)
 		])
 //		collection2.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 13)
-		collection2.setDateCreated(calendar.getTime())
+		collection2.digitalMaterialStatus.setStartIngest(calendar.getTime())
 		collection2.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
@@ -191,7 +191,7 @@ class DigitalMaterialStatusSpec {
 //		collection3.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 02)
-		collection3.setDateCreated(calendar.getTime())
+		collection3.digitalMaterialStatus.setStartIngest(calendar.getTime())
 		collection3.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
@@ -215,7 +215,7 @@ class DigitalMaterialStatusSpec {
 //		collection4.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 14)
-		collection4.setDateCreated(calendar.getTime())
+		collection4.digitalMaterialStatus.setStartIngest(calendar.getTime())
 		collection4.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
@@ -239,7 +239,7 @@ class DigitalMaterialStatusSpec {
 //		collection5.save(flush: true, validate: false)
 
 		calendar.set(2014, 05, 15)
-		collection5.setDateCreated(calendar.getTime())
+		collection5.digitalMaterialStatus.setStartIngest(calendar.getTime())
 		collection5.save(flush: true, validate: false)
 	}
 
@@ -267,7 +267,7 @@ class DigitalMaterialStatusSpec {
 //		collection6.save(flush: true, validate: false)
 
 		calendar.set(2014, 04, 06)
-		collection6.setDateCreated(calendar.getTime())
+		collection6.digitalMaterialStatus.setStartIngest(calendar.getTime())
 		collection6.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
@@ -291,7 +291,7 @@ class DigitalMaterialStatusSpec {
 //		collection7.save(flush: true, validate: false)
 
 		calendar.set(2014, 04, 05)
-		collection7.setDateCreated(calendar.getTime())
+		collection7.digitalMaterialStatus.setStartIngest(calendar.getTime())
 		collection7.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
@@ -332,17 +332,17 @@ class DigitalMaterialStatusSpec {
 		Collection collection8 = CollectionSetUp.setUpCollection([
 				name                 : 'Test collection 8',
 				objectRepositoryPID  : '10622/BULK00008',
-				dateCreated          : calendar.getTime(),
 				digitalMaterialStatus: new DigitalMaterialStatus(
-						statusCode: DigitalMaterialStatusCode.
+						timerStarted : calendar.getTime(),
+						statusCode   : DigitalMaterialStatusCode.
 								get(DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION),
-						startIngest: new Date()
+						startIngest  : new Date()
 				)
 		])
 //		collection8.save(flush: true, validate: false)
 
 		calendar.set(2014, 04, 04)
-		collection8.setDateCreated(calendar.getTime())
+		collection8.digitalMaterialStatus.setStartIngest(calendar.getTime())
 		collection8.save(flush: true, validate: false)
 
 		// ------------------------------------------------------------------------------------------- //
