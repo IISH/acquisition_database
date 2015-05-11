@@ -89,18 +89,20 @@
 
 <g:if test="${collection.addedBy || collection.objectRepositoryPID}">
     <div class="form-group">
-        <g:if test="${collection.addedBy}">
-            <label class="col-xs-4 control-label">
-                <g:message code="collection.addedBy.label"/>
-            </label>
+        <label class="col-xs-4 control-label">
+            <g:message code="collection.addedBy.label"/>
+        </label>
 
-            <div class="col-xs-13">
+        <div class="col-xs-13">
+            <g:if test="${collection.addedBy}">
                 <p class="form-control-static">${collection.addedBy}</p>
-            </div>
-        </g:if>
-        <g:else>
-            <div class="col-xs-17"></div>
-        </g:else>
+            </g:if>
+            <g:else>
+                <p class="form-control-static">
+                    <g:message code="collection.addedBy.unknown.message" args="${[collection.contactPerson]}"/>
+                </p>
+            </g:else>
+        </div>
 
         <g:if test="${collection.objectRepositoryPID}">
             <label class="col-xs-1 control-label">
