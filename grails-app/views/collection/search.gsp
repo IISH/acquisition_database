@@ -1,3 +1,4 @@
+<%@ page import="org.iish.acquisition.domain.Status" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -102,8 +103,8 @@
 
     <div class="col-xs-15">
         <g:select id="status" name="status" class="form-control" from="${statuses}" optionKey="id"
-                  optionValue="status" multiple="${true}" size="3"/>
-        <span class="help-block">
+                  optionValue="status" value="${[Status.get(1), Status.get(2)]}" multiple="${true}" size="3"/>
+	    <span class="help-block">
             <g:message code="default.select.help.message"/>
         </span>
     </div>

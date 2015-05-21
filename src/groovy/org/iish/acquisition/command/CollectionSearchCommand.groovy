@@ -161,4 +161,70 @@ class CollectionSearchCommand {
 		params?.putAll(defaultValues)
 		new CollectionSearchCommand(defaultValues)
 	}
+
+	/**
+	 * Creates the 'timer not passed' collection search parameters.
+	 * @param params If the params are also given, the default parameter values are also applied to this map.
+	 * @return The CollectionSearchCommand object.
+	 */
+	static CollectionSearchCommand getTimerNotPassedCollectionSearchCommand(GrailsParameterMap params) {
+		Map defaultValues = [
+				keyword             : null,
+				acquisitionTypeId   : null,
+				acquisitionId       : null,
+				collectionName      : null,
+				location            : null,
+				cabinet             : null,
+				fromDate            : null,
+				toDate              : null,
+				contactPerson       : null,
+				status              : null,
+				collectionLevelReady: null,
+				statusDigital       : null,
+				analog              : null,
+				digital             : null,
+				misc                : null,
+				priority            : null,
+				level               : null,
+				sort                : null,
+				order               : null,
+				search              : 1
+		]
+
+		params?.putAll(defaultValues)
+		new CollectionSearchCommand(defaultValues)
+	}
+
+	/**
+	 * Creates the 'timer passed' collection search parameters.
+	 * @param params If the params are also given, the default parameter values are also applied to this map.
+	 * @return The CollectionSearchCommand object.
+	 */
+	static CollectionSearchCommand getTimerPassedCollectionSearchCommand(GrailsParameterMap params) {
+		Map defaultValues = [
+				keyword             : null,
+				acquisitionTypeId   : null,
+				acquisitionId       : null,
+				collectionName      : null,
+				location            : null,
+				cabinet             : null,
+				fromDate            : null,
+				toDate              : null,
+				contactPerson       : null,
+				status              : null,
+				collectionLevelReady: null,
+				statusDigital       : null,
+				analog              : null,
+				digital             : null,
+				misc                : null,
+				priority            : null,
+				level               : null,
+				sort                : null,
+				order               : null,
+				search              : 1
+		]
+
+		params?.putAll(defaultValues)
+		new CollectionSearchCommand(defaultValues)
+	}
 }

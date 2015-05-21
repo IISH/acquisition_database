@@ -8,6 +8,7 @@ import grails.plugin.springsecurity.SpringSecurityUtils
  */
 class DigitalMaterialStatus {
 	Date timerStarted
+	Date timerDeadline
 	Date startIngest
 	boolean ingestDelayed = false
 	boolean lastActionFailed = false
