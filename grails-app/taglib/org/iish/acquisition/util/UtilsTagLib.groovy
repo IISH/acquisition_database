@@ -97,7 +97,7 @@ class UtilsTagLib {
 			imageClass = 'glyphicon glyphicon-sort-by-attributes-alt'
 		}
 
-		out << g.link(class: 'sort', params: params + [sort: attrs.field, order: order]) {
+		out << g.link(action: actionName, class: 'sort', params: params + [sort: attrs.field, order: order]) {
 			g.message(code: attrs.messageCode) + "&nbsp;&nbsp;<span class=\"$imageClass\"></span>"
 		}
 	}

@@ -4,7 +4,8 @@ package org.iish.acquisition.search
  * Decorator to implement sorting of the search results on a single property.
  */
 class SortCollectionSearchDecorator extends CollectionSearchDecorator {
-	private static final List<String> SORT_FIELDS = ['name', 'analog_material', 'digital_material', 'date', 'location']
+	private static final List<String> SORT_FIELDS = ['name', 'analog_material', 'digital_material', 'date',
+	                                                 'location', 'timer_deadline']
 
 	private String sortOrder = 'asc'
 
@@ -40,6 +41,9 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 					break
 				case 'location':
 					sort.addAll(sortByLocation())
+					break
+				case 'timer_deadline':
+					sort.addAll(sortByTimerDeadline())
 			}
 		}
 
@@ -84,5 +88,21 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 	 */
 	private List<String> sortByLocation() {
 		return ["d_main.name $sortOrder", "l_main.cabinet $sortOrder"]
+	}
+
+	/**
+	 * Applies sorting on the timer deadline.
+	 * @return A list with criteria to apply sorting on the timer deadline.
+	 */
+	private List<String> sortByTimerDeadline() {
+		return ["dms_main.ingestDelayed $reverseOrder", "dms_main.timerStarted $sortOrder"]
+	}
+
+	/**
+	 * Returns the reverse order.
+	 * @return The reverse order.
+	 */
+	private String getReverseOrder() {
+		return sortOrder.equalsIgnoreCase('ASC') ? 'DESC' : 'ASC'
 	}
 }

@@ -30,7 +30,7 @@
         <th><g:sortLink field="name" messageCode="results.name.label"/></th>
         <th><g:sortLink field="analog_material" messageCode="results.analog.material.label"/></th>
         <th><g:sortLink field="digital_material" messageCode="results.digital.material.label"/></th>
-        <th><g:sortLink field="date" messageCode="results.timer_deadline.label"/></th>
+        <th><g:sortLink field="timer_deadline" messageCode="results.timer_deadline.label"/></th>
     </tr>
     </thead>
     <tbody>
@@ -72,7 +72,10 @@
                     </g:if>
                 </ul>
             </td>
-            <td><g:formatDate date="${collection.digitalMaterialStatus.timerDeadline}" formatName="default.datetime.format"/></td>
+            <td>
+                <g:formatDate date="${collection.digitalMaterialStatus.getTimerExpirationDate()}"
+                              formatName="default.datetime.format"/>
+            </td>
         </tr>
     </g:each>
     </tbody>

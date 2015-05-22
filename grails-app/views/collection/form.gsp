@@ -371,6 +371,10 @@
             <g:if test="${materialTypes.size() % 2 == 1}">
                 </div>
 			</g:if>
+
+            <p class="help-block important">
+                <g:message code="digitalMaterialCollection.warning.label"/>
+            </p>
         </div>
     </div>
 

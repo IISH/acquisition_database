@@ -62,9 +62,8 @@ class CollectionController {
 		if (!params.int('offset')) {
 			params.offset = 0
 		}
-		if (!collectionSearchCommand.isASearch()) {
-			collectionSearchCommand = CollectionSearchCommand.getTimerNotPassedCollectionSearchCommand(params)
-		}
+
+		collectionSearchCommand = CollectionSearchCommand.getTimerNotPassedCollectionSearchCommand(params)
 
 		CollectionSearch collectionSearch = collectionSearchCommand.getCollectionSearch()
 		PagedResultList results = collectionSearch.
@@ -94,9 +93,8 @@ class CollectionController {
 		if (!params.int('offset')) {
 			params.offset = 0
 		}
-		if (!collectionSearchCommand.isASearch()) {
-			collectionSearchCommand = CollectionSearchCommand.getTimerPassedCollectionSearchCommand(params)
-		}
+
+		collectionSearchCommand = CollectionSearchCommand.getTimerPassedCollectionSearchCommand(params)
 
 		CollectionSearch collectionSearch = collectionSearchCommand.getCollectionSearch()
 		PagedResultList results = collectionSearch.

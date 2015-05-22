@@ -1,6 +1,7 @@
 package org.iish.acquisition.command
 
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
+import org.iish.acquisition.domain.DigitalMaterialStatusCode
 import org.iish.acquisition.domain.Status
 import org.iish.acquisition.search.*
 
@@ -25,6 +26,7 @@ class CollectionSearchCommand {
 	List<Long> misc
 	List<Integer> priority
 	List<Integer> level
+	Boolean timerPassed
 
 	// For sorting of the search results
 	String sort
@@ -124,6 +126,7 @@ class CollectionSearchCommand {
 		collectionSearch = new MiscMaterialCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new PriorityCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new LevelCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new TimerPassedSearchDecorator(collectionSearch)
 		collectionSearch = new SortCollectionSearchDecorator(collectionSearch)
 
 		return collectionSearch
@@ -135,7 +138,62 @@ class CollectionSearchCommand {
 	 * @return The CollectionSearchCommand object.
 	 */
 	static CollectionSearchCommand getDefaultCollectionSearchCommand(GrailsParameterMap params) {
-		Map defaultValues = [
+		Map defaultValues = getDefaultCollectionSearchParams()
+		params?.putAll(defaultValues)
+
+		return new CollectionSearchCommand(defaultValues)
+	}
+
+	/**
+	 * Creates the 'timer not passed' collection search parameters.
+	 * @param params If the params are also given, the default parameter values are also applied to this map.
+	 * @return The CollectionSearchCommand object.
+	 */
+	static CollectionSearchCommand getTimerNotPassedCollectionSearchCommand(GrailsParameterMap params) {
+		String sort = params.get('sort') ? params.get('sort') : 'timer_deadline'
+		String order = params.get('order') ? params.get('order') : 'asc'
+
+		Map defaultValues = getDefaultCollectionSearchParams()
+		defaultValues.put('sort', sort)
+		defaultValues.put('order', order)
+		defaultValues.put('timerPassed', false)
+		defaultValues.put('status', null)
+		defaultValues.put('statusDigital', DigitalMaterialStatusCode.findAllByIdLessThanEquals(90)*.id)
+
+		!params ?: defaultValues.putAll(params.subMap(['sort', 'order'])) // Only allow user to set sort order
+		params?.putAll(defaultValues)
+
+		return new CollectionSearchCommand(defaultValues)
+	}
+
+	/**
+	 * Creates the 'timer passed' collection search parameters.
+	 * @param params If the params are also given, the default parameter values are also applied to this map.
+	 * @return The CollectionSearchCommand object.
+	 */
+	static CollectionSearchCommand getTimerPassedCollectionSearchCommand(GrailsParameterMap params) {
+		String sort = params.get('sort') ? params.get('sort') : 'timer_deadline'
+		String order = params.get('order') ? params.get('order') : 'desc'
+
+		Map defaultValues = getDefaultCollectionSearchParams()
+		defaultValues.put('sort', sort)
+		defaultValues.put('order', order)
+		defaultValues.put('timerPassed', true)
+		defaultValues.put('status', null)
+		defaultValues.put('statusDigital', DigitalMaterialStatusCode.findAllByIdGreaterThan(90)*.id)
+
+		!params ?: defaultValues.putAll(params.subMap(['sort', 'order'])) // Only allow user to set sort order
+		params?.putAll(defaultValues)
+
+		return new CollectionSearchCommand(defaultValues)
+	}
+
+	/**
+	 * Returns the default collection search params.
+	 * @return The default collection search params.
+	 */
+	private static Map getDefaultCollectionSearchParams() {
+		return [
 				keyword             : null,
 				acquisitionTypeId   : null,
 				acquisitionId       : null,
@@ -153,78 +211,10 @@ class CollectionSearchCommand {
 				misc                : null,
 				priority            : null,
 				level               : null,
+				timerPassed         : null,
 				sort                : null,
 				order               : null,
 				search              : 1
 		]
-
-		params?.putAll(defaultValues)
-		new CollectionSearchCommand(defaultValues)
-	}
-
-	/**
-	 * Creates the 'timer not passed' collection search parameters.
-	 * @param params If the params are also given, the default parameter values are also applied to this map.
-	 * @return The CollectionSearchCommand object.
-	 */
-	static CollectionSearchCommand getTimerNotPassedCollectionSearchCommand(GrailsParameterMap params) {
-		Map defaultValues = [
-				keyword             : null,
-				acquisitionTypeId   : null,
-				acquisitionId       : null,
-				collectionName      : null,
-				location            : null,
-				cabinet             : null,
-				fromDate            : null,
-				toDate              : null,
-				contactPerson       : null,
-				status              : null,
-				collectionLevelReady: null,
-				statusDigital       : null,
-				analog              : null,
-				digital             : null,
-				misc                : null,
-				priority            : null,
-				level               : null,
-				sort                : null,
-				order               : null,
-				search              : 1
-		]
-
-		params?.putAll(defaultValues)
-		new CollectionSearchCommand(defaultValues)
-	}
-
-	/**
-	 * Creates the 'timer passed' collection search parameters.
-	 * @param params If the params are also given, the default parameter values are also applied to this map.
-	 * @return The CollectionSearchCommand object.
-	 */
-	static CollectionSearchCommand getTimerPassedCollectionSearchCommand(GrailsParameterMap params) {
-		Map defaultValues = [
-				keyword             : null,
-				acquisitionTypeId   : null,
-				acquisitionId       : null,
-				collectionName      : null,
-				location            : null,
-				cabinet             : null,
-				fromDate            : null,
-				toDate              : null,
-				contactPerson       : null,
-				status              : null,
-				collectionLevelReady: null,
-				statusDigital       : null,
-				analog              : null,
-				digital             : null,
-				misc                : null,
-				priority            : null,
-				level               : null,
-				sort                : null,
-				order               : null,
-				search              : 1
-		]
-
-		params?.putAll(defaultValues)
-		new CollectionSearchCommand(defaultValues)
 	}
 }
