@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.Status" %>
+<%@ page import="org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.Status; org.iish.acquisition.domain.DigitalMaterialStatusCode" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,6 +79,18 @@
                                 <g:message code="page.collection.depot.label"/>
                             </g:link>
                         </li>
+	                    <li <g:if test="${controllerName == 'collection' && actionName ==
+			                    'timer_started'}">class="active"</g:if>>
+		                    <g:link controller="collection" action="timer_started">
+			                    <g:message code="page.collection.timer_started.label"/>
+		                    </g:link>
+	                    </li>
+	                    <li <g:if test="${controllerName == 'collection' && actionName ==
+			                    'timer_passed'}">class="active"</g:if>>
+		                    <g:link controller="collection" action="timer_passed">
+			                    <g:message code="page.collection.timer_passed.label"/>
+		                    </g:link>
+	                    </li>
                     </ul>
                 </nav>
             </div>

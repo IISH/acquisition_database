@@ -53,8 +53,7 @@
         </div>
     </div>
 
-    <table class="table <g:if test="${files.size() > 0}">table-condensed table-striped table-hover
-        ${isOffloader2 ? 'checkbox-click' : ''}</g:if>">
+    <table class="table <g:if test="${files.size() > 0}">table-condensed table-striped table-hover</g:if>">
         <thead>
         <tr>
             <g:if test="${isOffloader2}">
