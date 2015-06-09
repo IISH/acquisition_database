@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.DigitalMaterialStatusCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.AnalogUnit" %>
+<%@ page import="grails.plugin.springsecurity.SpringSecurityUtils; org.iish.acquisition.domain.DigitalMaterialStatusCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.AnalogUnit" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -371,6 +371,10 @@
             <g:if test="${materialTypes.size() % 2 == 1}">
                 </div>
 			</g:if>
+
+            <p class="help-block important">
+                <g:message code="digitalMaterialCollection.warning.label"/>
+            </p>
         </div>
     </div>
 
@@ -848,7 +852,7 @@
             <g:message code="default.button.cancel.label"/>
         </g:link>
 
-        <g:if test="${actionName == 'edit'}">
+        <g:if test="${actionName == 'edit' && SpringSecurityUtils.ifAnyGranted(Authority.ROLE_OFFLOADER_3)}">
             <g:link action="delete" id="${params.id}" params="${request.getAttribute('queryParams')}"
                     class="btn btn-default btn-delete">
                 <g:message code="default.button.delete.label"/>
