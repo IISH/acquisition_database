@@ -28,9 +28,10 @@
     <thead>
     <tr>
         <th><g:sortLink field="name" messageCode="results.name.label"/></th>
+	    <th><g:sortLink field="timer_deadline" messageCode="results.timer_deadline.label"/></th>
+	    <th><g:sortLink field="status" messageCode="search.status.label"/></th>
         <th><g:sortLink field="analog_material" messageCode="results.analog.material.label"/></th>
         <th><g:sortLink field="digital_material" messageCode="results.digital.material.label"/></th>
-        <th><g:sortLink field="timer_deadline" messageCode="results.timer_deadline.label"/></th>
     </tr>
     </thead>
     <tbody>
@@ -46,7 +47,16 @@
             <td class="hidden table-click-link">
                 <g:createLink params="${params}" controller="collection" action="edit" id="${collection.id}"/>
             </td>
-            <td><span class="badge">${collection.id}</span> ${collection.name}</td>
+            <td>
+	            <span class="badge">${collection.id}</span> ${collection.name}
+            </td>
+	        <td>
+		        <g:formatDate date="${collection.digitalMaterialStatus.getTimerExpirationDate()}"
+		                      formatName="default.datetime.format"/>
+	        </td>
+	        <td>
+		        ${collection.digitalMaterialStatus.statusCode.id} - ${collection.digitalMaterialStatus.message}
+	        </td>
             <td>
                 <ul class="list-group">
                     <g:each in="${collection.analogMaterialCollection?.materials}" var="material">
@@ -71,10 +81,6 @@
                         </li>
                     </g:if>
                 </ul>
-            </td>
-            <td>
-                <g:formatDate date="${collection.digitalMaterialStatus.getTimerExpirationDate()}"
-                              formatName="default.datetime.format"/>
             </td>
         </tr>
     </g:each>
