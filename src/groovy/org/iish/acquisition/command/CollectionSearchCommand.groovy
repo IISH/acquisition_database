@@ -156,9 +156,9 @@ class CollectionSearchCommand {
 		Map defaultValues = getDefaultCollectionSearchParams()
 		defaultValues.put('sort', sort)
 		defaultValues.put('order', order)
-		defaultValues.put('timerPassed', false)
+//		defaultValues.put('timerPassed', false) // is this necessary?
 		defaultValues.put('status', null)
-		defaultValues.put('statusDigital', DigitalMaterialStatusCode.findAllByIdLessThanEquals(90)*.id)
+		defaultValues.put('statusDigital', DigitalMaterialStatusCode.findAllByIdLessThanEquals(90L)*.id)
 
 		!params ?: defaultValues.putAll(params.subMap(['sort', 'order'])) // Only allow user to set sort order
 		params?.putAll(defaultValues)
@@ -178,9 +178,9 @@ class CollectionSearchCommand {
 		Map defaultValues = getDefaultCollectionSearchParams()
 		defaultValues.put('sort', sort)
 		defaultValues.put('order', order)
-		defaultValues.put('timerPassed', true)
+//		defaultValues.put('timerPassed', true) // is this necessary?
 		defaultValues.put('status', null)
-		defaultValues.put('statusDigital', DigitalMaterialStatusCode.findAllByIdGreaterThan(90)*.id)
+		defaultValues.put('statusDigital', DigitalMaterialStatusCode.findAllByIdGreaterThan(90L)*.id)
 
 		!params ?: defaultValues.putAll(params.subMap(['sort', 'order'])) // Only allow user to set sort order
 		params?.putAll(defaultValues)

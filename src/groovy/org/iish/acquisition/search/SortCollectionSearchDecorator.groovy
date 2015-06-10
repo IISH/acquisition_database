@@ -5,7 +5,7 @@ package org.iish.acquisition.search
  */
 class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 	private static final List<String> SORT_FIELDS = ['name', 'analog_material', 'digital_material', 'date',
-	                                                 'location', 'timer_deadline']
+	                                                 'location', 'timer_deadline', 'status']
 
 	private String sortOrder = 'asc'
 
@@ -25,7 +25,6 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 
 		if (sortField && SORT_FIELDS.contains(sortField)) {
 			sortOrder = order.equals('asc') ? 'ASC' : 'DESC'
-
 			switch (sortField) {
 				case 'name':
 					sort.addAll(sortByCollectionName())
@@ -44,6 +43,10 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 					break
 				case 'timer_deadline':
 					sort.addAll(sortByTimerDeadline())
+					break
+				case 'status':
+					sort.addAll(sortByStatusDeadline())
+					break
 			}
 		}
 
@@ -96,6 +99,14 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 	 */
 	private List<String> sortByTimerDeadline() {
 		return ["dms_main.ingestDelayed $reverseOrder", "dms_main.timerStarted $sortOrder"]
+	}
+
+	/**
+	 * Applies sorting on the timer deadline.
+	 * @return A list with criteria to apply sorting on the timer deadline.
+	 */
+	private List<String> sortByStatusDeadline() {
+		return ["dms_main.statusCode.id $sortOrder"]
 	}
 
 	/**

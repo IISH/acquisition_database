@@ -285,6 +285,10 @@
         </div>
 
         <div class="panel-body form-control-listing">
+	        <p class="help-block important">
+		        <g:message code="digitalMaterialCollection.warning.label"/>
+	        </p>
+
             <g:if test="${true}">
                 <div class="row">
             </g:if>
@@ -372,9 +376,9 @@
                 </div>
 			</g:if>
 
-            <p class="help-block important">
-                <g:message code="digitalMaterialCollection.warning.label"/>
-            </p>
+            %{--<p class="help-block important">--}%
+                %{--<g:message code="digitalMaterialCollection.warning.label"/>--}%
+            %{--</p>--}%
         </div>
     </div>
 
