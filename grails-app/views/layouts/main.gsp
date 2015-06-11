@@ -80,15 +80,15 @@
                             </g:link>
                         </li>
 	                    <li <g:if test="${controllerName == 'collection' && actionName ==
-			                    'timer_started'}">class="active"</g:if>>
-		                    <g:link controller="collection" action="timer_started">
-			                    <g:message code="page.collection.timer_started.label"/>
+			                    'status1090'}">class="active"</g:if>>
+		                    <g:link controller="collection" action="status1090">
+			                    <g:message code="page.collection.status1090.label"/>
 		                    </g:link>
 	                    </li>
 	                    <li <g:if test="${controllerName == 'collection' && actionName ==
-			                    'timer_passed'}">class="active"</g:if>>
-		                    <g:link controller="collection" action="timer_passed">
-			                    <g:message code="page.collection.timer_passed.label"/>
+			                    'status100120'}">class="active"</g:if>>
+		                    <g:link controller="collection" action="status100120">
+			                    <g:message code="page.collection.status100120.label"/>
 		                    </g:link>
 	                    </li>
                     </ul>
