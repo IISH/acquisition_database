@@ -80,15 +80,15 @@
                             </g:link>
                         </li>
 	                    <li <g:if test="${controllerName == 'collection' && actionName ==
-			                    'status1090'}">class="active"</g:if>>
-		                    <g:link controller="collection" action="status1090">
-			                    <g:message code="page.collection.status1090.label"/>
+			                    'status_1_9'}">class="active"</g:if>>
+		                    <g:link controller="collection" action="status_1_9">
+			                    <g:message code="page.collection.status_1_9.label"/>
 		                    </g:link>
 	                    </li>
 	                    <li <g:if test="${controllerName == 'collection' && actionName ==
-			                    'status100120'}">class="active"</g:if>>
-		                    <g:link controller="collection" action="status100120">
-			                    <g:message code="page.collection.status100120.label"/>
+			                    'status_10_12'}">class="active"</g:if>>
+		                    <g:link controller="collection" action="status_10_12">
+			                    <g:message code="page.collection.status_10_12.label"/>
 		                    </g:link>
 	                    </li>
                     </ul>
