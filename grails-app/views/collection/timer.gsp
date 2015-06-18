@@ -55,7 +55,7 @@
 		                      formatName="default.datetime.format"/>
 	        </td>
 	        <td>
-		        ${collection.digitalMaterialStatus.statusCode.id} - ${collection.digitalMaterialStatus.message}
+		        ${collection.digitalMaterialStatus.statusCode.id/10} - ${collection.digitalMaterialStatus.message}
 	        </td>
             <td>
                 <ul class="list-group">
