@@ -55,7 +55,7 @@ class CollectionController {
 	/**
 	 * Lists the collections returned by a timer started request.
 	 */
-	def status1090(CollectionSearchCommand collectionSearchCommand) {
+	def status_1_9(CollectionSearchCommand collectionSearchCommand) {
 		if (!params.int('max')) {
 			params.max = 20
 		}
@@ -86,7 +86,7 @@ class CollectionController {
 	/**
 	 * Lists the collections returned by a timer passed request.
 	 */
-	def status100120(CollectionSearchCommand collectionSearchCommand) {
+	def status_10_12(CollectionSearchCommand collectionSearchCommand) {
 		if (!params.int('max')) {
 			params.max = 20
 		}
