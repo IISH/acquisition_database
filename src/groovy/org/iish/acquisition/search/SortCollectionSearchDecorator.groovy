@@ -5,7 +5,7 @@ package org.iish.acquisition.search
  */
 class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 	private static final List<String> SORT_FIELDS = ['name', 'analog_material', 'digital_material', 'date',
-	                                                 'location', 'timer_deadline', 'status']
+	                                                 'location', 'timer_deadline', 'digital_status']
 
 	private String sortOrder = 'asc'
 
@@ -44,8 +44,8 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 				case 'timer_deadline':
 					sort.addAll(sortByTimerDeadline())
 					break
-				case 'status':
-					sort.addAll(sortByStatusDeadline())
+				case 'digital_status':
+					sort.addAll(sortByDigitalStatus())
 					break
 			}
 		}
@@ -102,10 +102,10 @@ class SortCollectionSearchDecorator extends CollectionSearchDecorator {
 	}
 
 	/**
-	 * Applies sorting on the timer deadline.
-	 * @return A list with criteria to apply sorting on the timer deadline.
+	 * Applies sorting on the digital status.
+	 * @return A list with criteria to apply sorting on the digital status.
 	 */
-	private List<String> sortByStatusDeadline() {
+	private List<String> sortByDigitalStatus() {
 		return ["dms_main.statusCode.id $sortOrder"]
 	}
 

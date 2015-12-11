@@ -1,7 +1,5 @@
 package org.iish.acquisition.command
 
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
-import org.iish.acquisition.domain.DigitalMaterialStatusCode
 import org.iish.acquisition.domain.Status
 import org.iish.acquisition.search.*
 
@@ -34,6 +32,9 @@ class CollectionSearchCommand {
 
 	// Provides a simple way to test for the existence of a search
 	Integer search = 0
+
+	// Name of the columns to display
+	List<String> columns
 
 	/**
 	 * Tests if 'search' equals 1, because in that case, a search was performed.
@@ -137,52 +138,8 @@ class CollectionSearchCommand {
 	 * @param params If the params are also given, the default parameter values are also applied to this map.
 	 * @return The CollectionSearchCommand object.
 	 */
-	static CollectionSearchCommand getDefaultCollectionSearchCommand(GrailsParameterMap params) {
+	static CollectionSearchCommand getDefaultCollectionSearchCommand(Map params) {
 		Map defaultValues = getDefaultCollectionSearchParams()
-		params?.putAll(defaultValues)
-
-		return new CollectionSearchCommand(defaultValues)
-	}
-
-	/**
-	 * Creates the 'timer not passed' collection search parameters.
-	 * @param params If the params are also given, the default parameter values are also applied to this map.
-	 * @return The CollectionSearchCommand object.
-	 */
-	static CollectionSearchCommand getTimerNotPassedCollectionSearchCommand(GrailsParameterMap params) {
-		String sort = params.get('sort') ? params.get('sort') : 'timer_deadline'
-		String order = params.get('order') ? params.get('order') : 'asc'
-
-		Map defaultValues = getDefaultCollectionSearchParams()
-		defaultValues.put('sort', sort)
-		defaultValues.put('order', order)
-//		defaultValues.put('timerPassed', false) // is this necessary?
-		defaultValues.put('status', null)
-		defaultValues.put('statusDigital', DigitalMaterialStatusCode.findAllByIdLessThanEquals(90L)*.id)
-
-		!params ?: defaultValues.putAll(params.subMap(['sort', 'order'])) // Only allow user to set sort order
-		params?.putAll(defaultValues)
-
-		return new CollectionSearchCommand(defaultValues)
-	}
-
-	/**
-	 * Creates the 'timer passed' collection search parameters.
-	 * @param params If the params are also given, the default parameter values are also applied to this map.
-	 * @return The CollectionSearchCommand object.
-	 */
-	static CollectionSearchCommand getTimerPassedCollectionSearchCommand(GrailsParameterMap params) {
-		String sort = params.get('sort') ? params.get('sort') : 'timer_deadline'
-		String order = params.get('order') ? params.get('order') : 'desc'
-
-		Map defaultValues = getDefaultCollectionSearchParams()
-		defaultValues.put('sort', sort)
-		defaultValues.put('order', order)
-//		defaultValues.put('timerPassed', true) // is this necessary?
-		defaultValues.put('status', null)
-		defaultValues.put('statusDigital', DigitalMaterialStatusCode.findAllByIdGreaterThan(90L)*.id)
-
-		!params ?: defaultValues.putAll(params.subMap(['sort', 'order'])) // Only allow user to set sort order
 		params?.putAll(defaultValues)
 
 		return new CollectionSearchCommand(defaultValues)
@@ -193,28 +150,7 @@ class CollectionSearchCommand {
 	 * @return The default collection search params.
 	 */
 	private static Map getDefaultCollectionSearchParams() {
-		return [
-				keyword             : null,
-				acquisitionTypeId   : null,
-				acquisitionId       : null,
-				collectionName      : null,
-				location            : null,
-				cabinet             : null,
-				fromDate            : null,
-				toDate              : null,
-				contactPerson       : null,
-				status              : [Status.NOT_PROCESSED_ID],
-				collectionLevelReady: null,
-				statusDigital       : null,
-				analog              : null,
-				digital             : null,
-				misc                : null,
-				priority            : null,
-				level               : null,
-				timerPassed         : null,
-				sort                : null,
-				order               : null,
-				search              : 1
-		]
+		return [status: [Status.NOT_PROCESSED_ID], search: 1,
+		        columns: ['name', 'analog_material', 'digital_material', 'date', 'location']]
 	}
 }

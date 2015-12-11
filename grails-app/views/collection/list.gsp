@@ -105,11 +105,27 @@
 <table class="table <g:if test="${results.size() > 0}">table-condensed table-striped table-hover table-click</g:if>">
     <thead>
     <tr>
-        <th><g:sortLink field="name" messageCode="results.name.label"/></th>
-        <th><g:sortLink field="analog_material" messageCode="results.analog.material.label"/></th>
-        <th><g:sortLink field="digital_material" messageCode="results.digital.material.label"/></th>
-        <th><g:sortLink field="date" messageCode="results.date.label"/></th>
-        <th><g:sortLink field="location" messageCode="results.location.label"/></th>
+        <g:if test="${collectionSearchCommand.columns.contains('name')}">
+            <th><g:sortLink field="name" messageCode="results.name.label"/></th>
+        </g:if>
+        <g:if test="${collectionSearchCommand.columns.contains('timer_deadline')}">
+            <th><g:sortLink field="timer_deadline" messageCode="results.timerDeadline.label"/></th>
+        </g:if>
+        <g:if test="${collectionSearchCommand.columns.contains('digital_status')}">
+            <th><g:sortLink field="status" messageCode="results.digitalStatus.label"/></th>
+        </g:if>
+        <g:if test="${collectionSearchCommand.columns.contains('analog_material')}">
+            <th><g:sortLink field="analog_material" messageCode="results.analog.material.label"/></th>
+        </g:if>
+        <g:if test="${collectionSearchCommand.columns.contains('digital_material')}">
+            <th><g:sortLink field="digital_material" messageCode="results.digital.material.label"/></th>
+        </g:if>
+        <g:if test="${collectionSearchCommand.columns.contains('date')}">
+            <th><g:sortLink field="date" messageCode="results.date.label"/></th>
+        </g:if>
+        <g:if test="${collectionSearchCommand.columns.contains('location')}">
+            <th><g:sortLink field="location" messageCode="results.location.label"/></th>
+        </g:if>
         <th class="visible-print"><g:message code="results.cabinet.label"/></th>
     </tr>
     </thead>
@@ -126,40 +142,61 @@
             <td class="hidden table-click-link">
                 <g:createLink params="${params}" controller="collection" action="edit" id="${collection.id}"/>
             </td>
-            <td><span class="badge">${collection.id}</span> ${collection.name}</td>
-            <td>
-                <ul class="list-group">
-                    <g:each in="${collection.analogMaterialCollection?.materials}" var="material">
-                        <li class="list-group-item">${material}</li>
-                    </g:each>
-                </ul>
-            </td>
-            <td>
-                <ul class="list-group">
-                    <g:each in="${collection.digitalMaterialCollection?.materials}" var="material">
-                        <li class="list-group-item">${material}</li>
-                    </g:each>
+            <g:if test="${collectionSearchCommand.columns.contains('name')}">
+                <td><span class="badge">${collection.id}</span> ${collection.name}</td>
+            </g:if>
+            <g:if test="${collectionSearchCommand.columns.contains('timer_deadline')}">
+                <td>
+                    <g:formatDate date="${collection.digitalMaterialStatus.getTimerExpirationDate()}"
+                                  formatName="default.datetime.format"/>
+                </td>
+            </g:if>
+            <g:if test="${collectionSearchCommand.columns.contains('digital_status')}">
+                <td>
+                    ${collection.digitalMaterialStatus.statusCode.id / 10} - ${collection.digitalMaterialStatus.message}
+                </td>
+            </g:if>
+            <g:if test="${collectionSearchCommand.columns.contains('analog_material')}">
+                <td>
+                    <ul class="list-group">
+                        <g:each in="${collection.analogMaterialCollection?.materials}" var="material">
+                            <li class="list-group-item">${material}</li>
+                        </g:each>
+                    </ul>
+                </td>
+            </g:if>
+            <g:if test="${collectionSearchCommand.columns.contains('digital_material')}">
+                <td>
+                    <ul class="list-group">
+                        <g:each in="${collection.digitalMaterialCollection?.materials}" var="material">
+                            <li class="list-group-item">${material}</li>
+                        </g:each>
 
-                    <g:if test="${collection.digitalMaterialCollection}">
-                        <li class="list-group-item">
-                            <g:message code="digitalMaterialCollection.numberOfFiles.export.label"/>:
-                            ${collection.digitalMaterialCollection.numberOfFilesToString()}
-                        </li>
-                        <li class="list-group-item">
-                            <g:message code="digitalMaterialCollection.totalSize.label"/>:
-                            ${collection.digitalMaterialCollection.totalSizeToStringWithUnit()}
-                        </li>
-                    </g:if>
-                </ul>
-            </td>
-            <td><g:formatDate date="${collection.dateOfArrival}"/></td>
-            <td>
-                <ul class="list-group">
-                    <g:each in="${collection.locations}" var="location">
-                        <li class="list-group-item">${location}</li>
-                    </g:each>
-                </ul>
-            </td>
+                        <g:if test="${collection.digitalMaterialCollection}">
+                            <li class="list-group-item">
+                                <g:message code="digitalMaterialCollection.numberOfFiles.export.label"/>:
+                                ${collection.digitalMaterialCollection.numberOfFilesToString()}
+                            </li>
+                            <li class="list-group-item">
+                                <g:message code="digitalMaterialCollection.totalSize.label"/>:
+                                ${collection.digitalMaterialCollection.totalSizeToStringWithUnit()}
+                            </li>
+                        </g:if>
+                    </ul>
+                </td>
+            </g:if>
+            <g:if test="${collectionSearchCommand.columns.contains('date')}">
+                <td><g:formatDate date="${collection.dateOfArrival}"/></td>
+            </g:if>
+            <g:if test="${collectionSearchCommand.columns.contains('location')}">
+                <td>
+                    <ul class="list-group">
+                        <g:each in="${collection.locations}" var="location">
+                            <li class="list-group-item">${location}</li>
+                        </g:each>
+                    </ul>
+                </td>
+            </g:if>
             <td class="visible-print">
                 <ul class="list-group">
                     <g:each in="${collection.locations}" var="location">

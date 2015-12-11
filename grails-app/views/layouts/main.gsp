@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.Status; org.iish.acquisition.domain.DigitalMaterialStatusCode" %>
+<%@ page import="org.iish.acquisition.command.CollectionSearchCommand; org.iish.acquisition.util.CollectionSearchFilters; org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.Status; org.iish.acquisition.domain.DigitalMaterialStatusCode; org.iish.acquisition.util.CollectionSearchFilters" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,7 +63,9 @@
                         <li <g:if test="${controllerName == 'collection' && actionName ==
                                 'list'}">class="active"</g:if>>
                             <g:link controller="collection" action="list"
-                                    params="${[status: [Status.NOT_PROCESSED_ID, Status.IN_PROCESS_ID], search: 1]}">
+                                    params="${[status: [Status.NOT_PROCESSED_ID, Status.IN_PROCESS_ID],
+                                               search: 1,
+                                               columns: ['name', 'analog_material', 'digital_material', 'date', 'location']]}">
                                 <g:message code="page.collection.all.label"/>
                             </g:link>
                         </li>
@@ -79,20 +81,21 @@
                                 <g:message code="page.collection.depot.label"/>
                             </g:link>
                         </li>
-	                    <li <g:if test="${controllerName == 'collection' && actionName ==
-			                    'status_1_9'}">class="active"</g:if>>
-		                    <g:link controller="collection" action="status_1_9">
-			                    <g:message code="page.collection.status_1_9.label"/>
-		                    </g:link>
-	                    </li>
-	                    <li <g:if test="${controllerName == 'collection' && actionName ==
-			                    'status_10_12'}">class="active"</g:if>>
-		                    <g:link controller="collection" action="status_10_12">
-			                    <g:message code="page.collection.status_10_12.label"/>
-		                    </g:link>
-	                    </li>
                     </ul>
                 </nav>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading"><g:message code="page.collection.filters.label"/>:</div>
+                    <ul class="list-group">
+                        <g:each in="${CollectionSearchFilters.SEARCH_FILTERS}" var="searchFilter">
+                            <g:set var="isCurSearch" value="${controllerName == 'collection' && actionName == 'list' && params.name == searchFilter.name}"/>
+                            <g:link controller="collection" action="list" params="${searchFilter.filter}"
+                                    class="list-group-item ${isCurSearch ? 'active' : ''}">
+                                <g:message code="${searchFilter.nameKey}"/>
+                            </g:link>
+                        </g:each>
+                    </ul>
+                </div>
             </div>
         </sec:ifLoggedIn>
 
