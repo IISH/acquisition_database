@@ -45,6 +45,17 @@ class CollectionSearchCommand {
 	}
 
 	/**
+	 * Returns the requested columns or the default columns if no columns were specified.
+	 * @return The requested columns.
+	 */
+	List<String> getColumns() {
+		if (!columns || columns.isEmpty()) {
+			return ['name', 'analog_material', 'digital_material', 'date', 'location']
+		}
+		return columns
+	}
+
+	/**
 	 * Splits a string of values (separated by spaces) into a list of individual values.
 	 * @param property The name of the property of this object to split into a list of values.
 	 * @return A list of individual values.
