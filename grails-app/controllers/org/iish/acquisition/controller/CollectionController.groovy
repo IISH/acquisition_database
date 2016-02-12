@@ -53,68 +53,6 @@ class CollectionController {
 	}
 
 	/**
-	 * Lists the collections returned by a timer started request.
-	 */
-	def status_1_9(CollectionSearchCommand collectionSearchCommand) {
-		if (!params.int('max')) {
-			params.max = 20
-		}
-		if (!params.int('offset')) {
-			params.offset = 0
-		}
-
-		collectionSearchCommand = CollectionSearchCommand.getTimerNotPassedCollectionSearchCommand(params)
-
-		CollectionSearch collectionSearch = collectionSearchCommand.getCollectionSearch()
-		PagedResultList results = collectionSearch.
-				getPaginatedResults(params.int('max'), params.int('offset'))
-
-		render view: 'timer', model: [
-				results                : results,
-				collectionSearchCommand: collectionSearchCommand,
-				acquisitionTypes       : AcquisitionType.values(),
-				depots                 : Depot.list(),
-				statuses               : Status.list(),
-				digitalStatuses        : DigitalMaterialStatusCode.list(),
-				materialTypes          : MaterialType.list(),
-				miscMaterialTypes      : MiscMaterialType.list(),
-				priorities             : Priority.values(),
-				digitalMaterialStatus  : DigitalMaterialStatus.list()
-		]
-	}
-
-	/**
-	 * Lists the collections returned by a timer passed request.
-	 */
-	def status_10_12(CollectionSearchCommand collectionSearchCommand) {
-		if (!params.int('max')) {
-			params.max = 20
-		}
-		if (!params.int('offset')) {
-			params.offset = 0
-		}
-
-		collectionSearchCommand = CollectionSearchCommand.getTimerPassedCollectionSearchCommand(params)
-
-		CollectionSearch collectionSearch = collectionSearchCommand.getCollectionSearch()
-		PagedResultList results = collectionSearch.
-				getPaginatedResults(params.int('max'), params.int('offset'))
-
-		render view: 'timer', model: [
-				results                : results,
-				collectionSearchCommand: collectionSearchCommand,
-				acquisitionTypes       : AcquisitionType.values(),
-				depots                 : Depot.list(),
-				statuses               : Status.list(),
-				digitalStatuses        : DigitalMaterialStatusCode.list(),
-				materialTypes          : MaterialType.list(),
-				miscMaterialTypes      : MiscMaterialType.list(),
-				priorities             : Priority.values(),
-				digitalMaterialStatus  : DigitalMaterialStatus.list()
-		]
-	}
-
-	/**
 	 * Search through the collections.
 	 */
 	def search() {
