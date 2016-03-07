@@ -20,17 +20,18 @@ class EmailService {
 	 * Sends an email with a link to the given collection to the configured recipient
 	 * and the initiator of this request with the request to complement the given collection.
 	 * @param recipientsCommand The recipients of this email.
-	 * @param collection The collection to complement.
+	 * @param subj The subject of the email.
+     * @param body The body of the email.
 	 * @throws EmailException
 	 */
-	void sentComplementRequestEmail(RecipientsCommand recipientsCommand, Collection collection) throws EmailException {
+	void sentComplementRequestEmail(RecipientsCommand recipientsCommand, String subj, String body)
+            throws EmailException {
 		try {
 			mailService.sendMail {
 				from 'Acquisition database <noreply@iisg.nl>'
 				to recipientsCommand.getRecipientsArray()
-				subject messageSource.getMessage('email.complement.request.subject', new Object[0], LCH.locale)
-				text grailsLinkGenerator.
-						link(controller: 'collection', action: 'edit', id: collection.id, absolute: true)
+				subject subj
+				text body
 			}
 		}
 		catch (Exception e) {

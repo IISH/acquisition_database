@@ -81,7 +81,7 @@
         location.href = $(this).find('.table-click-link').text();
     };
 
-    var onRowCheckboxClick = function (e) {
+    var onColumnCheckboxClick = function (e) {
         if (e.target.type !== 'checkbox') {
             $(':checkbox', this).trigger('click');
         }
@@ -91,10 +91,10 @@
         var checkbox = $(this);
 
         if (checkbox.is(':checked')) {
-            checkbox.parents('tr').addClass('info');
+            checkbox.parents('td').addClass('info');
         }
         else {
-            checkbox.parents('tr').removeClass('info');
+            checkbox.parents('td').removeClass('info');
         }
     };
 
@@ -146,7 +146,7 @@
         $('.confirm').click(confirmation);
 
         $('table.table-click > tbody > tr').click(onRowClick);
-        $('table.checkbox-click > tbody > tr').click(onRowCheckboxClick);
+        $('table.checkbox-click > tbody td').click(onColumnCheckboxClick);
         $('table.checkbox-click > tbody input[type=\'checkbox\']').change(onCheckboxChange);
         $('table .checkAll').change(onCheckboxCheckAll);
 

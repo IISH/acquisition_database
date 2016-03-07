@@ -31,6 +31,24 @@
   padding: 15px;
 }
 
+#emailModal {
+  table {
+    margin: 0;
+  }
+
+  input[type=text],
+  textarea {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+}
+
 .content-menu {
   .pagination, .pager, .breadcrumb {
     margin: 0;
@@ -137,13 +155,10 @@ table {
       }
     }
 
-    &.modal-body {
-      margin: 0;
-    }
-
     input[type='checkbox'],
     input[type='radio'] {
-      margin: 5px 0 0 20px;
+      margin: 4px 10px 4px 20px;
+      vertical-align: top;
     }
   }
 
@@ -166,6 +181,12 @@ table {
   }
   .list-group-item {
     padding: 5px 10px;
+  }
+}
+
+.modal {
+  .modal-body {
+    padding: 0;
   }
 }
 

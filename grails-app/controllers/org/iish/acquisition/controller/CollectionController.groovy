@@ -181,7 +181,9 @@ class CollectionController {
 			}
 
 			try {
-				emailService.sentComplementRequestEmail(recipientsCommand, collection)
+                String subject = params['email-subject']
+                String body = params['email-body']
+				emailService.sentComplementRequestEmail(recipientsCommand, subject, body)
 
 				flash.message = g.message(code: 'default.mail.success.message')
 				redirect action: 'edit', id: collection.id, params: request.getAttribute('queryParams')

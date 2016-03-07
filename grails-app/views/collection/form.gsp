@@ -868,7 +868,7 @@
 
 <g:if test="${actionName == 'edit'}">
     <div id="emailModal" class="modal fade hidden-print" role="dialog">
-        <div class="modal-dialog modal-sm">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <form role="form" method="post" action="${g.createLink(controller: 'collection', action: 'email',
                         params: request.getAttribute('queryParams'))}">
@@ -881,20 +881,36 @@
                         </button>
 
                         <h4 class="modal-title">
-                            <g:message code="email.select.recipients.message"/>
+                            <g:message code="default.button.email.label"/>
                         </h4>
                     </div>
 
-                    <table class="modal-body table table-condensed table-striped table-hover checkbox-click">
-                        <tbody>
-                        <g:each in="${recipients}" var="user">
-                            <tr>
-                                <td><g:checkBox name="recipients" value="${user.id}" checked="${false}"/></td>
-                                <td>${user.toString()}</td>
-                            </tr>
-                        </g:each>
-                        </tbody>
-                    </table>
+                    <div class="modal-body">
+                        <table class="table table-condensed table-striped checkbox-click">
+                            <tbody>
+                                <g:each in="${recipients}" var="user" status="i">
+                                    <g:if test="${(i%2 == 0)}"> <tr> </g:if>
+
+                                    <td>
+                                        <g:checkBox name="recipients" value="${user.id}" checked="${false}"/>
+                                        ${user.toString()}
+                                    </td>
+
+                                    <g:if test="${(i%2 == 1)}"> </tr> </g:if>
+                                </g:each>
+
+                                <g:if test="${recipients.size()%2 == 1}">
+                                    <td>&nbsp;</td></tr>
+                                </g:if>
+                            </tbody>
+                        </table>
+
+                        <g:textField name="email-subject" class="form-control"
+                                     value="${message(code: 'email.complement.request.subject')}"/>
+
+                        <g:textArea name="email-body" class="form-control" rows="10"
+                                    value="${createLink(controller: 'collection', action: 'edit', id: collection.id, absolute: true)}"/>
+                    </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
