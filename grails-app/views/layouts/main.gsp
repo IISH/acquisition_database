@@ -9,12 +9,6 @@
     <title><g:message code="application.title.label"/> - <g:layoutTitle default=""/></title>
     <asset:stylesheet src="style.less"/>
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-    <asset:javascript src="html5shiv-printshiv.js"/>
-    <asset:javascript src="respond.js"/>
-    <![endif]-->
-
     <g:layoutHead/>
 </head>
 

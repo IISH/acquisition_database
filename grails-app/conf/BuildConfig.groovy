@@ -49,23 +49,21 @@ grails.project.dependency.resolution = {
 	}
 
 	dependencies {
-		compile "org.apache.poi:poi:3.10.1"
-		compile "commons-net:commons-net:3.3"
+		compile "org.apache.poi:poi:3.14"
+		compile "commons-net:commons-net:3.4"
 
-		runtime "mysql:mysql-connector-java:5.1.33"
+		runtime "mysql:mysql-connector-java:5.1.38"
 	}
 
 	plugins {
 		build ":tomcat:7.0.50.1"
 
 		compile ":hibernate4:4.3.1.2"
-		compile ":asset-pipeline:1.9.9"
-		compile ":less-asset-pipeline:1.10.0"
-		compile ":twitter-bootstrap:3.3.1"
-		compile ":spring-security-core:2.0-RC4"
-		compile ":spring-security-ldap:2.0-RC2"
+		compile ":asset-pipeline:2.7.0"
+		compile ":less-asset-pipeline:2.7.0"
+		compile ":twitter-bootstrap:3.3.4"
+		compile ":spring-security-core:2.0.0"
+		compile ":spring-security-ldap:2.0.1"
 		compile ":mail:1.0.7"
-
-		runtime ":jquery:1.11.1"
 	}
 }

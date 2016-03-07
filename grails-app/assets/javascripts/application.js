@@ -156,4 +156,9 @@
         $('.decimal').keypress(onDecimalField);
         $('.integer').keypress(onIntegerField);
     });
+
+    // Keep session alive, call every 15 minutes
+    setInterval(function () {
+        $.get('session/keepalive');
+    }, 15 * 60 * 1000);
 })(jQuery);
