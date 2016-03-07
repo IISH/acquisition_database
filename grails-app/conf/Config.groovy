@@ -205,7 +205,7 @@ grails {
                         '/**/images/**'     : ['permitAll'],
                         '/**/favicon.ico'   : ['permitAll'],
                         '/service/**'       : ['permitAll'],
-                        '/collection/delete': [Authority.ROLE_OFFLOADER_1],
+                        '/collection/delete': [Authority.ROLE_OFFLOADER_3],
                         '/depot/delete'     : [Authority.ROLE_OFFLOADER_2],
                         '/admin/**'         : [Authority.ROLE_ADMIN],
                         '/**'               : [Authority.ROLE_USER]
