@@ -856,7 +856,7 @@
             <g:message code="default.button.cancel.label"/>
         </g:link>
 
-        <g:if test="${actionName == 'edit' && SpringSecurityUtils.ifAnyGranted(Authority.ROLE_OFFLOADER_3)}">
+        <g:if test="${actionName == 'edit' && !collection.isDigital() && SpringSecurityUtils.ifAnyGranted(Authority.ROLE_OFFLOADER_1)}">
             <g:link action="delete" id="${params.id}" params="${request.getAttribute('queryParams')}"
                     class="btn btn-default btn-delete">
                 <g:message code="default.button.delete.label"/>

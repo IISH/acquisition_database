@@ -194,27 +194,29 @@ class CollectionController {
 		}
 	}
 
-	/**
-	 * Deleting a collection.
-	 * @param collection The collection to delete.
-	 */
-	def delete(Collection collection) {
-		ifCollectionExists(collection, params.long('id')) {
-			collection.deleted = true
+    /**
+     * Deleting a collection.
+     * @param collection The collection to delete.
+     */
+    def delete(Collection collection) {
+        ifCollectionExists(collection, params.long('id')) {
+            if (!collection.isDigital()) {
+                collection.deleted = true
 
-			if (collection.save(flush: true)) {
-				flash.message = g.message(code: 'default.deleted.message',
-						args: [g.message(code: 'collection.label').toString().toLowerCase(), collection])
-				redirect action: 'list', params: request.getAttribute('queryParams')
-			}
-			else {
-				flash.status = 'error'
-				flash.message = g.message(code: 'default.not.deleted.message',
-						args: [g.message(code: 'collection.label').toString().toLowerCase(), collection])
-				redirect action: 'edit', id: params.id, params: request.getAttribute('queryParams')
-			}
-		}
-	}
+                if (collection.save(flush: true)) {
+                    flash.message = g.message(code: 'default.deleted.message',
+                            args: [g.message(code: 'collection.label').toString().toLowerCase(), collection])
+                    redirect action: 'list', params: request.getAttribute('queryParams')
+                    return
+                }
+            }
+
+            flash.status = 'error'
+            flash.message = g.message(code: 'default.not.deleted.message',
+                    args: [g.message(code: 'collection.label').toString().toLowerCase(), collection])
+            redirect action: 'edit', id: params.id, params: request.getAttribute('queryParams')
+        }
+    }
 
 	/**
 	 * The default procedure to start an action which requires a collection.

@@ -119,7 +119,15 @@ class Collection {
 		locations?.find { it.id == id }
 	}
 
-	/**
+    /**
+     * Returns whether this collection is (or has been) a digital material collection.
+     * @return Whether this collection is (or has been) a digital material collection.
+     */
+    boolean isDigital() {
+        digitalMaterialCollection || objectRepositoryPID
+    }
+
+    /**
 	 * After each insert or update, check if digital material was entered.
 	 * If so, make sure a PID is created and the digital material status can be tracked.
 	 */
