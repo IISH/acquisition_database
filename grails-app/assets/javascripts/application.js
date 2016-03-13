@@ -107,15 +107,19 @@
         });
     };
 
-    var onHoldSor = function (e) {
-        if ($(this).is(':checked')) {
-            $('#startProcess').attr('checked', false);
-        }
-    };
+    var onButtonChange = function (e) {
+        var self = $(this);
+        var isChecked = self.is(':checked');
 
-    var startProcessSor = function (e) {
-        if ($(this).is(':checked')) {
-            $('#onHold').attr('checked', false);
+        if (isChecked) {
+            self.closest('.btn').addClass('active');
+
+            $('[name=\'' + self.attr('name') + '\']').not(self).each(function () {
+                $(this).prop('checked', false).closest('.btn').removeClass('active');
+            });
+        }
+        else {
+            self.closest('.btn').removeClass('active');
         }
     };
 
@@ -150,8 +154,7 @@
         $('table.checkbox-click > tbody input[type=\'checkbox\']').change(onCheckboxChange);
         $('table .checkAll').change(onCheckboxCheckAll);
 
-        $('#onHold').change(onHoldSor);
-        $('#startProcess').change(startProcessSor);
+        $('label.btn > input[type=\'checkbox\']').change(onButtonChange);
 
         $('.decimal').keypress(onDecimalField);
         $('.integer').keypress(onIntegerField);

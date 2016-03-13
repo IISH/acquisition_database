@@ -46,6 +46,7 @@ class CollectionController {
 				depots                 : Depot.list(),
 				statuses               : Status.list(),
 				digitalStatuses        : DigitalMaterialStatusCode.list(),
+				digitalSubStatuses     : DigitalMaterialStatusSubCode.values(),
 				materialTypes          : MaterialType.list(),
 				miscMaterialTypes      : MiscMaterialType.list(),
 				priorities             : Priority.values()
@@ -57,14 +58,15 @@ class CollectionController {
 	 */
 	def search() {
 		render view: 'search', model: [
-				acquisitionTypes : AcquisitionType.values(),
-				depots           : Depot.list(),
-				statuses         : Status.list(),
-				digitalStatuses  : DigitalMaterialStatusCode.list(),
-				materialTypes    : MaterialType.list(),
-				miscMaterialTypes: MiscMaterialType.list(),
-				priorities       : Priority.values(),
-				booleanEntrySet  : [
+				acquisitionTypes  : AcquisitionType.values(),
+				depots            : Depot.list(),
+				statuses          : Status.list(),
+				digitalStatuses   : DigitalMaterialStatusCode.list(),
+				digitalSubStatuses: DigitalMaterialStatusSubCode.values(),
+				materialTypes     : MaterialType.list(),
+				miscMaterialTypes : MiscMaterialType.list(),
+				priorities        : Priority.values(),
+				booleanEntrySet   : [
 						(Boolean.TRUE) : g.message(code: 'default.boolean.true'),
 						(Boolean.FALSE): g.message(code: 'default.boolean.false')
 				].entrySet()

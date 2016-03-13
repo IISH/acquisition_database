@@ -3,6 +3,9 @@
 *= require datepicker
 */
 
+@brand-primary: darken(#428bca, 6.5%); // #337ab7
+@state-danger-text: #a94442;
+
 #main {
   width: 1170px;
 }
@@ -212,7 +215,16 @@ div {
 
   &.panel .help-block {
     margin-top: 5px;
-    margin-bottom: 0;
+    margin-bottom: 5px;
+  }
+}
+
+label.btn {
+  > input[type="radio"],
+  > input[type="checkbox"] {
+    position: absolute;
+    clip: rect(0,0,0,0);
+    pointer-events: none;
   }
 }
 
@@ -224,7 +236,30 @@ div {
 }
 
 .badge {
-  background-color: #337ab7;
+  background-color: @brand-primary;
+}
+
+.digital-material-status {
+  &.current {
+    color: @brand-primary;
+
+    &.fail {
+      color: @state-danger-text;
+    }
+
+    .status-name {
+      font-weight: bold;
+    }
+  }
+
+  .message {
+    clear: both;
+
+    label {
+      float: left;
+      margin-right: 15px;
+    }
+  }
 }
 
 @media print {

@@ -354,7 +354,7 @@ class CollectionService {
 			DigitalMaterialStatusCode newStatusCode = DigitalMaterialStatusCode.get(newStatusCodeId)
 			if (newStatusCode && digitalMaterialStatus.canChangeTo(newStatusCode)) {
 				digitalMaterialStatus.statusCode = newStatusCode
-				digitalMaterialStatus.lastActionFailed = false
+				digitalMaterialStatus.statusSubCode = DigitalMaterialStatusSubCode.REQUESTED
 			}
 
 			if (digitalMaterialStatus.canDelayIngest() && digitalMaterialParams.delayIngest) {

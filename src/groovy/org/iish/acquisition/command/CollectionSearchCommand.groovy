@@ -18,6 +18,7 @@ class CollectionSearchCommand {
 	String contactPerson
 	List<Long> status
 	List<Long> statusDigital
+	List<Integer> subStatusDigital
 	Boolean collectionLevelReady
 	List<Long> analog
 	List<Long> digital
@@ -133,6 +134,7 @@ class CollectionSearchCommand {
 		collectionSearch = new StatusCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new CollectionLevelReadyCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new DigitalStatusCollectionSearchDecorator(collectionSearch)
+		collectionSearch = new DigitalSubStatusCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new AnalogMaterialCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new DigitalMaterialCollectionSearchDecorator(collectionSearch)
 		collectionSearch = new MiscMaterialCollectionSearchDecorator(collectionSearch)

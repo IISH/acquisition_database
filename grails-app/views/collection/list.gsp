@@ -77,6 +77,10 @@
             <dt><g:message code="search.status.digital.label"/></dt>
             <dd>${digitalStatuses.findAll { collectionSearchCommand.statusDigital.contains(it.id) }.join(', ')}</dd>
         </g:if>
+        <g:if test="${collectionSearchCommand.subStatusDigital?.size() > 0}">
+            <dt><g:message code="search.sub.status.digital.label"/></dt>
+            <dd>${digitalSubStatuses.findAll { collectionSearchCommand.subStatusDigital.contains(it.id) }.join(', ')}</dd>
+        </g:if>
         <g:if test="${collectionSearchCommand.priority?.size() > 0}">
             <dt><g:message code="search.priority.label"/></dt>
             <dd>${priorities.findAll { collectionSearchCommand.priority.contains(it.id) }.join(', ')}</dd>

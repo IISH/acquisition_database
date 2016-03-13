@@ -1,4 +1,4 @@
-<%@ page import="grails.plugin.springsecurity.SpringSecurityUtils; org.iish.acquisition.domain.DigitalMaterialStatusCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.AnalogUnit" %>
+<%@ page import="org.iish.acquisition.domain.DigitalMaterialStatusCode; grails.plugin.springsecurity.SpringSecurityUtils; org.iish.acquisition.domain.DigitalMaterialStatusCode; org.iish.acquisition.domain.DigitalMaterialStatusSubCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.domain.AnalogUnit" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -21,7 +21,8 @@
     </div>
 </g:hasErrors>
 
-<g:if test="${collection.digitalMaterialStatus?.lastActionFailed}">
+<g:set var="failureDigital" value="${collection.digitalMaterialStatus?.statusSubCode == DigitalMaterialStatusSubCode.FAILED}"/>
+<g:if test="${failureDigital}">
     <div class="alert alert-danger" role="alert">
         <button type="button" class="close" data-dismiss="alert">
             <span aria-hidden="true">&times;</span>
@@ -375,10 +376,6 @@
             <g:if test="${materialTypes.size() % 2 == 1}">
                 </div>
 			</g:if>
-
-            %{--<p class="help-block important">--}%
-                %{--<g:message code="digitalMaterialCollection.warning.label"/>--}%
-            %{--</p>--}%
         </div>
     </div>
 
@@ -759,8 +756,7 @@
 
         <div class="col-xs-12">
             <p class="form-control-static">
-                <g:if test="${digitalMaterialStatus.statusCode.id <
-                        DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE}">
+                <g:if test="${digitalMaterialStatus.statusCode.id < DigitalMaterialStatusCode.STAGINGAREA}">
                     <g:message code="digitalMaterialStatus.timer.label"
                                args="${[g.formatDate(date: digitalMaterialStatus.getTimerExpirationDate(),
                                        format: 'dd MMMMM, HH:mm')]}"/>
@@ -796,52 +792,65 @@
         </label>
 
         <div class="col-xs-20">
-            <div class="panel-group" role="tablist" aria-multiselectable="true">
-            <g:each in="${digitalMaterialStatusCodes*.groupName.unique()}" var="groupName" status="i">
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="heading${i}">
-                        <a class="panel-title" data-toggle="collapse" href="#panel${i}" aria-expanded="true" aria-controls="panel${i}">
-                            ${groupName}
-                        </a>
+            <g:each in="${digitalMaterialStatusCodes}" var="statusCode" status="i">
+                <g:set var="current" value="${digitalMaterialStatus.statusCode?.id == statusCode.id}"/>
+                <div class="row digital-material-status ${current ? 'current': ''} ${failureDigital ? 'fail': ''}">
+                    <div class="col-xs-1">
+                        <g:if test="${current}">
+                            <p class="form-control-static">
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                            </p>
+                        </g:if>
                     </div>
-                    <div id="panel${i}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading${i}">
-                        <div class="panel-body">
-                        <g:each in="${digitalMaterialStatusCodes.findAll { it.groupName == groupName }}" var="statusCode">
-                            <g:set var="current" value="${digitalMaterialStatus.statusCode?.id == statusCode.id}"/>
-                            <g:set var="failed" value="${current && digitalMaterialStatus.lastActionFailed}"/>
+                    <div class="col-xs-6 status-name">
+                        <p class="form-control-static">${i+1}. ${statusCode}</p>
+                    </div>
+                    <div class="col-xs-16">
+                        <p class="form-control-static message">
+                            <g:if test="${digitalMaterialStatus.canChangeTo(statusCode)}">
+                                <label class="btn btn-default btn-xs">
+                                    <g:checkBox id="collection.digitalMaterialStatus.statusCode.id"
+                                                name="collection.digitalMaterialStatus.statusCode.id"
+                                                value="${statusCode.id}"
+                                                class="${statusCode.confirmRequired ? 'confirm' : ''}"
+                                                checked="${false}" autocomplete="off"/>
 
-                            <div class="digital-material-status ${failed ? 'text-danger' : ''} ${!failed && current ? 'text-info' : ''}">
-                                <div class="radio">
-                                    <label>
-                                        <g:radio id="collection.digitalMaterialStatus.statusCode.id"
-                                                 name="collection.digitalMaterialStatus.statusCode.id"
-                                                 value="${statusCode.id}" checked="${current}"
-                                                 class="${statusCode.confirmRequired ? 'confirm' : ''}"
-                                                 disabled="${!digitalMaterialStatus.canChangeTo(statusCode)}"/>
-                                        ${statusCode}
-                                    </label>
-                                </div>
+                                    <span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
 
-                                <g:if test="${failed}">
-                                    <div class="message">
-                                        <g:message code="digitalMaterialStatus.failure.label"/>:
-                                        (<g:formatDate date="${digitalMaterialStatus.lastStatusChange}" formatName="default.datetime.format"/>)
-                                        ${digitalMaterialStatus.message}
-                                    </div>
+                                    <g:if test="${current && failureDigital}">
+                                        <g:message code="digitalMaterialStatus.request.retry.label"/>
+                                    </g:if>
+                                    <g:else>
+                                        <g:message code="digitalMaterialStatus.request.start.label"/>
+                                    </g:else>
+                                </label>
+                            </g:if>
+
+                            <g:if test="${current}">
+                                (<g:formatDate date="${digitalMaterialStatus.lastStatusChange}" formatName="default.datetime.format"/>)
+
+                                <g:if test="${digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.REQUESTED}">
+                                    <g:message code="digitalMaterialStatus.subStatus.requested.label"/>
                                 </g:if>
-                                <g:elseif test="${current && digitalMaterialStatus.message}">
-                                    <div class="message">
-                                        (<g:formatDate date="${digitalMaterialStatus.lastStatusChange}" formatName="default.datetime.format"/>)
-                                        ${digitalMaterialStatus.message}
-                                    </div>
-                                </g:elseif>
-                            </div>
-                        </g:each>
-                        </div>
+
+                                <g:if test="${digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.RUNNING}">
+                                    <g:message code="digitalMaterialStatus.subStatus.running.label"/>
+                                </g:if>
+
+                                <g:if test="${digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FAILED}">
+                                    <g:message code="digitalMaterialStatus.subStatus.failed.label"/>:
+                                    ${digitalMaterialStatus.message}
+                                </g:if>
+
+                                <g:if test="${digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FINISHED}">
+                                    <g:message code="digitalMaterialStatus.subStatus.finished.label"/>:
+                                    ${digitalMaterialStatus.message}
+                                </g:if>
+                            </g:if>
+                        </p>
                     </div>
                 </div>
             </g:each>
-            </div>
         </div>
     </div>
 </g:if>
