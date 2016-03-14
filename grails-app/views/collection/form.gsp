@@ -361,7 +361,7 @@
                 <g:if test="${(i == 9) && (digitalMaterialStatus?.manifestCsvId)}">
                     <div class="col-xs-12 text-center">
                         <g:link controller="download" action="manifest" id="${digitalMaterialStatus.manifestCsvId}"
-                                class="btn btn-default">
+                                class="btn btn-default btn-sm">
                             <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
                             <g:message code="digitalMaterialCollection.downloadManifest.label"/>
                         </g:link>
@@ -376,6 +376,30 @@
             <g:if test="${materialTypes.size() % 2 == 1}">
                 </div>
 			</g:if>
+
+            <g:if test="${!statistics.isEmpty()}">
+                <div class="row statistics">
+                    <div class="col-xs-6">
+                        <g:message code="digitalMaterialCollection.statistics.nrFiles.label"/>:
+                        ${statistics.get('nrFiles')}
+                    </div>
+
+                    <div class="col-xs-6">
+                        <g:message code="digitalMaterialCollection.statistics.nrFolders.label"/>:
+                        ${statistics.get('nrFolders')}
+                    </div>
+
+                    <div class="col-xs-6">
+                        <g:message code="digitalMaterialCollection.statistics.bytes.label"/>:
+                        <g:fileSize size="${statistics.get('bytes')}"/>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <g:message code="digitalMaterialCollection.statistics.TB.label"/>:
+                        <g:fileSize size="${statistics.get('bytes')}" unit="TB"/>
+                    </div>
+                </div>
+            </g:if>
         </div>
     </div>
 

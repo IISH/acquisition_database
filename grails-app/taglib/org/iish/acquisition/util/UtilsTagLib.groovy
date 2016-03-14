@@ -162,4 +162,13 @@ class UtilsTagLib {
             out << login
         }
     }
+
+	/**
+	 * Prints the file size in a human readable format.
+	 * @attr size REQUIRED The file size in bytes.
+	 * @attr unit Force print with the given unit.
+	 */
+	def fileSize = { attrs ->
+		out << PrinterUtil.printFileSize(attrs.size, attrs.unit)
+	}
 }

@@ -49,6 +49,7 @@ grails.project.dependency.resolution = {
 	}
 
 	dependencies {
+		compile "com.opencsv:opencsv:3.7"
 		compile "org.apache.poi:poi:3.14"
 		compile "commons-net:commons-net:3.4"
 

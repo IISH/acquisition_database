@@ -141,6 +141,7 @@ class CollectionController {
 			render view: 'form', model: [
 					collection                : collection,
 					digitalMaterialStatus     : collection.digitalMaterialStatus,
+					statistics                : collectionService.getStatistics(collection),
 					acquisitionTypes          : AcquisitionType.values(),
 					depots                    : Depot.list(),
 					materialTypes             : MaterialType.list(),
