@@ -83,7 +83,7 @@ class CollectionController {
 
 		CollectionSearch collectionSearch = collectionSearchCommand.getCollectionSearch()
 		CollectionXlsExport collectionXlsExport = new CollectionXlsExport(collectionSearch, messageSource)
-		collectionXlsExport.build()
+		collectionXlsExport.build(params.list('exportColumns'))
 
 		response.setContentType(collectionXlsExport.getContentType())
 		response.setHeader('Content-disposition', "attachment;filename=${collectionXlsExport.getFileName()}")

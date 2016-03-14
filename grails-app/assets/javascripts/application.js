@@ -87,17 +87,6 @@
         }
     };
 
-    var onCheckboxChange = function (e) {
-        var checkbox = $(this);
-
-        if (checkbox.is(':checked')) {
-            checkbox.parents('td').addClass('info');
-        }
-        else {
-            checkbox.parents('td').removeClass('info');
-        }
-    };
-
     var onCheckboxCheckAll = function (e) {
         var checkbox = $(this);
         var isChecked = checkbox.is(':checked');
@@ -151,13 +140,17 @@
 
         $('table.table-click > tbody > tr').click(onRowClick);
         $('table.checkbox-click > tbody td').click(onColumnCheckboxClick);
-        $('table.checkbox-click > tbody input[type=\'checkbox\']').change(onCheckboxChange);
         $('table .checkAll').change(onCheckboxCheckAll);
 
         $('label.btn > input[type=\'checkbox\']').change(onButtonChange);
 
         $('.decimal').keypress(onDecimalField);
         $('.integer').keypress(onIntegerField);
+
+        var exportModal = $('#exportModal');
+        exportModal.find('form').submit(function (e) {
+            exportModal.modal('hide');
+        });
     });
 
     // Keep session alive, call every 15 minutes

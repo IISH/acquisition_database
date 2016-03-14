@@ -7,6 +7,8 @@ import org.iish.acquisition.search.Pager
 
 import java.text.SimpleDateFormat
 
+import static java.lang.Integer.parseInt
+
 /**
  * Utility tag libraries.
  */
@@ -102,19 +104,62 @@ class UtilsTagLib {
 		}
 	}
 
-	/**
-	 * Prints the name of the logged in user.
-	 */
-	def loggedInUserName = {
-		String login = sec.loggedInUserInfo(field: 'username')
-		String firstName = sec.loggedInUserInfo(field: 'firstName')
-		String lastName = sec.loggedInUserInfo(field: 'lastName')
+    /**
+     * Creates a table with checkboxes.
+     * @attr values REQUIRED The values.
+     * @attr nrColumns REQUIRED The number of columns.
+     * @attr name REQUIRED The name of the checkboxes.
+     * @attr label The label of the checkbox.
+     * @attr value REQUIRED The value of the checkbox.
+     * @attr checked Is the checkbox checked?
+     */
+    def checkboxTable = { attrs ->
+        MarkupBuilder builder = new MarkupBuilder(out)
+        builder.doubleQuotes = true
 
-		if (firstName && lastName) {
-			out << "$firstName $lastName"
-		}
-		else {
-			out << login
-		}
-	}
+        int nrColumns = parseInt(attrs.nrColumns)
+        builder.table(class: 'table table-condensed table-striped checkbox-click') {
+            builder.tbody {
+                attrs.values.eachWithIndex { def value, int i ->
+                    if (i % nrColumns == 0) builder.mkp.yieldUnescaped('<tr>')
+
+                    builder.td {
+                        Map checkboxProps = [type: 'checkbox', name: attrs.name, value: value."$attrs.value"]
+                        if (attrs.checked?.equalsIgnoreCase('true')) {
+                            checkboxProps.put('checked', 'checked')
+                        }
+
+                        builder.input(checkboxProps)
+                        builder.span(attrs.label ? g.message(code: value."$attrs.label") : value.toString())
+                    }
+
+                    if (i % nrColumns == (nrColumns - 1)) builder.mkp.yieldUnescaped('</tr>')
+                }
+
+                int nrOfColumnsWritten = attrs.values.size() % nrColumns
+                if (nrOfColumnsWritten > 0) {
+                    int nrOfColumnsLeft = nrColumns - nrOfColumnsWritten
+                    for (int i = 0; i < nrOfColumnsLeft; i++) {
+                        builder.td()
+                    }
+                    builder.mkp.yieldUnescaped('</tr>')
+                }
+            }
+        }
+    }
+
+    /**
+     * Prints the name of the logged in user.
+     */
+    def loggedInUserName = {
+        String login = sec.loggedInUserInfo(field: 'username')
+        String firstName = sec.loggedInUserInfo(field: 'firstName')
+        String lastName = sec.loggedInUserInfo(field: 'lastName')
+
+        if (firstName && lastName) {
+            out << "$firstName $lastName"
+        } else {
+            out << login
+        }
+    }
 }

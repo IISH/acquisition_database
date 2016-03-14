@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
+<%@ page import="org.iish.acquisition.export.CollectionXlsColumn; org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -13,9 +13,9 @@
 
     <g:if test="${results.getTotalCount() > 0}">
         <div class="col-xs-4 text-right">
-            <g:link controller="collection" action="export" params="${params}" class="btn btn-default btn-export">
+            <button data-toggle="modal" data-target="#exportModal" class="btn btn-default">
                 <g:message code="results.export.excel.label"/>
-            </g:link>
+            </button>
         </div>
     </g:if>
 </div>
@@ -220,11 +220,50 @@
 
     <g:if test="${results.getTotalCount() > 0}">
         <div class="col-xs-4 text-right">
-            <g:link controller="collection" action="export" params="${params}" class="btn btn-default btn-export">
+            <button data-toggle="modal" data-target="#exportModal" class="btn btn-default">
                 <g:message code="results.export.excel.label"/>
-            </g:link>
+            </button>
         </div>
     </g:if>
+</div>
+
+<div id="exportModal" class="modal fade hidden-print" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content modal-lg">
+            <form role="form" method="get" action="${g.createLink(controller: 'collection', action: 'export')}">
+                <g:each in="${request.getAttribute('queryParams')}" var="param">
+                    <g:if test="${!['export', 'max', 'offset', 'columns'].contains(param.key)}">
+                        <g:each in="${param.value}" var="val">
+                            <input type="hidden" name="${param.key}" value="${val}"/>
+                        </g:each>
+                    </g:if>
+                </g:each>
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+
+                    <h4 class="modal-title">
+                        <g:message code="results.export.excel.label"/>
+                    </h4>
+                </div>
+
+                <div class="modal-body">
+                    <g:checkboxTable values="${CollectionXlsColumn.values()}" nrColumns="3" name="exportColumns"
+                                     checked="true" label="languageCode" value="name"/>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">
+                        <g:message code="results.export.excel.label"/>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 </body>
 </html>

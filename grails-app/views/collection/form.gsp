@@ -895,28 +895,9 @@
                     </div>
 
                     <div class="modal-body">
-                        <table class="table table-condensed table-striped checkbox-click">
-                            <tbody>
-                                <g:each in="${recipients}" var="user" status="i">
-                                    <g:if test="${(i%2 == 0)}"> <tr> </g:if>
-
-                                    <td>
-                                        <g:checkBox name="recipients" value="${user.id}" checked="${false}"/>
-                                        ${user.toString()}
-                                    </td>
-
-                                    <g:if test="${(i%2 == 1)}"> </tr> </g:if>
-                                </g:each>
-
-                                <g:if test="${recipients.size()%2 == 1}">
-                                    <td>&nbsp;</td></tr>
-                                </g:if>
-                            </tbody>
-                        </table>
-
+                        <g:checkboxTable values="${recipients}" nrColumns="2" name="recipients" value="id"/>
                         <g:textField name="email-subject" class="form-control"
                                      value="${message(code: 'email.complement.request.subject')}"/>
-
                         <g:textArea name="email-body" class="form-control" rows="10"
                                     value="${createLink(controller: 'collection', action: 'edit', id: collection.id, absolute: true)}"/>
                     </div>

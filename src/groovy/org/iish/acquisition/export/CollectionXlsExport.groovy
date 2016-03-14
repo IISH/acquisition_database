@@ -75,12 +75,13 @@ class CollectionXlsExport {
 
 	/**
 	 * Starts the building process of the Excel sheet/workbook.
+	 * @param columns The column names to export.
 	 */
-	void build() {
-		int noOfColumns = createHeader()
+	void build(List<String> columns) {
+		int noOfColumns = createHeader(columns)
 
 		collections.eachWithIndex { Collection collection, int i ->
-			createRow(collection, (NUMBER_OF_HEADERS + i))
+			createRow(collection, (NUMBER_OF_HEADERS + i), columns)
 		}
 
 		autoSizeColumns(noOfColumns)
@@ -163,103 +164,146 @@ class CollectionXlsExport {
 
 	/**
 	 * Creates the header row of the Excel export.
+	 * @param columns The column names to export.
 	 * @return The number of columns necessary.
 	 */
-	private int createHeader() {
+	private int createHeader(List<String> columns) {
 		Row groupingRow = sheet.createRow(HEADER_ROW_GROUPING)
 		Row labelsRow = sheet.createRow(HEADER_ROW_LABELS)
 		sheet.createFreezePane(0, NUMBER_OF_HEADERS)
 
-		createHeaderWithGrouping(groupingRow)
-		int nrColumns = createHeaderWithLabels(labelsRow)
+		createHeaderWithGrouping(groupingRow, columns)
+		int nrColumns = createHeaderWithLabels(labelsRow, columns)
 
 		return nrColumns
 	}
 
 	/**
 	 * Creates the header row of the Excel export with the grouping.
+	 * @param columns The column names to export.
 	 * @param row The header row.
 	 */
-	private void createHeaderWithGrouping(Row row) {
-		int totalMaterialTypes = MaterialType.getTotalNumberOfUniqueTypes()
+	private void createHeaderWithGrouping(Row row, List<String> columns) {
+		int i = 0
+		int prev = 0
+		boolean noGrouping = false
+		CollectionXlsColumn.ALL_COLUMNS.each { String name, CollectionXlsColumn column ->
+			if (columns.contains(name)) {
+				switch (column) {
+					case CollectionXlsColumn.LOCATION:
+						i += maxNumberOfLocations
+						break;
+					case CollectionXlsColumn.ANALOG_MATERIAL:
+						noGrouping = true
+						createNewHeaderGrouping(row, i, prev, column)
+						prev = i
+						i += MaterialType.getTotalNumberOfUniqueTypes()
+						break;
+					case CollectionXlsColumn.DIGITAL_MATERIAL:
+						noGrouping = true
+						createNewHeaderGrouping(row, i, prev, column)
+						prev = i
+						i += (materials.size() + 2)
+						break;
+					case CollectionXlsColumn.MISC_MATERIAL:
+						noGrouping = true
+						createNewHeaderGrouping(row, i, prev, column)
+						prev = i
+						i += miscMaterials.size()
+						break;
+					default:
+						if (noGrouping) {
+							noGrouping = false
+							createNewHeaderGrouping(row, i, prev)
+							prev = i
+						}
+						i++
+				}
+			}
+		}
+		createNewHeaderGrouping(row, i, prev)
+	}
 
-		int indexStart = 0
-		int indexAnalog = indexStart + 5 + maxNumberOfLocations
-		int indexDigital = indexAnalog + totalMaterialTypes
-		int indexMisc = indexDigital + materials.size() + 2
-		int indexRemaining = indexMisc + miscMaterials.size()
-		int indexEnd = indexRemaining + 15
+	/**
+	 * Creates a new header grouping cell.
+	 * @param row The header row.
+	 * @param index The column index.
+	 * @param prevIndex The previous column index. (For merging columns)
+	 * @param column The column.
+	 */
+	private void createNewHeaderGrouping(Row row, int index, int prevIndex, CollectionXlsColumn column = null) {
+		if (column) {
+			setHeaderCell(row, index, column.languageCode)
+		}
 
-		setHeaderCell(row, indexStart, '')
-		setHeaderCell(row, indexAnalog, 'collection.analogMaterialCollection.extended.label')
-		setHeaderCell(row, indexDigital, 'collection.digitalMaterialCollection.extended.label')
-		setHeaderCell(row, indexMisc, 'collection.miscMaterialCollection.extended.label')
-		setHeaderCell(row, indexRemaining, '')
-
-		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexStart, indexAnalog - 1))
-		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexAnalog, indexDigital - 1))
-		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexDigital, indexMisc - 1))
-		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexMisc, indexRemaining - 1))
-		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), indexRemaining, indexEnd - 1))
+		if ((index - prevIndex) > 1) {
+			sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), prevIndex, index - 1))
+		}
 	}
 
 	/**
 	 * Creates the header row of the Excel export with the labels.
 	 * @param row The header row.
+	 * @param columns The column names to export.
 	 * @return The number of columns necessary.
 	 */
-	private int createHeaderWithLabels(Row row) {
+	private int createHeaderWithLabels(Row row, List<String> columns) {
 		int i = 0
-		setHeaderCell(row, i++, '#')
-		setHeaderCell(row, i++, 'collection.name.label')
-		setHeaderCell(row, i++, 'collection.acquisitionId.label')
-		setHeaderCell(row, i++, 'collection.addedBy.label')
-		setHeaderCell(row, i++, 'collection.objectRepositoryPID.label')
+		if (columns.contains(CollectionXlsColumn.ID.name)) setHeaderCell(row, i++, '#')
+		if (columns.contains(CollectionXlsColumn.NAME.name)) setHeaderCell(row, i++, 'collection.name.label')
+		if (columns.contains(CollectionXlsColumn.ACQUISITION_ID.name)) setHeaderCell(row, i++, 'collection.acquisitionId.label')
+		if (columns.contains(CollectionXlsColumn.ADDED_BY.name)) setHeaderCell(row, i++, 'collection.addedBy.label')
+		if (columns.contains(CollectionXlsColumn.PID.name)) setHeaderCell(row, i++, 'collection.objectRepositoryPID.label')
 
-		if (maxNumberOfLocations > 0) {
+		if ((maxNumberOfLocations > 0) && columns.contains(CollectionXlsColumn.LOCATION.name)) {
 			(1..maxNumberOfLocations).each { int locationNumber ->
 				setHeaderCell(row, i++, 'collection.location.extended.label', locationNumber.toString())
 			}
 		}
 
-		materials.each { MaterialType materialType ->
-			if (materialType.inMeters && materialType.inNumbers) {
-				setHeaderCell(row, i++, "${materialType.getNameAnalog()} (${AnalogUnit.METER})")
-				setHeaderCell(row, i++, "${materialType.getNameAnalog()} (${AnalogUnit.NUMBER})")
+		if (columns.contains(CollectionXlsColumn.ANALOG_MATERIAL.name)) {
+			materials.each { MaterialType materialType ->
+				if (materialType.inMeters && materialType.inNumbers) {
+					setHeaderCell(row, i++, "${materialType.getNameAnalog()} (${AnalogUnit.METER})")
+					setHeaderCell(row, i++, "${materialType.getNameAnalog()} (${AnalogUnit.NUMBER})")
+				} else {
+					setHeaderCell(row, i++, materialType.getNameAnalog())
+				}
 			}
-			else {
-				setHeaderCell(row, i++, materialType.getNameAnalog())
+		}
+
+		if (columns.contains(CollectionXlsColumn.DIGITAL_MATERIAL.name)) {
+			materials.each { MaterialType materialType ->
+				setHeaderCell(row, i++, materialType.getNameDigital())
+			}
+
+			setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfFiles.export.label')
+			setHeaderCell(row, i++, 'digitalMaterialCollection.totalSize.label')
+		}
+
+		if (columns.contains(CollectionXlsColumn.MISC_MATERIAL.name)) {
+			miscMaterials.each { MiscMaterialType materialType ->
+				setHeaderCell(row, i++, materialType.name)
 			}
 		}
 
-		materials.each { MaterialType materialType ->
-			setHeaderCell(row, i++, materialType.getNameDigital())
-		}
+		if (columns.contains(CollectionXlsColumn.CONTENT.name)) setHeaderCell(row, i++, 'collection.content.label')
+		if (columns.contains(CollectionXlsColumn.LISTS_AVAILABLE.name)) setHeaderCell(row, i++, 'collection.listsAvailable.label')
+		if (columns.contains(CollectionXlsColumn.TO_BE_DONE.name)) setHeaderCell(row, i++, 'collection.toBeDone.label')
+		if (columns.contains(CollectionXlsColumn.PRIORITY.name)) setHeaderCell(row, i++, 'collection.priority.label')
+		if (columns.contains(CollectionXlsColumn.LEVEL.name)) setHeaderCell(row, i++, 'collection.level.label')
+		if (columns.contains(CollectionXlsColumn.OWNER.name)) setHeaderCell(row, i++, 'collection.owner.label')
+		if (columns.contains(CollectionXlsColumn.CONTRACT.name)) setHeaderCell(row, i++, 'collection.contract.label')
+		if (columns.contains(CollectionXlsColumn.ACCRUAL.name)) setHeaderCell(row, i++, 'collection.accrual.label')
+		if (columns.contains(CollectionXlsColumn.APPRAISAL.name)) setHeaderCell(row, i++, 'collection.appraisal.label')
+		if (columns.contains(CollectionXlsColumn.DATE_OF_ARRIVAL.name)) setHeaderCell(row, i++, 'collection.dateOfArrival.label')
+		if (columns.contains(CollectionXlsColumn.CONTACT_PERSON.name)) setHeaderCell(row, i++, 'collection.contactPerson.label')
+		if (columns.contains(CollectionXlsColumn.REMARKS.name)) setHeaderCell(row, i++, 'collection.remarks.label')
+		if (columns.contains(CollectionXlsColumn.ORIGINAL_PACKAGE_TRANSPORT.name)) setHeaderCell(row, i++, 'collection.originalPackageTransport.label')
+		if (columns.contains(CollectionXlsColumn.STATUS.name)) setHeaderCell(row, i++, 'collection.status.label')
+		if (columns.contains(CollectionXlsColumn.COLLECTION_LEVEL_READY.name)) setHeaderCell(row, i++, 'collection.collectionLevelReady.label')
 
-		setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfFiles.export.label')
-		setHeaderCell(row, i++, 'digitalMaterialCollection.totalSize.label')
-
-		miscMaterials.each { MiscMaterialType materialType ->
-			setHeaderCell(row, i++, materialType.name)
-		}
-
-		setHeaderCell(row, i++, 'collection.content.label')
-		setHeaderCell(row, i++, 'collection.listsAvailable.label')
-		setHeaderCell(row, i++, 'collection.toBeDone.label')
-		setHeaderCell(row, i++, 'collection.priority.label')
-		setHeaderCell(row, i++, 'collection.level.label')
-		setHeaderCell(row, i++, 'collection.owner.label')
-		setHeaderCell(row, i++, 'collection.contract.label')
-		setHeaderCell(row, i++, 'collection.accrual.label')
-		setHeaderCell(row, i++, 'collection.appraisal.label')
-		setHeaderCell(row, i++, 'collection.dateOfArrival.label')
-		setHeaderCell(row, i++, 'collection.contactPerson.label')
-		setHeaderCell(row, i++, 'collection.remarks.label')
-		setHeaderCell(row, i++, 'collection.originalPackageTransport.label')
-		setHeaderCell(row, i++, 'collection.status.label')
-		setHeaderCell(row, i, 'collection.collectionLevelReady.label')
-
-		return i
+		return i - 1
 	}
 
 	/**
@@ -286,82 +330,92 @@ class CollectionXlsExport {
 	 * Creates a row of the Excel export.
 	 * @param collection The collection to export to this row.
 	 * @param rowNumber The number of the row in question.
+	 * @param columns The column names to export.
 	 */
-	private void createRow(Collection collection, int rowNumber) {
+	private void createRow(Collection collection, int rowNumber, List<String> columns) {
 		Row row = sheet.createRow(rowNumber)
 		int i = 0
 
-		Set<Location> locations = collection.locations
-		int noOfEmptyCells = maxNumberOfLocations - locations.size()
-		DigitalMaterialCollection digitalMaterialCollection = collection.digitalMaterialCollection
-		AnalogMaterialCollection analogMaterialCollection = collection.analogMaterialCollection
-		MiscMaterialCollection miscMaterialCollection = collection.miscMaterialCollection
-
-		setDataCellWithNumber(row, i++, collection.id)
-		setDataCellWithText(row, i++, collection.name)
-		setDataCellWithText(row, i++,
+		if (columns.contains(CollectionXlsColumn.ID.name)) setDataCellWithNumber(row, i++, collection.id)
+		if (columns.contains(CollectionXlsColumn.NAME.name)) setDataCellWithText(row, i++, collection.name)
+		if (columns.contains(CollectionXlsColumn.ACQUISITION_ID.name)) setDataCellWithText(row, i++,
 				collection.acquisitionId ? "$collection.acquisitionTypeId $collection.acquisitionId" : '')
-		setDataCellWithText(row, i++, collection.addedBy?.toString())
-		setDataCellWithText(row, i++, collection.objectRepositoryPID)
+		if (columns.contains(CollectionXlsColumn.ADDED_BY.name)) setDataCellWithText(row, i++, collection.addedBy?.toString())
+		if (columns.contains(CollectionXlsColumn.PID.name)) setDataCellWithText(row, i++, collection.objectRepositoryPID)
 
-		locations.each { Location location ->
-			setDataCellWithText(row, i++, location.toDetailedString())
-		}
+		if (columns.contains(CollectionXlsColumn.LOCATION.name)) {
+			Set<Location> locations = collection.locations
 
-		if (noOfEmptyCells > 0) {
-			(1..noOfEmptyCells).each {
-				setDataCellWithText(row, i++, '')
+			locations.each { Location location ->
+				setDataCellWithText(row, i++, location.toDetailedString())
+			}
+
+			if ((maxNumberOfLocations - locations.size()) > 0) {
+				(1..noOfEmptyCells).each {
+					setDataCellWithText(row, i++, '')
+				}
 			}
 		}
 
-		materials.each { MaterialType materialType ->
-			if (materialType.inMeters && materialType.inNumbers) {
-				AnalogMaterial analogMeter = analogMaterialCollection?.
-						getMaterialByTypeAndUnit(materialType, AnalogUnit.METER)
-				AnalogMaterial analogNumber = analogMaterialCollection?.
-						getMaterialByTypeAndUnit(materialType, AnalogUnit.NUMBER)
+		if (columns.contains(CollectionXlsColumn.ANALOG_MATERIAL.name)) {
+			AnalogMaterialCollection analogMaterialCollection = collection.analogMaterialCollection
 
-				setDataCellWithNumber(row, i++, analogMeter?.size)
-				setDataCellWithNumber(row, i++, analogNumber?.size)
+			materials.each { MaterialType materialType ->
+				if (materialType.inMeters && materialType.inNumbers) {
+					AnalogMaterial analogMeter = analogMaterialCollection?.
+							getMaterialByTypeAndUnit(materialType, AnalogUnit.METER)
+					AnalogMaterial analogNumber = analogMaterialCollection?.
+							getMaterialByTypeAndUnit(materialType, AnalogUnit.NUMBER)
+
+					setDataCellWithNumber(row, i++, analogMeter?.size)
+					setDataCellWithNumber(row, i++, analogNumber?.size)
+				} else {
+					Set<AnalogMaterial> analogMaterials = analogMaterialCollection?.getMaterialsByType(materialType)
+					AnalogMaterial analogMaterial = (analogMaterials && !analogMaterials.isEmpty()) ?
+							analogMaterials.first() : null
+
+					setDataCellWithNumber(row, i++, analogMaterial?.size)
+				}
 			}
-			else {
-				Set<AnalogMaterial> analogMaterials = analogMaterialCollection?.getMaterialsByType(materialType)
-				AnalogMaterial analogMaterial = (analogMaterials && !analogMaterials.isEmpty()) ?
-						analogMaterials.first() : null
+		}
 
-				setDataCellWithNumber(row, i++, analogMaterial?.size)
+		if (columns.contains(CollectionXlsColumn.DIGITAL_MATERIAL.name)) {
+			DigitalMaterialCollection digitalMaterialCollection = collection.digitalMaterialCollection
+
+			materials.each { MaterialType materialType ->
+				String hasMaterial = digitalMaterialCollection?.getMaterialByType(materialType) ? 'YES' : ''
+				setDataCellWithText(row, i++, hasMaterial)
+			}
+
+			setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfFiles)
+			setDataCellWithText(row, i++,
+					digitalMaterialCollection ? digitalMaterialCollection.totalSizeToStringWithUnit() : '')
+		}
+
+		if (columns.contains(CollectionXlsColumn.MISC_MATERIAL.name)) {
+			MiscMaterialCollection miscMaterialCollection = collection.miscMaterialCollection
+
+			miscMaterials.each { MiscMaterialType materialType ->
+				MiscMaterial material = miscMaterialCollection?.getMaterialByType(materialType)
+				setDataCellWithNumber(row, i++, material?.size)
 			}
 		}
 
-		materials.each { MaterialType materialType ->
-			String hasMaterial = digitalMaterialCollection?.getMaterialByType(materialType) ? 'YES' : ''
-			setDataCellWithText(row, i++, hasMaterial)
-		}
-
-		setDataCellWithNumber(row, i++, digitalMaterialCollection?.numberOfFiles)
-		setDataCellWithText(row, i++,
-				digitalMaterialCollection ? digitalMaterialCollection.totalSizeToStringWithUnit() : '')
-
-		miscMaterials.each { MiscMaterialType materialType ->
-			MiscMaterial material = miscMaterialCollection?.getMaterialByType(materialType)
-			setDataCellWithNumber(row, i++, material?.size)
-		}
-
-		setDataCellWithText(row, i++, collection.content)
-		setDataCellWithText(row, i++, collection.listsAvailable)
-		setDataCellWithText(row, i++, collection.toBeDone)
-		setDataCellWithText(row, i++, collection.priority?.toString())
-		setDataCellWithText(row, i++, collection.level?.toString())
-		setDataCellWithText(row, i++, collection.owner)
-		setDataCellWithText(row, i++, collection.contract?.toString())
-		setDataCellWithText(row, i++, collection.accrual?.toString())
-		setDataCellWithText(row, i++, collection.appraisal?.toString())
-		setDataCellWithDate(row, i++, collection.dateOfArrival)
-		setDataCellWithText(row, i++, collection.contactPerson)
-		setDataCellWithText(row, i++, collection.remarks)
-		setDataCellWithText(row, i++, collection.originalPackageTransport)
-		setDataCellWithText(row, i++, collection.status?.toString())
-		setDataCellWithText(row, i, collection.collectionLevelReady ? 'YES' : '')
+		if (columns.contains(CollectionXlsColumn.CONTENT.name)) setDataCellWithText(row, i++, collection.content)
+		if (columns.contains(CollectionXlsColumn.LISTS_AVAILABLE.name)) setDataCellWithText(row, i++, collection.listsAvailable)
+		if (columns.contains(CollectionXlsColumn.TO_BE_DONE.name)) setDataCellWithText(row, i++, collection.toBeDone)
+		if (columns.contains(CollectionXlsColumn.PRIORITY.name)) setDataCellWithText(row, i++, collection.priority?.toString())
+		if (columns.contains(CollectionXlsColumn.LEVEL.name)) setDataCellWithText(row, i++, collection.level?.toString())
+		if (columns.contains(CollectionXlsColumn.OWNER.name)) setDataCellWithText(row, i++, collection.owner)
+		if (columns.contains(CollectionXlsColumn.CONTRACT.name)) setDataCellWithText(row, i++, collection.contract?.toString())
+		if (columns.contains(CollectionXlsColumn.ACCRUAL.name)) setDataCellWithText(row, i++, collection.accrual?.toString())
+		if (columns.contains(CollectionXlsColumn.APPRAISAL.name)) setDataCellWithText(row, i++, collection.appraisal?.toString())
+		if (columns.contains(CollectionXlsColumn.DATE_OF_ARRIVAL.name)) setDataCellWithDate(row, i++, collection.dateOfArrival)
+		if (columns.contains(CollectionXlsColumn.CONTACT_PERSON.name)) setDataCellWithText(row, i++, collection.contactPerson)
+		if (columns.contains(CollectionXlsColumn.REMARKS.name)) setDataCellWithText(row, i++, collection.remarks)
+		if (columns.contains(CollectionXlsColumn.ORIGINAL_PACKAGE_TRANSPORT.name)) setDataCellWithText(row, i++, collection.originalPackageTransport)
+		if (columns.contains(CollectionXlsColumn.STATUS.name)) setDataCellWithText(row, i++, collection.status?.toString())
+		if (columns.contains(CollectionXlsColumn.COLLECTION_LEVEL_READY.name)) setDataCellWithText(row, i, collection.collectionLevelReady ? 'YES' : '')
 	}
 
 	/**
