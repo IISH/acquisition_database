@@ -66,5 +66,6 @@ grails.project.dependency.resolution = {
 		compile ":spring-security-core:2.0.0"
 		compile ":spring-security-ldap:2.0.1"
 		compile ":mail:1.0.7"
+		compile ":executor:0.3"
 	}
 }

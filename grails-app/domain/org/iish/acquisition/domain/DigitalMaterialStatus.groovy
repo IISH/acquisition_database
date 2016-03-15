@@ -2,11 +2,14 @@ package org.iish.acquisition.domain
 
 import grails.util.Holders
 import grails.plugin.springsecurity.SpringSecurityUtils
+import org.iish.acquisition.service.EmailService
 
 /**
  * Holds the status of the digital material located in the ingest depot.
  */
 class DigitalMaterialStatus {
+	EmailService emailService
+
 	Date timerStarted
 	Date startIngest
 	boolean ingestDelayed = false
@@ -14,8 +17,11 @@ class DigitalMaterialStatus {
 	String message
 	DigitalMaterialStatusSubCode statusSubCode
 
+	static transients = ['emailService']
+
 	static belongsTo = [
 			collection : Collection,
+
 			statusCode : DigitalMaterialStatusCode,
 
 			manifestCsv: DigitalMaterialFile,
@@ -42,6 +48,12 @@ class DigitalMaterialStatus {
 
 		if (!startIngest && (statusCode.id == DigitalMaterialStatusCode.STAGINGAREA)) {
 			startIngest = new Date()
+		}
+
+		if (isDirty('statusCode') || isDirty('statusSubCode')) {
+			runAsync {
+				emailService.sentStatusChangeEmail(this)
+			}
 		}
 	}
 
