@@ -52,9 +52,7 @@ class EmailService {
 					digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FAILED) {
 				Authority offloader1 = Authority.findByAuthority(Authority.ROLE_OFFLOADER_1)
 				RecipientsCommand recipientsCommand = RecipientsCommand.getRecipientsByAuthority(offloader1)
-
-				recipientsCommand.addAdditionalRecipient("TEST", "test@test.com")
-
+				
 				if (digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FAILED) {
 					recipientsCommand.addAdditionalRecipient("JIRA", Holders.config.email.jira.toString())
 					sentFailureEmail(digitalMaterialStatus, recipientsCommand)
