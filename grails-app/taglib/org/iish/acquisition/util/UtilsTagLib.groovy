@@ -111,6 +111,7 @@ class UtilsTagLib {
      * @attr name REQUIRED The name of the checkboxes.
      * @attr label The label of the checkbox.
      * @attr value REQUIRED The value of the checkbox.
+     * @attr class The class of each checkbox.
      * @attr checked Is the checkbox checked?
      */
     def checkboxTable = { attrs ->
@@ -121,19 +122,64 @@ class UtilsTagLib {
         builder.table(class: 'table table-condensed table-striped checkbox-click') {
             builder.tbody {
                 attrs.values.eachWithIndex { def value, int i ->
-                    if (i % nrColumns == 0) builder.mkp.yieldUnescaped('<tr>')
+                    if (i % nrColumns == 0) {
+                        builder.mkp.yieldUnescaped('<tr>')
+                    }
 
                     builder.td {
-                        Map checkboxProps = [type: 'checkbox', name: attrs.name, value: value."$attrs.value"]
-                        if (attrs.checked?.equalsIgnoreCase('true')) {
-                            checkboxProps.put('checked', 'checked')
+                        Map checkboxProps = [type: 'checkbox', name: attrs.name]
+
+                        if (attrs.value instanceof Closure<String>) {
+                            checkboxProps.put('value', attrs.value.call(value))
+                        }
+                        else {
+                            checkboxProps.put('value', attrs.value.toString())
+                        }
+
+                        def checkedValue = attrs.checked
+                        if (checkedValue) {
+                            boolean isChecked
+                            if (checkedValue instanceof Closure<Boolean>) {
+                                isChecked = checkedValue.call(value)
+                            }
+                            else {
+                                isChecked = attrs.checked.equalsIgnoreCase('true')
+                            }
+
+                            if (isChecked) {
+                                checkboxProps.put('checked', 'checked')
+                            }
+                        }
+
+                        def classValue = attrs.class
+                        if (classValue) {
+                            if (classValue instanceof Closure<String>) {
+                                checkboxProps.put('class', classValue.call(value))
+                            }
+                            else {
+                                checkboxProps.put('class', classValue.toString())
+                            }
                         }
 
                         builder.input(checkboxProps)
-                        builder.span(attrs.label ? g.message(code: value."$attrs.label") : value.toString())
+
+                        String label = value.toString()
+                        def labelValue = attrs.label
+                        if (labelValue) {
+                            if (labelValue instanceof Closure<String>) {
+                                label = labelValue.call(value)
+                            }
+                            else {
+                                label = g.message(code: value."$labelValue")
+                            }
+                        }
+
+                        builder.span(label)
                     }
 
-                    if (i % nrColumns == (nrColumns - 1)) builder.mkp.yieldUnescaped('</tr>')
+                    if (i % nrColumns == (nrColumns - 1)) {
+                        builder.mkp.yieldUnescaped('</tr>')
+                    }
                 }
 
                 int nrOfColumnsWritten = attrs.values.size() % nrColumns

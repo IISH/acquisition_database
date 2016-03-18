@@ -10,7 +10,9 @@
     <div class="alert alert-danger" role="alert">
         <button type="button" class="close" data-dismiss="alert">
             <span aria-hidden="true">&times;</span>
-            <span class="sr-only">Close</span>
+            <span class="sr-only">
+                <g:message code="default.close.label"/>
+            </span>
         </button>
 
         <ul>
@@ -26,7 +28,9 @@
     <div class="alert alert-danger" role="alert">
         <button type="button" class="close" data-dismiss="alert">
             <span aria-hidden="true">&times;</span>
-            <span class="sr-only">Close</span>
+            <span class="sr-only">
+                <g:message code="default.close.label"/>
+            </span>
         </button>
 
         <g:message code="digitalMaterialStatus.failureMessage.label"/>
@@ -910,7 +914,9 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
-                            <span class="sr-only">Close</span>
+                            <span class="sr-only">
+                                <g:message code="default.close.label"/>
+                            </span>
                         </button>
 
                         <h4 class="modal-title">

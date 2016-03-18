@@ -1,5 +1,7 @@
 package org.iish.acquisition.export
 
+import grails.util.Holders
+
 /**
  * Columns that can be exported in a XLS document.
  */
@@ -30,6 +32,7 @@ enum CollectionXlsColumn {
     COLLECTION_LEVEL_READY('collection_level_ready', 'collection.collectionLevelReady.label')
 
     static final Map<String, CollectionXlsColumn> ALL_COLUMNS = [:] as HashMap
+	static final Set<CollectionXlsColumn> DEFAULT_COLUMNS = [] as HashSet
 
     final String name
     final String languageCode
@@ -40,8 +43,14 @@ enum CollectionXlsColumn {
     }
 
     static {
+	    Set<String> defaultColumns = Holders.config.export.default.columns.split(',') as Set<String>
+
         values().each { CollectionXlsColumn column ->
             ALL_COLUMNS.put(column.name, column)
+
+			if (defaultColumns.contains(column.name)) {
+				DEFAULT_COLUMNS.add(column)
+			}
         }
     }
 }

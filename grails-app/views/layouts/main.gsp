@@ -105,7 +105,9 @@
                         <div class="alert ${alertClass}" role="alert">
                             <button type="button" class="close" data-dismiss="alert">
                                 <span aria-hidden="true">&times;</span>
-                                <span class="sr-only">Close</span>
+                                <span class="sr-only">
+                                    <g:message code="default.close.label"/>
+                                </span>
                             </button>
                             ${flash.message}
                         </div>
@@ -115,7 +117,9 @@
                         <div class="alert alert-danger" role="alert">
                             <button type="button" class="close" data-dismiss="alert">
                                 <span aria-hidden="true">&times;</span>
-                                <span class="sr-only">Close</span>
+                                <span class="sr-only">
+                                    <g:message code="default.close.label"/>
+                                </span>
                             </button>
 
                             <ul>

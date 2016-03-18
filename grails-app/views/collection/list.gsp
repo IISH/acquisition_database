@@ -242,7 +242,9 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
-                        <span class="sr-only">Close</span>
+                        <span class="sr-only">
+                            <g:message code="default.close.label"/>
+                        </span>
                     </button>
 
                     <h4 class="modal-title">
@@ -251,12 +253,27 @@
                 </div>
 
                 <div class="modal-body">
-                    <g:checkboxTable values="${CollectionXlsColumn.values()}" nrColumns="3" name="exportColumns"
-                                     checked="true" label="languageCode" value="name"/>
+                    <g:checkboxTable values="${CollectionXlsColumn.values()}" nrColumns="3"
+                                     name="exportColumns" label="languageCode" value="name"
+                                     checked="${{ CollectionXlsColumn.DEFAULT_COLUMNS.contains(it) }}"
+                                     class="${{ CollectionXlsColumn.DEFAULT_COLUMNS.contains(it) ? 'default' : '' }}"/>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <div class="btn-group btn-group-sm pull-left" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" class="all" autocomplete="off"/>
+                            <g:message code="results.export.all.columns.label"/>
+                        </label>
+                        <label class="btn btn-default active">
+                            <input type="radio" class="default" autocomplete="off" checked="checked"/>
+                            <g:message code="results.export.default.columns.label"/>
+                        </label>
+                    </div>
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <g:message code="default.close.label"/>
+                    </button>
                     <button type="submit" class="btn btn-primary">
                         <g:message code="results.export.excel.label"/>
                     </button>

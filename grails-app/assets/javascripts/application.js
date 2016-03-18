@@ -88,11 +88,18 @@
     };
 
     var onCheckboxCheckAll = function (e) {
-        var checkbox = $(this);
+        var checkbox = $(e.target);
         var isChecked = checkbox.is(':checked');
 
-        checkbox.parents('table').find('tbody input[type=\'checkbox\']').each(function () {
+        checkbox.closest('tbody, .modal').find('input[type=\'checkbox\']').each(function () {
             $(this).prop('checked', isChecked).trigger('change');
+        });
+    };
+
+    var onCheckboxCheckWithClass = function (e, className) {
+        $(e.target).closest('tbody, .modal').find('input[type=\'checkbox\']').each(function () {
+            var self = $(this);
+            self.prop('checked', self.hasClass(className)).trigger('change');
         });
     };
 
@@ -150,6 +157,61 @@
         var exportModal = $('#exportModal');
         exportModal.find('form').submit(function (e) {
             exportModal.modal('hide');
+        });
+
+        var exportButtonChanging = false;
+
+        var exportRadioAll = exportModal.find('input[type=\'radio\'].all');
+        var exportRadioAllLabel = exportRadioAll.closest('label');
+        exportRadioAll.change(function (e) {
+            exportButtonChanging = true;
+            if (exportRadioAll.is(':checked')) {
+                onCheckboxCheckAll(e);
+            }
+            exportButtonChanging = false;
+        });
+
+        var exportRadioDefault = exportModal.find('input[type=\'radio\'].default');
+        var exportRadioDefaultLabel = exportRadioDefault.closest('label');
+        exportRadioDefault.change(function (e) {
+            exportButtonChanging = true;
+            if (exportRadioDefault.is(':checked')) {
+                onCheckboxCheckWithClass(e, 'default');
+            }
+            exportButtonChanging = false;
+        });
+
+        var exportColumns = exportModal.find('input[type=\'checkbox\']');
+        exportColumns.change(function (e) {
+            var allChecked = true;
+            var defaultChecked = true;
+
+            exportColumns.each(function () {
+                var self = $(this);
+                if (self.is(':checked')) {
+                    if (!self.hasClass('default')) {
+                        defaultChecked = false;
+                    }
+                }
+                else {
+                    allChecked = false;
+                    if (self.hasClass('default')) {
+                        defaultChecked = false;
+                    }
+                }
+            });
+
+            if (!exportButtonChanging) {
+                exportRadioAll.prop('checked', allChecked);
+                allChecked
+                    ? exportRadioAllLabel.addClass('active')
+                    : exportRadioAllLabel.removeClass('active');
+
+                exportRadioDefault.prop('checked', defaultChecked);
+                defaultChecked
+                    ? exportRadioDefaultLabel.addClass('active')
+                    : exportRadioDefaultLabel.removeClass('active');
+            }
         });
     });
 
