@@ -381,7 +381,7 @@
                 </div>
 			</g:if>
 
-            <g:if test="${!statistics.isEmpty()}">
+            <g:if test="${statistics && !statistics.isEmpty()}">
                 <div class="row statistics">
                     <div class="col-xs-6">
                         <g:message code="digitalMaterialCollection.statistics.nrFiles.label"/>:

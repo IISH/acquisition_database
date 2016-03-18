@@ -41,7 +41,8 @@ class CollectionXlsExport {
 	private HSSFSheet sheet
 
 	private List<Collection> collections
-	private List<MaterialType> materials
+	private List<MaterialType> analogMaterials
+	private List<MaterialType> digitalMaterials
 	private List<MiscMaterialType> miscMaterials
 
 	private Integer maxNumberOfLocations = 0
@@ -61,8 +62,9 @@ class CollectionXlsExport {
 		this.workbook = new HSSFWorkbook()
 		this.sheet = workbook.createSheet(getSheetName())
 
-		this.collections = collectionSearch.getResults() as List<Collection>
-		this.materials = MaterialType.list()
+		this.collections = collectionSearch.getResults()
+		this.analogMaterials = collectionSearch.getMatchingAnalogMaterials()
+		this.digitalMaterials = collectionSearch.getMatchingDigitalMaterials()
 		this.miscMaterials = MiscMaterialType.list()
 
 		this.messageSource = messageSource
@@ -192,25 +194,31 @@ class CollectionXlsExport {
 				switch (column) {
 					case CollectionXlsColumn.LOCATION:
 						i += maxNumberOfLocations
-						break;
+						break
 					case CollectionXlsColumn.ANALOG_MATERIAL:
-						noGrouping = true
-						createNewHeaderGrouping(row, i, prev, column)
-						prev = i
-						i += MaterialType.getTotalNumberOfUniqueTypes()
-						break;
+						int size = MaterialType.getTotalNumberOfUniqueTypes(analogMaterials)
+						if (size > 0) {
+							noGrouping = true
+							createNewHeaderGrouping(row, i, prev, column)
+							prev = i
+							i += size
+						}
+						break
 					case CollectionXlsColumn.DIGITAL_MATERIAL:
-						noGrouping = true
-						createNewHeaderGrouping(row, i, prev, column)
-						prev = i
-						i += (materials.size() + 2)
-						break;
+						int size = (digitalMaterials.size() > 0) ? (digitalMaterials.size() + 2) : 0
+						if (size > 0) {
+							noGrouping = true
+							createNewHeaderGrouping(row, i, prev, column)
+							prev = i
+							i += size
+						}
+						break
 					case CollectionXlsColumn.MISC_MATERIAL:
 						noGrouping = true
 						createNewHeaderGrouping(row, i, prev, column)
 						prev = i
 						i += miscMaterials.size()
-						break;
+						break
 					default:
 						if (noGrouping) {
 							noGrouping = false
@@ -262,7 +270,7 @@ class CollectionXlsExport {
 		}
 
 		if (columns.contains(CollectionXlsColumn.ANALOG_MATERIAL.name)) {
-			materials.each { MaterialType materialType ->
+			analogMaterials.each { MaterialType materialType ->
 				if (materialType.inMeters && materialType.inNumbers) {
 					setHeaderCell(row, i++, "${materialType.getNameAnalog()} (${AnalogUnit.METER})")
 					setHeaderCell(row, i++, "${materialType.getNameAnalog()} (${AnalogUnit.NUMBER})")
@@ -273,12 +281,14 @@ class CollectionXlsExport {
 		}
 
 		if (columns.contains(CollectionXlsColumn.DIGITAL_MATERIAL.name)) {
-			materials.each { MaterialType materialType ->
+			digitalMaterials.each { MaterialType materialType ->
 				setHeaderCell(row, i++, materialType.getNameDigital())
 			}
 
-			setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfFiles.export.label')
-			setHeaderCell(row, i++, 'digitalMaterialCollection.totalSize.label')
+			if (digitalMaterials.size() > 0) {
+				setHeaderCell(row, i++, 'digitalMaterialCollection.numberOfFiles.export.label')
+				setHeaderCell(row, i++, 'digitalMaterialCollection.totalSize.label')
+			}
 		}
 
 		if (columns.contains(CollectionXlsColumn.MISC_MATERIAL.name)) {
@@ -350,7 +360,8 @@ class CollectionXlsExport {
 				setDataCellWithText(row, i++, location.toDetailedString())
 			}
 
-			if ((maxNumberOfLocations - locations.size()) > 0) {
+			int noOfEmptyCells = maxNumberOfLocations - locations.size()
+			if (noOfEmptyCells > 0) {
 				(1..noOfEmptyCells).each {
 					setDataCellWithText(row, i++, '')
 				}
@@ -360,7 +371,7 @@ class CollectionXlsExport {
 		if (columns.contains(CollectionXlsColumn.ANALOG_MATERIAL.name)) {
 			AnalogMaterialCollection analogMaterialCollection = collection.analogMaterialCollection
 
-			materials.each { MaterialType materialType ->
+			analogMaterials.each { MaterialType materialType ->
 				if (materialType.inMeters && materialType.inNumbers) {
 					AnalogMaterial analogMeter = analogMaterialCollection?.
 							getMaterialByTypeAndUnit(materialType, AnalogUnit.METER)
@@ -382,7 +393,7 @@ class CollectionXlsExport {
 		if (columns.contains(CollectionXlsColumn.DIGITAL_MATERIAL.name)) {
 			DigitalMaterialCollection digitalMaterialCollection = collection.digitalMaterialCollection
 
-			materials.each { MaterialType materialType ->
+			digitalMaterials.each { MaterialType materialType ->
 				String hasMaterial = digitalMaterialCollection?.getMaterialByType(materialType) ? 'YES' : ''
 				setDataCellWithText(row, i++, hasMaterial)
 			}

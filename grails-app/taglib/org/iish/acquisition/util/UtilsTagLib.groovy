@@ -133,7 +133,7 @@ class UtilsTagLib {
                             checkboxProps.put('value', attrs.value.call(value))
                         }
                         else {
-                            checkboxProps.put('value', attrs.value.toString())
+                            checkboxProps.put('value', value."$attrs.value")
                         }
 
                         def checkedValue = attrs.checked
