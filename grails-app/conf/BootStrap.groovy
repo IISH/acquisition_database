@@ -1,21 +1,28 @@
 import grails.util.Environment
+import groovy.sql.Sql
 import org.apache.log4j.Logger
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.iish.acquisition.domain.*
 import org.springframework.ldap.core.DirContextOperations
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.ldap.search.LdapUserSearch
 
+import javax.sql.DataSource
+import java.sql.SQLException
+
 /**
  * Initialization of the application.
  */
 class BootStrap {
-
 	static final Logger log = Logger.getLogger(this.class)
+
+	DataSource dataSource
 	LdapUserSearch ldapUserSearch
-	def grailsApplication
+	GrailsApplication grailsApplication
 
 	def init = { servletContext ->
 		populateTables()
+		createFulltextIndexes()
 		setUsersAndAuthorities()
 		updateUserData(ldapUserSearch)
 	}
@@ -127,6 +134,22 @@ class BootStrap {
 						digitalMaterialStatusCode.save()
 					}
 				}
+	}
+
+	/**
+	 * Creates the MySQL fulltext indexes.
+	 */
+	private void createFulltextIndexes() {
+		try {
+			Sql sql = new Sql(dataSource)
+			sql.execute('CREATE FULLTEXT INDEX collections_fulltext ON collections ' +
+					'(name, content, lists_available, to_be_done, owner, ' +
+					'contact_person, remarks, original_package_transport)')
+			sql.execute('CREATE FULLTEXT INDEX locations_fulltext ON locations (cabinet)')
+		}
+		catch (SQLException sqle) {
+			// Already created the index, ignore error
+		}
 	}
 
 	/**
