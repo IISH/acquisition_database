@@ -40,17 +40,19 @@ class User {
 	 * @param ctx The context object which contains the user information.
 	 */
 	void update(DirContextOperations ctx) {
-		if (ctx.originalAttrs?.attrs['sn']?.values?.getAt(0)) {
-			lastName = ctx.originalAttrs.attrs['sn'].values[0]
-		}
+        if (ctx.originalAttrs?.attrs) {
+            if (ctx.originalAttrs.attrs['sn']?.values?.getAt(0)) {
+                lastName = ctx.originalAttrs.attrs['sn'].values[0]
+            }
 
-		if (ctx.originalAttrs?.attrs['givenname']?.values?.getAt(0)) {
-			firstName = ctx.originalAttrs.attrs['givenname'].values[0]
-		}
+            if (ctx.originalAttrs.attrs['givenname']?.values?.getAt(0)) {
+                firstName = ctx.originalAttrs.attrs['givenname'].values[0]
+            }
 
-		if (ctx.originalAttrs?.attrs['mail']?.values?.getAt(0)) {
-			email = ctx.originalAttrs.attrs['mail'].values[0]
-		}
+            if (ctx.originalAttrs.attrs['mail']?.values?.getAt(0)) {
+                email = ctx.originalAttrs.attrs['mail'].values[0]
+            }
+        }
 
 		save(flush: true)
 	}
