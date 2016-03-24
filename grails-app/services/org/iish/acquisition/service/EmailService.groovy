@@ -50,7 +50,7 @@ class EmailService {
 		try {
 			if (digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FINISHED ||
 					digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FAILED) {
-				Authority offloader1 = Authority.findByAuthority(Authority.ROLE_OFFLOADER_1)
+				Authority offloader1 = Authority.findByAuthority(Authority.ROLE_OFFLOADER_3)
 				RecipientsCommand recipientsCommand = RecipientsCommand.getRecipientsByAuthority(offloader1)
 
 				if (digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FAILED) {
