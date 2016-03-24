@@ -46,6 +46,7 @@ class CollectionController {
 				depots                 : Depot.list(),
 				statuses               : Status.list(),
 				digitalStatuses        : DigitalMaterialStatusCode.list(),
+				digitalSubStatuses     : DigitalMaterialStatusSubCode.values(),
 				materialTypes          : MaterialType.list(),
 				miscMaterialTypes      : MiscMaterialType.list(),
 				priorities             : Priority.values()
@@ -57,14 +58,15 @@ class CollectionController {
 	 */
 	def search() {
 		render view: 'search', model: [
-				acquisitionTypes : AcquisitionType.values(),
-				depots           : Depot.list(),
-				statuses         : Status.list(),
-				digitalStatuses  : DigitalMaterialStatusCode.list(),
-				materialTypes    : MaterialType.list(),
-				miscMaterialTypes: MiscMaterialType.list(),
-				priorities       : Priority.values(),
-				booleanEntrySet  : [
+				acquisitionTypes  : AcquisitionType.values(),
+				depots            : Depot.list(),
+				statuses          : Status.list(),
+				digitalStatuses   : DigitalMaterialStatusCode.list(),
+				digitalSubStatuses: DigitalMaterialStatusSubCode.values(),
+				materialTypes     : MaterialType.list(),
+				miscMaterialTypes : MiscMaterialType.list(),
+				priorities        : Priority.values(),
+				booleanEntrySet   : [
 						(Boolean.TRUE) : g.message(code: 'default.boolean.true'),
 						(Boolean.FALSE): g.message(code: 'default.boolean.false')
 				].entrySet()
@@ -81,7 +83,7 @@ class CollectionController {
 
 		CollectionSearch collectionSearch = collectionSearchCommand.getCollectionSearch()
 		CollectionXlsExport collectionXlsExport = new CollectionXlsExport(collectionSearch, messageSource)
-		collectionXlsExport.build()
+		collectionXlsExport.build(params.list('exportColumns'))
 
 		response.setContentType(collectionXlsExport.getContentType())
 		response.setHeader('Content-disposition', "attachment;filename=${collectionXlsExport.getFileName()}")
@@ -139,6 +141,7 @@ class CollectionController {
 			render view: 'form', model: [
 					collection                : collection,
 					digitalMaterialStatus     : collection.digitalMaterialStatus,
+					statistics                : collectionService.getStatistics(collection),
 					acquisitionTypes          : AcquisitionType.values(),
 					depots                    : Depot.list(),
 					materialTypes             : MaterialType.list(),
@@ -181,7 +184,9 @@ class CollectionController {
 			}
 
 			try {
-				emailService.sentComplementRequestEmail(recipientsCommand, collection)
+                String subject = params['email-subject']
+                String body = params['email-body']
+				emailService.sentComplementRequestEmail(recipientsCommand, subject, body)
 
 				flash.message = g.message(code: 'default.mail.success.message')
 				redirect action: 'edit', id: collection.id, params: request.getAttribute('queryParams')
@@ -194,27 +199,29 @@ class CollectionController {
 		}
 	}
 
-	/**
-	 * Deleting a collection.
-	 * @param collection The collection to delete.
-	 */
-	def delete(Collection collection) {
-		ifCollectionExists(collection, params.long('id')) {
-			collection.deleted = true
+    /**
+     * Deleting a collection.
+     * @param collection The collection to delete.
+     */
+    def delete(Collection collection) {
+        ifCollectionExists(collection, params.long('id')) {
+            if (!collection.isDigital()) {
+                collection.deleted = true
 
-			if (collection.save(flush: true)) {
-				flash.message = g.message(code: 'default.deleted.message',
-						args: [g.message(code: 'collection.label').toString().toLowerCase(), collection])
-				redirect action: 'list', params: request.getAttribute('queryParams')
-			}
-			else {
-				flash.status = 'error'
-				flash.message = g.message(code: 'default.not.deleted.message',
-						args: [g.message(code: 'collection.label').toString().toLowerCase(), collection])
-				redirect action: 'edit', id: params.id, params: request.getAttribute('queryParams')
-			}
-		}
-	}
+                if (collection.save(flush: true)) {
+                    flash.message = g.message(code: 'default.deleted.message',
+                            args: [g.message(code: 'collection.label').toString().toLowerCase(), collection])
+                    redirect action: 'list', params: request.getAttribute('queryParams')
+                    return
+                }
+            }
+
+            flash.status = 'error'
+            flash.message = g.message(code: 'default.not.deleted.message',
+                    args: [g.message(code: 'collection.label').toString().toLowerCase(), collection])
+            redirect action: 'edit', id: params.id, params: request.getAttribute('queryParams')
+        }
+    }
 
 	/**
 	 * The default procedure to start an action which requires a collection.

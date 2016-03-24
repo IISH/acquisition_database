@@ -2,8 +2,6 @@ package org.iish.acquisition.domain
 
 import org.iish.acquisition.util.PrinterUtil
 
-import java.math.RoundingMode
-
 /**
  * Represents an uploaded photo of the collection as delivered.
  */

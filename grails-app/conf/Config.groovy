@@ -194,24 +194,25 @@ grails {
 				className = 'org.iish.acquisition.domain.Authority'
 			}
 
-			controllerAnnotations {
-				staticRules = [
-						'/'              : ['permitAll'],
-						'/index'         : ['permitAll'],
-						'/index.gsp'     : ['permitAll'],
-						'/assets/**'     : ['permitAll'],
-						'/**/js/**'      : ['permitAll'],
-						'/**/css/**'     : ['permitAll'],
-						'/**/images/**'  : ['permitAll'],
-						'/**/favicon.ico': ['permitAll'],
-						'/service/**'    : ['permitAll'],
-						'/depot/delete'  : [Authority.ROLE_OFFLOADER_2],
-						'/admin/**'      : [Authority.ROLE_ADMIN],
-						'/**'            : [Authority.ROLE_USER]
-				]
-			}
+            controllerAnnotations {
+                staticRules = [
+                        '/'                 : ['permitAll'],
+                        '/index'            : ['permitAll'],
+                        '/index.gsp'        : ['permitAll'],
+                        '/assets/**'        : ['permitAll'],
+                        '/**/js/**'         : ['permitAll'],
+                        '/**/css/**'        : ['permitAll'],
+                        '/**/images/**'     : ['permitAll'],
+                        '/**/favicon.ico'   : ['permitAll'],
+                        '/service/**'       : ['permitAll'],
+                        '/collection/delete': [Authority.ROLE_OFFLOADER_3],
+                        '/depot/delete'     : [Authority.ROLE_OFFLOADER_2],
+                        '/admin/**'         : [Authority.ROLE_ADMIN],
+                        '/**'               : [Authority.ROLE_USER]
+                ]
+            }
 
-			logout {
+            logout {
 				postOnly = false
 			}
 

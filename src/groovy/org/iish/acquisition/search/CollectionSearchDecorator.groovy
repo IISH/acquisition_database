@@ -1,6 +1,8 @@
 package org.iish.acquisition.search
 
 import org.iish.acquisition.command.CollectionSearchCommand
+import org.iish.acquisition.domain.Collection
+import org.iish.acquisition.domain.MaterialType
 
 /**
  * Decorator pattern implementation, all decorators should extend this class.
@@ -57,7 +59,8 @@ abstract class CollectionSearchDecorator extends AbstractCollectionSearch {
 	 * @return All matching collections (or projections), based on the given data.
 	 */
 	@Override
-	protected final List getResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters) {
+	protected final List<Collection> getResultsFor(List<String> where, List<String> sort,
+	                                               Map<String, Object> parameters) {
 		return decoratedCollectionSearch.getResultsFor(where, sort, parameters)
 	}
 
@@ -87,8 +90,22 @@ abstract class CollectionSearchDecorator extends AbstractCollectionSearch {
 	 */
 	@Override
 	protected final Pager getPagedResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters,
-	                                         Long id) {
+	                                         long id) {
 		return decoratedCollectionSearch.getPagedResultsFor(where, sort, parameters, id)
+	}
+
+	/**
+	 * Returns all matching material types, for the given where, sort, parameters and group by data.
+	 * @param where The HQL WHERE criteria statements to use.
+	 * @param sort The HQL ORDER BY fields and sort order to use.
+	 * @param parameters The parameters to apply on the query.
+	 * @param groupByColumn The group by column.
+	 * @return All matching collections (or projections), based on the given data.
+	 */
+	@Override
+	protected final List<MaterialType> getMaterialTypesFor(List<String> where, List<String> sort,
+	                                                       Map<String, Object> parameters, String groupByColumn) {
+		return decoratedCollectionSearch.getMaterialTypesFor(where, sort, parameters, groupByColumn)
 	}
 
 	/**
@@ -128,7 +145,7 @@ abstract class CollectionSearchDecorator extends AbstractCollectionSearch {
 	 * @param transform The closure used to transform each item of the collection.
 	 * @return A List of the transformed values.
 	 */
-	protected static <T> List<T> collectWithIndex(Collection<?> self, Closure<T> transform) {
+	protected static <T> List<T> collectWithIndex(java.util.Collection<?> self, Closure<T> transform) {
 		int i = 0
 		return self ? self.collect { transform(it, i++) } : []
 	}
@@ -141,7 +158,7 @@ abstract class CollectionSearchDecorator extends AbstractCollectionSearch {
 	 * should return a Map.Entry, a Map or a two-element list containing the resulting key and value.
 	 * @return A Map of the transformed entries.
 	 */
-	protected static <K, V> Map<K, V> collectEntriesWithIndex(Collection<?> self, Closure<?> transform) {
+	protected static <K, V> Map<K, V> collectEntriesWithIndex(java.util.Collection<?> self, Closure<?> transform) {
 		int i = 0
 		return self ? self.collectEntries { transform(it, i++) } : [:]
 	}

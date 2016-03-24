@@ -7,6 +7,8 @@ import org.iish.acquisition.search.Pager
 
 import java.text.SimpleDateFormat
 
+import static java.lang.Integer.parseInt
+
 /**
  * Utility tag libraries.
  */
@@ -102,19 +104,117 @@ class UtilsTagLib {
 		}
 	}
 
-	/**
-	 * Prints the name of the logged in user.
-	 */
-	def loggedInUserName = {
-		String login = sec.loggedInUserInfo(field: 'username')
-		String firstName = sec.loggedInUserInfo(field: 'firstName')
-		String lastName = sec.loggedInUserInfo(field: 'lastName')
+    /**
+     * Creates a table with checkboxes.
+     * @attr values REQUIRED The values.
+     * @attr nrColumns REQUIRED The number of columns.
+     * @attr name REQUIRED The name of the checkboxes.
+     * @attr label The label of the checkbox.
+     * @attr value REQUIRED The value of the checkbox.
+     * @attr class The class of each checkbox.
+     * @attr checked Is the checkbox checked?
+     */
+    def checkboxTable = { attrs ->
+        MarkupBuilder builder = new MarkupBuilder(out)
+        builder.doubleQuotes = true
 
-		if (firstName && lastName) {
-			out << "$firstName $lastName"
-		}
-		else {
-			out << login
-		}
+        int nrColumns = parseInt(attrs.nrColumns)
+        builder.table(class: 'table table-condensed table-striped checkbox-click') {
+            builder.tbody {
+                attrs.values.eachWithIndex { def value, int i ->
+                    if (i % nrColumns == 0) {
+                        builder.mkp.yieldUnescaped('<tr>')
+                    }
+
+                    builder.td {
+                        Map checkboxProps = [type: 'checkbox', name: attrs.name]
+
+                        if (attrs.value instanceof Closure<String>) {
+                            checkboxProps.put('value', attrs.value.call(value))
+                        }
+                        else {
+                            checkboxProps.put('value', value."$attrs.value")
+                        }
+
+                        def checkedValue = attrs.checked
+                        if (checkedValue) {
+                            boolean isChecked
+                            if (checkedValue instanceof Closure<Boolean>) {
+                                isChecked = checkedValue.call(value)
+                            }
+                            else {
+                                isChecked = attrs.checked.equalsIgnoreCase('true')
+                            }
+
+                            if (isChecked) {
+                                checkboxProps.put('checked', 'checked')
+                            }
+                        }
+
+                        def classValue = attrs.class
+                        if (classValue) {
+                            if (classValue instanceof Closure<String>) {
+                                checkboxProps.put('class', classValue.call(value))
+                            }
+                            else {
+                                checkboxProps.put('class', classValue.toString())
+                            }
+                        }
+
+                        builder.input(checkboxProps)
+
+                        String label = value.toString()
+                        def labelValue = attrs.label
+                        if (labelValue) {
+                            if (labelValue instanceof Closure<String>) {
+                                label = labelValue.call(value)
+                            }
+                            else {
+                                label = g.message(code: value."$labelValue")
+                            }
+                        }
+
+                        builder.span(label)
+                    }
+
+                    if (i % nrColumns == (nrColumns - 1)) {
+                        builder.mkp.yieldUnescaped('</tr>')
+                    }
+                }
+
+                int nrOfColumnsWritten = attrs.values.size() % nrColumns
+                if (nrOfColumnsWritten > 0) {
+                    int nrOfColumnsLeft = nrColumns - nrOfColumnsWritten
+                    for (int i = 0; i < nrOfColumnsLeft; i++) {
+                        builder.td()
+                    }
+                    builder.mkp.yieldUnescaped('</tr>')
+                }
+            }
+        }
+    }
+
+    /**
+     * Prints the name of the logged in user.
+     */
+    def loggedInUserName = {
+        String login = sec.loggedInUserInfo(field: 'username')
+        String firstName = sec.loggedInUserInfo(field: 'firstName')
+        String lastName = sec.loggedInUserInfo(field: 'lastName')
+
+        if (firstName && lastName) {
+            out << "$firstName $lastName"
+        } else {
+            out << login
+        }
+    }
+
+	/**
+	 * Prints the file size in a human readable format.
+	 * @attr size REQUIRED The file size in bytes.
+	 * @attr unit Force print with the given unit.
+	 */
+	def fileSize = { attrs ->
+		out << PrinterUtil.printFileSize(attrs.size, attrs.unit)
 	}
 }

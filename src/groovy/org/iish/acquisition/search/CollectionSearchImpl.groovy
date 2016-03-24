@@ -2,6 +2,7 @@ package org.iish.acquisition.search
 
 import org.iish.acquisition.command.CollectionSearchCommand
 import org.iish.acquisition.domain.Collection
+import org.iish.acquisition.domain.MaterialType
 
 /**
  * Implementation of the base class to search for collections.
@@ -66,8 +67,8 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	 * @return All matching collections (or projections), based on the given data.
 	 */
 	@Override
-	protected List getResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters) {
-		String query = createHqlQueryForCriteria(MAIN_SELECT, sort, where)
+	protected List<Collection> getResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters) {
+		String query = createHqlQueryForCriteria(MAIN_SELECT, '', sort, where)
 		return Collection.executeQuery(query, getMapWhereKeyIsString(parameters))
 	}
 
@@ -112,7 +113,7 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	 */
 	@Override
 	protected final Pager getPagedResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters,
-	                                         Long id) {
+	                                         long id) {
 		Pager pager = new Pager()
 		Map<String, Object> params = getMapWhereKeyIsString(parameters)
 		List<Long> ids = getMatchingCollectionIds(where, sort, params)
@@ -133,6 +134,24 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	}
 
 	/**
+	 * Returns all matching material types, for the given where, sort, parameters and group by data.
+	 * @param where The HQL WHERE criteria statements to use.
+	 * @param sort The HQL ORDER BY fields and sort order to use.
+	 * @param parameters The parameters to apply on the query.
+	 * @param groupByColumn The group by column.
+	 * @return All matching collections (or projections), based on the given data.
+	 */
+	@Override
+	protected final List<MaterialType> getMaterialTypesFor(List<String> where, List<String> sort,
+	                                                       Map<String, Object> parameters, String groupByColumn) {
+		String query = createHqlQueryForCriteria("SELECT $groupByColumn", "GROUP BY $groupByColumn", sort, where)
+		List<MaterialType> materialTypes =
+				Collection.executeQuery(query, getMapWhereKeyIsString(parameters)) as List<MaterialType>
+		materialTypes.removeAll([null])
+		return materialTypes
+	}
+
+	/**
 	 * Returns the total number of matching collections with the given criteria.
 	 * @param where The HQL WHERE criteria statements to use.
 	 * @param sort The HQL ORDER BY fields and sort order to use.
@@ -140,8 +159,8 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	 * @return The total number of matching collections.
 	 */
 	private static int getTotalCount(List<String> where, List<String> sort, Map<String, Object> parameters) {
-		String queryCount = createHqlQueryForCriteria(COUNT_SELECT, sort, where)
-		return (Integer) Collection.executeQuery(queryCount, parameters).first()
+		String queryCount = createHqlQueryForCriteria(COUNT_SELECT, '', sort, where)
+		return Collection.executeQuery(queryCount, parameters).first() as int
 	}
 
 	/**
@@ -155,7 +174,7 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	 */
 	private static List<Long> getMatchingCollectionIds(List<String> where, List<String> sort,
 	                                                   Map<String, Object> parameters, int max, int offset) {
-		String queryIds = createHqlQueryForCriteria(ID_SELECT, sort, where)
+		String queryIds = createHqlQueryForCriteria(ID_SELECT, '', sort, where)
 		return Collection.executeQuery(queryIds, parameters, [max: max, offset: offset]) as List<Long>
 	}
 
@@ -168,7 +187,7 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	 */
 	private static List<Long> getMatchingCollectionIds(List<String> where, List<String> sort,
 	                                                   Map<String, Object> parameters) {
-		String queryIds = createHqlQueryForCriteria(ID_SELECT, sort, where)
+		String queryIds = createHqlQueryForCriteria(ID_SELECT, '', sort, where)
 		return Collection.executeQuery(queryIds, parameters) as List<Long>
 	}
 
@@ -194,14 +213,16 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	/**
 	 * Creates an HQL query on collections using the given select, sort and where.
 	 * @param select The HQL SELECT clause to use.
+	 * @param groupBy The HQL GROUP BY clause to use.
 	 * @param sort The HQL ORDER BY fields and sort order to use.
 	 * @param where The HQL WHERE criteria to use.
 	 * @return An HQL query on collections.
 	 */
-	private static String createHqlQueryForCriteria(String select, List<String> sort, List<String> where) {
+	private static String createHqlQueryForCriteria(String select, String groupBy, List<String> sort,
+	                                                List<String> where) {
 		String whereQuery = (where.size() > 0) ? "WHERE (${where.join(') AND (')})" : ''
 
-		return createHqlWithSubSelect(select, sort, """
+		return createHqlWithSubSelect(select, groupBy, sort, """
 			SELECT c.id
 			FROM Collection AS c
 			LEFT JOIN c.analogMaterialCollection AS amc
@@ -229,17 +250,18 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 	 */
 	private static String createHqlQueryForIds(String select, List<String> sort, int nrOfIds) {
 		String idParameters = (0..<nrOfIds).collect { ":id$it" }.join(',')
-		return createHqlWithSubSelect(select, sort, idParameters)
+		return createHqlWithSubSelect(select, '', sort, idParameters)
 	}
 
 	/**
 	 * Creates an HQL query on collections using the given select, sort and sub-select query to use.
 	 * @param select The HQL SELECT clause to use.
+	 * @param groupBy The HQL GROUP BY clause to use.
 	 * @param sort The HQL ORDER BY fields and sort order to use.
 	 * @param subSelect The HQL sub-select query to use.
 	 * @return An HQL query on collections.
 	 */
-	private static String createHqlWithSubSelect(String select, List<String> sort, String subSelect) {
+	private static String createHqlWithSubSelect(String select, String groupBy, List<String> sort, String subSelect) {
 		String fetch = 'FETCH'
 		String sortQuery = (sort.size() > 0) ? "ORDER BY ${sort.join(',')}, c_main.id DESC" : 'ORDER BY c_main.id DESC'
 
@@ -268,6 +290,7 @@ class CollectionSearchImpl extends AbstractCollectionSearch {
 			LEFT JOIN $fetch l_main.depot AS d_main
 			LEFT JOIN $fetch c_main.digitalMaterialStatus AS dms_main
 			WHERE c_main.id IN ( $subSelect )
+			$groupBy
 			$sortQuery
 		"""
 	}

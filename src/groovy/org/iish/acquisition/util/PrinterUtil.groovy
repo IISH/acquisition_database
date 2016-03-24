@@ -30,29 +30,25 @@ class PrinterUtil {
 	/**
 	 * Returns the file size in a human friendly readable way.
 	 * @param size The file size in bytes.
+	 * @param unit Force print with the given unit.
 	 * @return The file size.
 	 */
-	static String printFileSize(long size) {
-		if (!size) {
+	static String printFileSize(long size, String unit = null) {
+		if (size <= 0) {
 			return '0 bytes'
 		}
 
-		if (size / 1024 > 1) {
-			if (size / (1024 * 1024) > 1) {
-				if (size / (1024 * 1024 * 1024) > 1) {
-					if (size / (1024 * 1024 * 1024 * 1024) > 1) {
-						return "${(size / (1024 * 1024 * 1024 * 1024)).setScale(2, RoundingMode.HALF_UP)} TB"
-					}
+		String[] units = ['bytes', 'kB', 'MB', 'GB', 'TB']
 
-					return "${(size / (1024 * 1024 * 1024)).setScale(2, RoundingMode.HALF_UP)} GB"
-				}
-
-				return "${(size / (1024 * 1024)).setScale(2, RoundingMode.HALF_UP)} MB"
+		int digitGroups = (int) (Math.log10(size) / Math.log10(1024))
+		if (unit) {
+			int idx = units.findIndexOf { unit == it }
+			if (idx >= 0) {
+				digitGroups = idx
 			}
-
-			return "${(size / 1024).setScale(2, RoundingMode.HALF_UP)} KB"
 		}
 
-		return "$size bytes"
+		BigDecimal computedSize = size / Math.pow(1024, digitGroups)
+		return "${computedSize.setScale(2, RoundingMode.HALF_UP)} ${units[digitGroups]}"
 	}
 }
