@@ -14,7 +14,7 @@ import java.sql.SQLException
  * Initialization of the application.
  */
 class BootStrap {
-	static final Logger log = Logger.getLogger(this.class)
+	static final Logger LOGGER = Logger.getLogger(this.class)
 
 	DataSource dataSource
 	LdapUserSearch ldapUserSearch
@@ -190,17 +190,18 @@ class BootStrap {
 	 * @param ldapUserSearch Allows us to search for users in Active Directory.
 	 */
 	private static void updateUserData(LdapUserSearch ldapUserSearch) {
-		if (Environment.current != Environment.TEST) {
+		if (Environment.current != Environment.PRODUCTION) {
 			User.list().each { User user ->
 				DirContextOperations ctx;
 				try {
 					ctx = ldapUserSearch.searchForUser(user.login)
 					if (ctx) {
+                        LOGGER.info('Updating user ' + user.login);
 						user.update(ctx)
 					}
 				}
 				catch (UsernameNotFoundException e) {
-					log.error(e)
+					LOGGER.error(e)
 				}
 			}
 		}
