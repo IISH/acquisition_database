@@ -133,6 +133,13 @@
         }
     };
 
+    var onFormElement = function (e) {
+        // Disable the enter key, unless the focused element is a button
+        if ((e.which === 13) && !$(e.target).is('button')) {
+            e.preventDefault();
+        }
+    };
+
     $(document).ready(function () {
         checkHasManyFields();
 
@@ -153,6 +160,8 @@
 
         $('.decimal').keypress(onDecimalField);
         $('.integer').keypress(onIntegerField);
+
+        $(document).on('keydown', 'form input', onFormElement);
 
         var exportModal = $('#exportModal');
         exportModal.find('form').submit(function (e) {
