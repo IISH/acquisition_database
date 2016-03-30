@@ -20,9 +20,12 @@
         var nextNumber = container.find('.next-number');
 
         clonedFormElements.each(function () {
+            var element = $(this);
             for (var i = 0; i < attrNames.length; i++) {
-                var element = $(this);
-                element.attr(attrNames[i], element.attr(attrNames[i]).replace('[]', '[' + nextNumber.val() + ']'));
+                var attr = element.attr(attrNames[i]);
+                if (attr !== undefined) {
+                    element.attr(attrNames[i], attr.replace('[]', '[' + nextNumber.val() + ']'));
+                }
             }
         });
 
@@ -39,7 +42,10 @@
             $(removable).find('input, select, textarea').each(function () {
                 var element = $(this);
                 for (var i = 0; i < attrNames.length; i++) {
-                    element.attr(attrNames[i], element.attr(attrNames[i]).replace(/\[\d+\]/, '[' + number + ']'));
+                    var attr = element.attr(attrNames[i]);
+                    if (attr !== undefined) {
+                        element.attr(attrNames[i], attr.replace(/\[\d+\]/, '[' + number + ']'));
+                    }
                 }
             });
         });

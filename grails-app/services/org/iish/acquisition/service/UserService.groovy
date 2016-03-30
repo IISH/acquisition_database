@@ -48,7 +48,7 @@ class UserService {
 			}
 
 			updateOffloaderRoles(user, authoritiesToRemove, userData.offloader?.toString())
-			updateAdminRoles(user, authoritiesToRemove, userData.user?.toString(), userData.offloader?.toString())
+			updateAdminRoles(user, authoritiesToRemove, userData.admin?.toString(), userData.offloader?.toString())
 
 			authoritiesToRemove.each { String authority ->
 				UserAuthority.remove(user, Authority.findByAuthority(authority))
