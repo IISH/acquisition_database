@@ -28,7 +28,27 @@ class User {
         sort 'login'
 	}
 
-	/**
+    /**
+     * Look for read/write users by checking their readonly authority,
+     * @return All read/write users.
+     */
+    static List<User> getReadWriteUsers() {
+        return list().findAll { user ->
+            !user.authorities.isEmpty() && !user.authorities.find { it.authority == Authority.ROLE_READONLY }
+        }
+    }
+
+    /**
+     * Look for read-only users by checking their readonly authority,
+     * @return All read-only users.
+     */
+    static List<User> getReadOnlyUsers() {
+        return list().findAll { user ->
+            !user.authorities.isEmpty() && user.authorities.find { it.authority == Authority.ROLE_READONLY }
+        }
+    }
+
+    /**
 	 * Returns all authorities given to this user.
 	 * @return All authorities given to this user.
 	 */
@@ -41,18 +61,16 @@ class User {
 	 * @param ctx The context object which contains the user information.
 	 */
 	void update(DirContextOperations ctx) {
-        if (ctx.originalAttrs?.attrs) {
-            if (ctx.originalAttrs.attrs['sn']?.values?.getAt(0)) {
-                lastName = ctx.originalAttrs.attrs['sn'].values[0]
-            }
+        if (ctx.attributeExists('sn')) {
+            lastName = ctx.getStringAttribute('sn')
+        }
 
-            if (ctx.originalAttrs.attrs['givenname']?.values?.getAt(0)) {
-                firstName = ctx.originalAttrs.attrs['givenname'].values[0]
-            }
+        if (ctx.attributeExists('givenname')) {
+            firstName = ctx.getStringAttribute('givenname')
+        }
 
-            if (ctx.originalAttrs.attrs['mail']?.values?.getAt(0)) {
-                email = ctx.originalAttrs.attrs['mail'].values[0]
-            }
+        if (ctx.attributeExists('mail')) {
+            email = ctx.getStringAttribute('mail')
         }
 
 		save(flush: true)

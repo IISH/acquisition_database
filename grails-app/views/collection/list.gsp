@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.export.CollectionXlsColumn; org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
+<%@ page import="org.iish.acquisition.domain.Authority; org.iish.acquisition.export.CollectionXlsColumn; org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
 <html>
 <head>
     <meta name="layout" content="main"/>

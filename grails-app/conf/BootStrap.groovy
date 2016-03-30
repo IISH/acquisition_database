@@ -103,7 +103,7 @@ class BootStrap {
 					}
 				}
 
-		[Authority.ROLE_ADMIN, Authority.ROLE_USER,
+		[Authority.ROLE_ADMIN, Authority.ROLE_USER, Authority.ROLE_READONLY,
 		 Authority.ROLE_OFFLOADER_1, Authority.ROLE_OFFLOADER_2, Authority.ROLE_OFFLOADER_3].
 				each { String role ->
 					if (!Authority.findByAuthority(role)) {

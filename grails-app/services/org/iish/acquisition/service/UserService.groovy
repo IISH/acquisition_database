@@ -17,18 +17,43 @@ class UserService {
 	LdapUserSearch ldapUserSearch
 	SpringSecurityService springSecurityService
 
+    /**
+     * Add or remove roles for read/write users.
+     * @param params The data as filled out by the admin.
+     */
+    void updateReadWriteUsers(GrailsParameterMap params) {
+        updateUsers(User.getReadWriteUsers(), params, {
+            User user, List<String> authoritiesToRemove, GrailsParameterMap userData ->
+                updateOffloaderRoles(user, authoritiesToRemove, userData.offloader?.toString())
+                updateAdminRoles(user, authoritiesToRemove, userData.admin?.toString(), userData.offloader?.toString())
+        })
+    }
+
+    /**
+     * Add or remove roles for read only users.
+     * @param params The data as filled out by the admin.
+     */
+    void updateReadOnlyUsers(GrailsParameterMap params) {
+        updateUsers(User.getReadOnlyUsers(), params, {
+            User user, List<String> authoritiesToRemove, GrailsParameterMap userData ->
+                addRoleToUser(user, Authority.findByAuthority(Authority.ROLE_READONLY), authoritiesToRemove)
+        })
+    }
+
 	/**
 	 * Add and remove roles for users.
+     * @param allUsers All the users.
 	 * @param params The data as filled out by the admin.
+     * @param actionsToPerform The actions to perform on the current user.
 	 */
-	void updateUsers(GrailsParameterMap params) {
-		Set<User> usersToRemove = new HashSet<>(User.list())
+	private void updateUsers(List<User> allUsers, GrailsParameterMap params, Closure actionsToPerform) {
+		Set<User> usersToRemove = new HashSet<>(allUsers)
 
 		int i = 0
 		while (params["user[$i]"]) {
 			GrailsParameterMap userData = params["user[${i++}]"] as GrailsParameterMap
 
-			User user = usersToRemove.find { it.login.equals(userData.login) }
+			User user = User.findByLogin(userData.login)
 			usersToRemove.removeAll { it.login.equals(userData.login) }
 			List<String> authoritiesToRemove = []
 
@@ -47,8 +72,7 @@ class UserService {
 				authoritiesToRemove = UserAuthority.findAllByUser(user)*.authority*.authority
 			}
 
-			updateOffloaderRoles(user, authoritiesToRemove, userData.offloader?.toString())
-			updateAdminRoles(user, authoritiesToRemove, userData.admin?.toString(), userData.offloader?.toString())
+            actionsToPerform.call(user, authoritiesToRemove, userData)
 
 			authoritiesToRemove.each { String authority ->
 				UserAuthority.remove(user, Authority.findByAuthority(authority))
@@ -59,7 +83,6 @@ class UserService {
 		// However, delete all roles, so he/she cannot access the application any longer.
 		usersToRemove.each { User user ->
 			UserAuthority.removeAll(user)
-
 		}
 
 		// Update the security session, to correctly reflect the updated information

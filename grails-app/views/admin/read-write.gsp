@@ -6,7 +6,24 @@
 </head>
 
 <body>
-<form role="form" method="post" action="${g.createLink(controller: 'admin', action: 'index')}" class="form-horizontal">
+<div class="row content-menu top hidden-print">
+    <div class="col-xs-24">
+        <ul class="nav nav-pills">
+            <li role="presentation" class="active">
+                <g:link action="read-write">
+                    <g:message code="admin.readWrite.label"/>
+                </g:link>
+            </li>
+            <li role="presentation">
+                <g:link action="read-only">
+                    <g:message code="admin.readOnly.label"/>
+                </g:link>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<form role="form" method="post" action="${g.createLink(controller: 'admin', action: 'read-write')}" class="form-horizontal">
     <div class="row elements">
         <div class="row control-label">
             <div class="col-xs-7 col-xs-offset-1 text-center">

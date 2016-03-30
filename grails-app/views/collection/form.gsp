@@ -50,10 +50,12 @@
         </div>
 
         <div class="col-xs-7 text-right">
-            <button data-toggle="modal" data-target="#emailModal" class="btn btn-default">
-                <span class="glyphicon glyphicon-envelope"></span>
-                <g:message code="default.button.email.label"/>
-            </button>
+            <sec:ifAnyGranted roles="${Authority.ROLE_USER}">
+                <button data-toggle="modal" data-target="#emailModal" class="btn btn-default">
+                    <span class="glyphicon glyphicon-envelope"></span>
+                    <g:message code="default.button.email.label"/>
+                </button>
+            </sec:ifAnyGranted>
 
             <g:link action="print" id="${params.id}" params="${request.getAttribute('queryParams')}"
                     class="btn btn-default btn-print">
@@ -883,24 +885,26 @@
     </div>
 </g:if>
 
-<div class="form-group hidden-print">
-    <div class="col-xs-22 text-right">
-        <button type="submit" class="btn btn-default btn-save">
-            <g:message code="default.button.save.label"/>
-        </button>
+<sec:ifAnyGranted roles="${Authority.ROLE_USER}">
+    <div class="form-group hidden-print">
+        <div class="col-xs-22 text-right">
+            <button type="submit" class="btn btn-default btn-save">
+                <g:message code="default.button.save.label"/>
+            </button>
 
-        <g:link action="list" params="${request.getAttribute('queryParams')}" class="btn btn-default btn-cancel">
-            <g:message code="default.button.cancel.label"/>
-        </g:link>
-
-        <g:if test="${actionName == 'edit' && !collection.isDigital() && SpringSecurityUtils.ifAnyGranted(Authority.ROLE_OFFLOADER_3)}">
-            <g:link action="delete" id="${params.id}" params="${request.getAttribute('queryParams')}"
-                    class="btn btn-default btn-delete">
-                <g:message code="default.button.delete.label"/>
+            <g:link action="list" params="${request.getAttribute('queryParams')}" class="btn btn-default btn-cancel">
+                <g:message code="default.button.cancel.label"/>
             </g:link>
-        </g:if>
+
+            <g:if test="${actionName == 'edit' && !collection.isDigital() && SpringSecurityUtils.ifAnyGranted(Authority.ROLE_OFFLOADER_3)}">
+                <g:link action="delete" id="${params.id}" params="${request.getAttribute('queryParams')}"
+                        class="btn btn-default btn-delete">
+                    <g:message code="default.button.delete.label"/>
+                </g:link>
+            </g:if>
+        </div>
     </div>
-</div>
+</sec:ifAnyGranted>
 </form>
 
 <g:if test="${actionName == 'edit'}">

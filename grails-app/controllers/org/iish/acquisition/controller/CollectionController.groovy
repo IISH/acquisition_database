@@ -1,5 +1,6 @@
 package org.iish.acquisition.controller
 
+import grails.plugin.springsecurity.SpringSecurityUtils
 import org.iish.acquisition.command.CollectionSearchCommand
 import org.iish.acquisition.command.RecipientsCommand
 import org.iish.acquisition.domain.*
@@ -129,7 +130,9 @@ class CollectionController {
 	 */
 	def edit(Collection collection, CollectionSearchCommand collectionSearchCommand) {
 		ifCollectionExists(collection, params.long('id')) {
-			if (request.post && collectionService.updateCollection(collection, params)) {
+            // TODO: Give readonly users their own page to see the collection details
+			if (request.post && SpringSecurityUtils.ifAnyGranted(Authority.ROLE_USER)
+                    && collectionService.updateCollection(collection, params)) {
 				flash.message = g.message(
 						code: 'default.updated.message',
 						args: [g.message(code: 'collection.label').toString().toLowerCase(), collection]

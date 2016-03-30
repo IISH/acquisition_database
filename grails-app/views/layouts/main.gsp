@@ -30,8 +30,9 @@
 
                 <div>
                     <sec:ifAnyGranted roles="${Authority.ROLE_ADMIN}">
-                        <g:link controller="admin" action="index"><g:message
-                                code="page.collection.admin.label"/></g:link>
+                        <g:link controller="admin" action="read-write">
+                            <g:message code="page.collection.admin.label"/>
+                        </g:link>
                         |
                     </sec:ifAnyGranted>
 
@@ -48,12 +49,15 @@
             <div class="col-xs-4 hidden-print">
                 <nav class="navbar navbar-default" role="navigation">
                     <ul class="nav nav-pills nav-stacked">
-                        <li <g:if test="${controllerName == 'collection' && actionName ==
-                                'create'}">class="active"</g:if>>
-                            <g:link controller="collection" action="create">
-                                <g:message code="page.collection.create.label"/>
-                            </g:link>
-                        </li>
+                        <sec:ifAnyGranted roles="$Authority.ROLE_USER">
+                            <li <g:if test="${controllerName == 'collection' && actionName ==
+                                    'create'}">class="active"</g:if>>
+                                <g:link controller="collection" action="create">
+                                    <g:message code="page.collection.create.label"/>
+                                </g:link>
+                            </li>
+                        </sec:ifAnyGranted>
+
                         <li <g:if test="${controllerName == 'collection' && actionName ==
                                 'list'}">class="active"</g:if>>
                             <g:link controller="collection" action="list"
@@ -63,18 +67,21 @@
                                 <g:message code="page.collection.all.label"/>
                             </g:link>
                         </li>
+
                         <li <g:if test="${controllerName == 'collection' && actionName ==
                                 'search'}">class="active"</g:if>>
                             <g:link controller="collection" action="search">
                                 <g:message code="page.collection.search.label"/>
                             </g:link>
                         </li>
-                        <li <g:if test="${controllerName == 'depot' && actionName ==
-                                'list'}">class="active"</g:if>>
-                            <g:link controller="depot" action="list">
-                                <g:message code="page.collection.depot.label"/>
-                            </g:link>
-                        </li>
+
+                        <sec:ifAnyGranted roles="$Authority.ROLE_USER">
+                            <li <g:if test="${controllerName == 'depot' && actionName == 'list'}">class="active"</g:if>>
+                                <g:link controller="depot" action="list">
+                                    <g:message code="page.collection.depot.label"/>
+                                </g:link>
+                            </li>
+                        </sec:ifAnyGranted>
                     </ul>
                 </nav>
 

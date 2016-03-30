@@ -208,7 +208,11 @@ grails {
                         '/collection/delete': [Authority.ROLE_OFFLOADER_3],
                         '/depot/delete'     : [Authority.ROLE_OFFLOADER_2],
                         '/admin/**'         : [Authority.ROLE_ADMIN],
-                        '/**'               : [Authority.ROLE_USER]
+                        '/depot/**'         : [Authority.ROLE_USER],
+                        '/collection/create': [Authority.ROLE_USER],
+                        //'/collection/edit'  : [Authority.ROLE_USER],
+                        '/collection/email' : [Authority.ROLE_USER],
+                        '/**'               : [Authority.ROLE_READONLY]
                 ]
             }
 
@@ -243,7 +247,10 @@ grails {
 			roleHierarchy = """
 				$Authority.ROLE_OFFLOADER_3 > $Authority.ROLE_OFFLOADER_2
 				$Authority.ROLE_OFFLOADER_2 > $Authority.ROLE_OFFLOADER_1
-				$Authority.ROLE_ADMIN > $Authority.ROLE_USER
+
+                $Authority.ROLE_ADMIN > $Authority.ROLE_USER
+                $Authority.ROLE_USER > $Authority.ROLE_READONLY
+
 				$Authority.ROLE_OFFLOADER_1 > $Authority.ROLE_USER
 			"""
 		}
