@@ -825,18 +825,12 @@
             <g:each in="${digitalMaterialStatusCodes}" var="statusCode" status="i">
                 <g:set var="current" value="${digitalMaterialStatus.statusCode?.id == statusCode.id}"/>
                 <div class="row digital-material-status ${current ? 'current': ''} ${failureDigital ? 'fail': ''}">
-                    <div class="col-xs-1">
-                        <g:if test="${current}">
-                            <p class="form-control-static">
-                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                            </p>
-                        </g:if>
-                    </div>
                     <div class="col-xs-6 status-name">
                         <p class="form-control-static">${i+1}. ${statusCode}</p>
                     </div>
-                    <div class="col-xs-16">
-                        <p class="form-control-static message">
+
+                    <div class="col-xs-17">
+                        <p class="form-control-static">
                             <g:if test="${digitalMaterialStatus.canChangeTo(statusCode)}">
                                 <label class="btn btn-default btn-xs">
                                     <g:checkBox id="collection.digitalMaterialStatus.statusCode.id"
@@ -845,14 +839,25 @@
                                                 class="${statusCode.confirmRequired ? 'confirm' : ''}"
                                                 checked="${false}" autocomplete="off"/>
 
-                                    <span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
 
-                                    <g:if test="${current && failureDigital}">
-                                        <g:message code="digitalMaterialStatus.request.retry.label"/>
-                                    </g:if>
-                                    <g:else>
-                                        <g:message code="digitalMaterialStatus.request.start.label"/>
-                                    </g:else>
+                                    <span class="checked-message">
+                                        <g:if test="${current && failureDigital}">
+                                            <span class="checked">
+                                                <g:message code="digitalMaterialStatus.requested.retry.label"/>
+                                            </span>
+                                            <span class="not-checked">
+                                                <g:message code="digitalMaterialStatus.request.retry.label"/>
+                                            </span>
+                                        </g:if>
+                                        <g:else>
+                                            <span class="checked">
+                                                <g:message code="digitalMaterialStatus.requested.start.label"/>
+                                            </span>
+                                            <span class="not-checked">
+                                                <g:message code="digitalMaterialStatus.request.start.label"/>
+                                            </span>
+                                        </g:else>
+                                    </span>
                                 </label>
                             </g:if>
 

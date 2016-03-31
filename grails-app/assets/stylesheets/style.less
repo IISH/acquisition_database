@@ -226,11 +226,33 @@ div {
 }
 
 label.btn {
+  .checked-message {
+    .checked {
+      display: none;
+    }
+
+    .not-checked {
+      display: inline;
+    }
+  }
+
   > input[type="radio"],
   > input[type="checkbox"] {
     position: absolute;
     clip: rect(0,0,0,0);
     pointer-events: none;
+
+    &:checked {
+      + .checked-message {
+        .checked {
+          display: inline;
+        }
+
+        .not-checked {
+          display: none;
+        }
+      }
+    }
   }
 }
 
