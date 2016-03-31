@@ -233,9 +233,14 @@
             <form role="form" method="get" action="${g.createLink(controller: 'collection', action: 'export')}">
                 <g:each in="${request.getAttribute('queryParams')}" var="param">
                     <g:if test="${!['export', 'max', 'offset', 'columns'].contains(param.key)}">
-                        <g:each in="${param.value}" var="val">
-                            <input type="hidden" name="${param.key}" value="${val}"/>
-                        </g:each>
+                        <g:if test="${List.isCase(param.value)}">
+                            <g:each in="${param.value}" var="val">
+                                <input type="hidden" name="${param.key}" value="${val}"/>
+                            </g:each>
+                        </g:if>
+                        <g:else>
+                            <input type="hidden" name="${param.key}" value="${param.value}"/>
+                        </g:else>
                     </g:if>
                 </g:each>
 
