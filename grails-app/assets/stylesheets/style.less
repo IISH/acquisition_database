@@ -1,10 +1,8 @@
 /*
-*= require custom-bootstrap
 *= require datepicker
 */
 
-@brand-primary: darken(#428bca, 6.5%); // #337ab7
-@state-danger-text: #a94442;
+@import "custom-bootstrap.less";
 
 #main {
   width: 1170px;
@@ -303,4 +301,26 @@ label.btn {
   .print-col {
     width: 90% !important;
   }
+}
+
+// Contextual backgrounds, make them important
+.bg-primary {
+  color: #fff !important;
+  .bg-variant(@brand-primary) !important;
+}
+
+.bg-success {
+  .bg-variant(@state-success-bg) !important;
+}
+
+.bg-info {
+  .bg-variant(@state-info-bg) !important;
+}
+
+.bg-warning {
+  .bg-variant(@state-warning-bg) !important;
+}
+
+.bg-danger {
+  .bg-variant(@state-danger-bg) !important;
 }

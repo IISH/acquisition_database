@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.Authority; org.iish.acquisition.export.CollectionXlsColumn; org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
+<%@ page import="org.iish.acquisition.domain.DigitalMaterialStatusSubCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.export.CollectionXlsColumn; org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -142,7 +142,22 @@
         </tr>
     </g:if>
     <g:each in="${results}" var="collection">
-        <tr>
+        <g:set var="rowClass" value=""/>
+        <g:if test="${collectionSearchCommand.columns.contains('digital_status')}">
+            <g:if test="${collection.digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.RUNNING}">
+                <g:set var="rowClass" value="bg-warning"/>
+            </g:if>
+
+            <g:elseif test="${collection.digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FINISHED}">
+                <g:set var="rowClass" value="bg-success"/>
+            </g:elseif>
+
+            <g:elseif test="${collection.digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FAILED}">
+                <g:set var="rowClass" value="bg-danger"/>
+            </g:elseif>
+        </g:if>
+
+        <tr class="${rowClass}">
             <td class="hidden table-click-link">
                 <g:createLink params="${params}" controller="collection" action="edit" id="${collection.id}"/>
             </td>
@@ -157,7 +172,12 @@
             </g:if>
             <g:if test="${collectionSearchCommand.columns.contains('digital_status')}">
                 <td>
-                    ${collection.digitalMaterialStatus.statusCode.id / 10} - ${collection.digitalMaterialStatus.message}
+                    ${collection.digitalMaterialStatus.statusCode.id / 10}
+
+                    <g:if test="${collection.digitalMaterialStatus.message &&
+                            !collection.digitalMaterialStatus.message.isAllWhitespace()}">
+                        - ${collection.digitalMaterialStatus.message}
+                    </g:if>
                 </td>
             </g:if>
             <g:if test="${collectionSearchCommand.columns.contains('analog_material')}">
