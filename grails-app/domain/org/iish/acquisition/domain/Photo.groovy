@@ -17,7 +17,7 @@ class Photo {
 
 	static constraints = {
 		originalFilename maxSize: 255
-		contentType maxSize: 50
+		contentType maxSize: 100
 	}
 
 	static mapping = {
