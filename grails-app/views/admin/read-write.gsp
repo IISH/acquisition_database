@@ -6,18 +6,29 @@
 </head>
 
 <body>
-<form role="form" method="post" action="${g.createLink(controller: 'admin', action: 'index')}" class="form-horizontal">
+<div class="row content-menu top hidden-print">
+    <div class="col-xs-24">
+        <ul class="nav nav-pills">
+            <li role="presentation" class="active">
+                <g:link action="read-write">
+                    <g:message code="admin.readWrite.label"/>
+                </g:link>
+            </li>
+            <li role="presentation">
+                <g:link action="read-only">
+                    <g:message code="admin.readOnly.label"/>
+                </g:link>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<form role="form" method="post" action="${g.createLink(controller: 'admin', action: 'read-write')}" class="form-horizontal">
     <div class="row elements">
         <div class="row control-label">
-            <div class="col-xs-6 col-xs-offset-1 text-center">
+            <div class="col-xs-7 col-xs-offset-1 text-center">
                 <label>
                     <g:message code="admin.userLogin.label"/>
-                </label>
-            </div>
-
-            <div class="col-xs-2 col-xs-offset-1 text-center ">
-                <label>
-                    <g:message code="admin.user.label"/>
                 </label>
             </div>
 
@@ -58,27 +69,20 @@
                 <g:set var="roles" value="${userAndRole.value as String[]}"/>
 
                 <div class="form-group removable">
-                    <div class="col-xs-6 col-xs-offset-1">
+                    <div class="col-xs-7 col-xs-offset-1">
                         <input type="text" id="user[${i}].login" name="user[${i}].login" class="form-control"
                                value="${user.login}"/>
                     </div>
 
-                    <div class="col-xs-2 col-xs-offset-1">
-                        <div class="checkbox text-center">
-                            <g:radio id="user[${i}].user" name="user[${i}].user" value="user"
-                                     checked="${!roles.contains(Authority.ROLE_ADMIN)}"/>
-                        </div>
-                    </div>
-
                     <div class="col-xs-2">
-                        <div class="checkbox text-center">
-                            <g:radio id="user[${i}].user" name="user[${i}].user" value="admin"
-                                     checked="${roles.contains(Authority.ROLE_ADMIN)}"/>
+                        <div class="text-center">
+                            <g:checkBox id="user[${i}].user" name="user[${i}].admin" value="admin"
+                                        checked="${roles.contains(Authority.ROLE_ADMIN)}"/>
                         </div>
                     </div>
 
                     <div class="col-xs-2 col-xs-offset-1">
-                        <div class="checkbox text-center">
+                        <div class="text-center">
                             <g:radio id="user[${i}].offloader" name="user[${i}].offloader" value="no"
                                      checked="${!roles.contains(Authority.ROLE_OFFLOADER_1) &&
                                              !roles.contains(Authority.ROLE_OFFLOADER_2) &&
@@ -87,21 +91,21 @@
                     </div>
 
                     <div class="col-xs-2">
-                        <div class="checkbox text-center">
+                        <div class="text-center">
                             <g:radio id="user[${i}].offloader" name="user[${i}].offloader" value="1"
                                      checked="${roles.contains(Authority.ROLE_OFFLOADER_1)}"/>
                         </div>
                     </div>
 
                     <div class="col-xs-2">
-                        <div class="checkbox text-center">
+                        <div class="text-center">
                             <g:radio id="user[${i}].offloader" name="user[${i}].offloader" value="2"
                                      checked="${roles.contains(Authority.ROLE_OFFLOADER_2)}"/>
                         </div>
                     </div>
 
                     <div class="col-xs-2">
-                        <div class="checkbox text-center">
+                        <div class="text-center">
                             <g:radio id="user[${i}].offloader" name="user[${i}].offloader" value="3"
                                      checked="${roles.contains(Authority.ROLE_OFFLOADER_3)}"/>
                         </div>
@@ -135,42 +139,36 @@
         </div>
 
         <div class="form-group removable hidden">
-            <div class="col-xs-6 col-xs-offset-1">
+            <div class="col-xs-7 col-xs-offset-1">
                 <input type="text" id="user[].login" name="user[].login" class="form-control" value=""/>
             </div>
 
-            <div class="col-xs-2 col-xs-offset-1">
-                <div class="checkbox text-center">
-                    <g:radio id="user[].user" name="user[].user" value="user" checked="${true}"/>
-                </div>
-            </div>
-
             <div class="col-xs-2">
-                <div class="checkbox text-center">
-                    <g:radio id="user[].user" name="user[].user" value="admin" checked="${false}"/>
+                <div class="text-center">
+                    <g:checkBox id="user[].user" name="user[].admin" value="admin" checked="${false}"/>
                 </div>
             </div>
 
             <div class="col-xs-2 col-xs-offset-1">
-                <div class="checkbox text-center">
+                <div class="text-center">
                     <g:radio id="user[].offloader" name="user[].offloader" value="no" checked="${true}"/>
                 </div>
             </div>
 
             <div class="col-xs-2">
-                <div class="checkbox text-center">
+                <div class="text-center">
                     <g:radio id="user[].offloader" name="user[].offloader" value="1" checked="${false}"/>
                 </div>
             </div>
 
             <div class="col-xs-2">
-                <div class="checkbox text-center">
+                <div class="text-center">
                     <g:radio id="user[].offloader" name="user[].offloader" value="2" checked="${false}"/>
                 </div>
             </div>
 
             <div class="col-xs-2">
-                <div class="checkbox text-center">
+                <div class="text-center">
                     <g:radio id="user[].offloader" name="user[].offloader" value="3" checked="${false}"/>
                 </div>
             </div>

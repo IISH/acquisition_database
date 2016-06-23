@@ -1,4 +1,4 @@
-<%@ page import="org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
+<%@ page import="org.iish.acquisition.domain.DigitalMaterialStatusSubCode; org.iish.acquisition.domain.Authority; org.iish.acquisition.export.CollectionXlsColumn; org.iish.acquisition.domain.Priority; org.iish.acquisition.domain.AcquisitionType" %>
 <html>
 <head>
     <meta name="layout" content="main"/>
@@ -13,9 +13,9 @@
 
     <g:if test="${results.getTotalCount() > 0}">
         <div class="col-xs-4 text-right">
-            <g:link controller="collection" action="export" params="${params}" class="btn btn-default btn-export">
+            <button data-toggle="modal" data-target="#exportModal" class="btn btn-default">
                 <g:message code="results.export.excel.label"/>
-            </g:link>
+            </button>
         </div>
     </g:if>
 </div>
@@ -76,6 +76,10 @@
         <g:if test="${collectionSearchCommand.statusDigital?.size() > 0}">
             <dt><g:message code="search.status.digital.label"/></dt>
             <dd>${digitalStatuses.findAll { collectionSearchCommand.statusDigital.contains(it.id) }.join(', ')}</dd>
+        </g:if>
+        <g:if test="${collectionSearchCommand.subStatusDigital?.size() > 0}">
+            <dt><g:message code="search.sub.status.digital.label"/></dt>
+            <dd>${digitalSubStatuses.findAll { collectionSearchCommand.subStatusDigital.contains(it.id) }.join(', ')}</dd>
         </g:if>
         <g:if test="${collectionSearchCommand.priority?.size() > 0}">
             <dt><g:message code="search.priority.label"/></dt>
@@ -138,7 +142,22 @@
         </tr>
     </g:if>
     <g:each in="${results}" var="collection">
-        <tr>
+        <g:set var="rowClass" value=""/>
+        <g:if test="${collectionSearchCommand.columns.contains('digital_status')}">
+            <g:if test="${collection.digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.RUNNING}">
+                <g:set var="rowClass" value="bg-warning"/>
+            </g:if>
+
+            <g:elseif test="${collection.digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FINISHED}">
+                <g:set var="rowClass" value="bg-success"/>
+            </g:elseif>
+
+            <g:elseif test="${collection.digitalMaterialStatus.statusSubCode == DigitalMaterialStatusSubCode.FAILED}">
+                <g:set var="rowClass" value="bg-danger"/>
+            </g:elseif>
+        </g:if>
+
+        <tr class="${rowClass}">
             <td class="hidden table-click-link">
                 <g:createLink params="${params}" controller="collection" action="edit" id="${collection.id}"/>
             </td>
@@ -153,7 +172,12 @@
             </g:if>
             <g:if test="${collectionSearchCommand.columns.contains('digital_status')}">
                 <td>
-                    ${collection.digitalMaterialStatus.statusCode.id / 10} - ${collection.digitalMaterialStatus.message}
+                    ${collection.digitalMaterialStatus.statusCode.id / 10}
+
+                    <g:if test="${collection.digitalMaterialStatus.message &&
+                            !collection.digitalMaterialStatus.message.isAllWhitespace()}">
+                        - ${collection.digitalMaterialStatus.message}
+                    </g:if>
                 </td>
             </g:if>
             <g:if test="${collectionSearchCommand.columns.contains('analog_material')}">
@@ -216,11 +240,72 @@
 
     <g:if test="${results.getTotalCount() > 0}">
         <div class="col-xs-4 text-right">
-            <g:link controller="collection" action="export" params="${params}" class="btn btn-default btn-export">
+            <button data-toggle="modal" data-target="#exportModal" class="btn btn-default">
                 <g:message code="results.export.excel.label"/>
-            </g:link>
+            </button>
         </div>
     </g:if>
+</div>
+
+<div id="exportModal" class="modal fade hidden-print" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content modal-lg">
+            <form role="form" method="get" action="${g.createLink(controller: 'collection', action: 'export')}">
+                <g:each in="${request.getAttribute('queryParams')}" var="param">
+                    <g:if test="${!['export', 'max', 'offset', 'columns'].contains(param.key)}">
+                        <g:if test="${List.isCase(param.value)}">
+                            <g:each in="${param.value}" var="val">
+                                <input type="hidden" name="${param.key}" value="${val}"/>
+                            </g:each>
+                        </g:if>
+                        <g:else>
+                            <input type="hidden" name="${param.key}" value="${param.value}"/>
+                        </g:else>
+                    </g:if>
+                </g:each>
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">
+                            <g:message code="default.close.label"/>
+                        </span>
+                    </button>
+
+                    <h4 class="modal-title">
+                        <g:message code="results.export.excel.label"/>
+                    </h4>
+                </div>
+
+                <div class="modal-body">
+                    <g:checkboxTable values="${CollectionXlsColumn.values()}" nrColumns="3"
+                                     name="exportColumns" label="languageCode" value="name"
+                                     checked="${{ CollectionXlsColumn.DEFAULT_COLUMNS.contains(it) }}"
+                                     class="${{ CollectionXlsColumn.DEFAULT_COLUMNS.contains(it) ? 'default' : '' }}"/>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="btn-group btn-group-sm pull-left" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" class="all" autocomplete="off"/>
+                            <g:message code="results.export.all.columns.label"/>
+                        </label>
+                        <label class="btn btn-default active">
+                            <input type="radio" class="default" autocomplete="off" checked="checked"/>
+                            <g:message code="results.export.default.columns.label"/>
+                        </label>
+                    </div>
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <g:message code="default.close.label"/>
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <g:message code="results.export.excel.label"/>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 </body>
 </html>

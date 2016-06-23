@@ -2,20 +2,26 @@ package org.iish.acquisition.domain
 
 import grails.util.Holders
 import grails.plugin.springsecurity.SpringSecurityUtils
+import org.iish.acquisition.service.EmailService
 
 /**
  * Holds the status of the digital material located in the ingest depot.
  */
 class DigitalMaterialStatus {
+	EmailService emailService
+
 	Date timerStarted
 	Date startIngest
 	boolean ingestDelayed = false
-	boolean lastActionFailed = false
 	Date lastStatusChange = new Date()
 	String message
+	DigitalMaterialStatusSubCode statusSubCode
+
+	static transients = ['emailService']
 
 	static belongsTo = [
 			collection : Collection,
+
 			statusCode : DigitalMaterialStatusCode,
 
 			manifestCsv: DigitalMaterialFile,
@@ -40,8 +46,14 @@ class DigitalMaterialStatus {
 	void beforeUpdate() {
 		lastStatusChange = new Date()
 
-		if (statusCode.id == DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE) {
+		if (!startIngest && (statusCode.id == DigitalMaterialStatusCode.STAGINGAREA)) {
 			startIngest = new Date()
+		}
+
+		if (isDirty('statusCode') || isDirty('statusSubCode')) {
+			runAsync {
+				emailService.sentStatusChangeEmail(this)
+			}
 		}
 	}
 
@@ -70,7 +82,7 @@ class DigitalMaterialStatus {
 	 */
 	boolean canDelayIngest() {
 		return (!ingestDelayed &&
-				(statusCode.id < DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE) &&
+				(statusCode.id < DigitalMaterialStatusCode.STAGINGAREA) &&
 				SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_3))
 	}
 
@@ -80,23 +92,34 @@ class DigitalMaterialStatus {
 	 * @return Whether the user may change the status code to the new given status code.
 	 */
 	boolean canChangeTo(DigitalMaterialStatusCode newStatusCode) {
-		if (newStatusCode.id == statusCode.id) {
+		// If the new status code is already requested, no need to do it again
+		boolean isSameStatusCode = (newStatusCode.id == statusCode.id)
+		boolean isRequested = (statusSubCode == DigitalMaterialStatusSubCode.REQUESTED)
+		if (isSameStatusCode && isRequested) {
+			return false
+		}
+
+		// Users may retry if an action failed
+		boolean lastActionFailed = (statusSubCode == DigitalMaterialStatusSubCode.FAILED)
+		if (isSameStatusCode && lastActionFailed) {
 			return true
 		}
 
-		if (!lastActionFailed && newStatusCode.isSetByUser && (newStatusCode.id > statusCode.id)) {
-			switch (newStatusCode.id) {
-				case DigitalMaterialStatusCode.MATERIAL_UPLOADED:
-					return ((statusCode.id >= DigitalMaterialStatusCode.FOLDER_CREATED)
-							&& SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_1))
-				case DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE:
-				case DigitalMaterialStatusCode.READY_FOR_RESTORE:
-					return ((statusCode.id >= DigitalMaterialStatusCode.BACKUP_FINISHED) &&
-							SpringSecurityUtils.ifAllGranted(Authority.ROLE_OFFLOADER_2))
-			}
+		// If no retry, then users can only change to later status codes
+		boolean isLaterStatusCode = (newStatusCode.id > statusCode.id)
+
+		// If the action depend on a previous action, confirm the dependency has been successful
+		boolean fulfillsDependency = (newStatusCode.dependsOn?.id < statusCode.id)
+		if (newStatusCode.dependsOn?.id == statusCode.id) {
+			fulfillsDependency = (statusSubCode == DigitalMaterialStatusSubCode.FINISHED)
 		}
 
-		return false
+		// If the action requires authorization, check if the current user is granted to perform the action
+		String neededAuthority = newStatusCode.needsAuthority?.authority
+		boolean isGranted = (!neededAuthority || SpringSecurityUtils.ifAllGranted(neededAuthority))
+
+		// Determine whether a new status request is allowed
+		return (newStatusCode.isSetByUser && isLaterStatusCode && fulfillsDependency && isGranted)
 	}
 
 	/**
@@ -122,7 +145,8 @@ class DigitalMaterialStatus {
 	static List<Collection> getWithoutFolder() {
 		Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION)
+			eq('status.statusCode.id', DigitalMaterialStatusCode.FOLDER)
+			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
 		}
 	}
 
@@ -133,7 +157,8 @@ class DigitalMaterialStatus {
 	static List<Collection> getReadyForBackup() {
 		List<Collection> readyForBackup = Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.MATERIAL_UPLOADED)
+			eq('status.statusCode.id', DigitalMaterialStatusCode.BACKUP)
+			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
 		}
 
 		return getIngestNotStartedOrNotEligible(readyForBackup)
@@ -146,7 +171,8 @@ class DigitalMaterialStatus {
 	static List<Collection> getReadyForRestore() {
 		List<Collection> readyForRestore = Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_RESTORE)
+			eq('status.statusCode.id', DigitalMaterialStatusCode.RESTORE)
+			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
 		}
 
 		return getIngestNotStartedOrNotEligible(readyForRestore)
@@ -160,35 +186,32 @@ class DigitalMaterialStatus {
 		Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
 
-			// TODO check query
-			// return in list:
-			// a) when status is manually set to 'ready for permanent storage (100)'
-			// b) OR when ingest is not delayed AND 'not delayed' date has expired AND last action did not fail AND ingest not started
-			// c) OR when ingest is delayed AND 'delayed' date has expired AND last action did not faile AND ingest not started
-			// Remark: if previous action has failed, the collection will never show in 'ready for ingest' list until you manually set it on 'ready for permanent storage (100)'
+			// Return in list:
+			// a) When status is manually set to 'stagingarea'
+			// b) OR when ingest is not delayed AND 'not delayed' date has expired AND last action was completed AND ingest not started
+			// c) OR when ingest is delayed AND 'delayed' date has expired AND last action was completed AND ingest not started
+			// Remark: If previous action has failed, the collection will never show in 'stagingarea' until you manually set it on 'stagingarea'
 
-//			and {
-//				isNull('status.startIngest') // date when ingest started
-//				eq('status.lastActionFailed', false)
-
-				or {
-					eq('status.statusCode.id', DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)
-
-					and {
-						eq('status.ingestDelayed', false)
-						lt('status.timerStarted', getLatestCreationDateInitialExpired())
-						eq('status.lastActionFailed', false)
-						isNull('status.startIngest') // date when ingest started
-					}
-
-					and {
-						eq('status.ingestDelayed', true)
-						lt('status.timerStarted', getLatestCreationDateExtendedExpired())
-						eq('status.lastActionFailed', false)
-						isNull('status.startIngest') // date when ingest started
-					}
+			or {
+				and {
+					eq('status.statusCode.id', DigitalMaterialStatusCode.STAGINGAREA)
+					eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
 				}
-//			}
+
+				and {
+					eq('status.ingestDelayed', false)
+					lt('status.timerStarted', getLatestCreationDateInitialExpired())
+					eq('status.statusSubCode', DigitalMaterialStatusSubCode.FINISHED)
+					isNull('status.startIngest') // Date when ingest started
+				}
+
+				and {
+					eq('status.ingestDelayed', true)
+					lt('status.timerStarted', getLatestCreationDateExtendedExpired())
+					eq('status.statusSubCode', DigitalMaterialStatusSubCode.FINISHED)
+					isNull('status.startIngest') // Date when ingest started
+				}
+			}
 		}
 	}
 
@@ -231,13 +254,13 @@ class DigitalMaterialStatus {
 	 * @return The filtered list of collections.
 	 */
 	private static List<Collection> getIngestNotStartedOrNotEligible(List<Collection> collections) {
+		List<Collection> readyForIngest = getReadyForIngest()
 		List<Collection> ingestStarted = Collection.withCriteria {
 			createAlias('digitalMaterialStatus', 'status')
 			isNotNull('status.startIngest')
 		}
-		List<Collection> readyForIngest = getReadyForIngest()
 
-		return collections - ingestStarted - readyForIngest
+		return collections - readyForIngest - ingestStarted
 	}
 
 	@Override

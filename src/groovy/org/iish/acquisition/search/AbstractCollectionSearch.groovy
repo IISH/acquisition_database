@@ -1,6 +1,8 @@
 package org.iish.acquisition.search
 
 import org.iish.acquisition.command.CollectionSearchCommand
+import org.iish.acquisition.domain.Collection
+import org.iish.acquisition.domain.MaterialType
 
 /**
  * Decorator pattern implementation to search the collections using a CollectionSearchCommand.
@@ -13,7 +15,7 @@ abstract class AbstractCollectionSearch implements CollectionSearch {
 	 * @return All matching collections (or projections).
 	 */
 	@Override
-	List getResults() {
+	List<Collection> getResults() {
 		getResultsFor(getWhere(), getSort(), getParameters())
 	}
 
@@ -34,8 +36,26 @@ abstract class AbstractCollectionSearch implements CollectionSearch {
 	 * @return The pager with the previous and the next id.
 	 */
 	@Override
-	Pager getPagedResults(Long id) {
+	Pager getPagedResults(long id) {
 		getPagedResultsFor(getWhere(), getSort(), getParameters(), id)
+	}
+
+	/**
+	 * Returns all matching analog material types.
+	 * @return All matching analog material types.
+	 */
+	@Override
+	List<MaterialType> getMatchingAnalogMaterials() {
+		return getMaterialTypesFor(getWhere(), getSort(), getParameters(), 'amt_main')
+	}
+
+	/**
+	 * Returns all matching digital material types.
+	 * @return All matching digital material types.
+	 */
+	@Override
+	List<MaterialType> getMatchingDigitalMaterials() {
+		return getMaterialTypesFor(getWhere(), getSort(), getParameters(), 'dmt_main')
 	}
 
 	/**
@@ -70,7 +90,7 @@ abstract class AbstractCollectionSearch implements CollectionSearch {
 	 * @param parameters The parameters to apply on the query.
 	 * @return All matching collections (or projections), based on the given data.
 	 */
-	abstract protected List getResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters)
+	abstract protected List<Collection> getResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters)
 
 	/**
 	 * Returns all matching collections paginated, for the given where, sort and parameters data.
@@ -94,5 +114,16 @@ abstract class AbstractCollectionSearch implements CollectionSearch {
 	 * @return The pager with the previous and the next id.
 	 */
 	abstract protected Pager getPagedResultsFor(List<String> where, List<String> sort, Map<String, Object> parameters,
-	                                            Long id)
+	                                            long id)
+
+	/**
+	 * Returns all matching material types, for the given where, sort, parameters and group by data.
+	 * @param where The HQL WHERE criteria statements to use.
+	 * @param sort The HQL ORDER BY fields and sort order to use.
+	 * @param parameters The parameters to apply on the query.
+	 * @param groupByColumn The group by column.
+	 * @return All matching collections (or projections), based on the given data.
+	 */
+	abstract protected List<MaterialType> getMaterialTypesFor(List<String> where, List<String> sort,
+	                                                          Map<String, Object> parameters, String groupByColumn)
 }

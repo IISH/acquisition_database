@@ -4,6 +4,7 @@ package org.iish.acquisition.domain
  * The authorities (roles) of users of this application.
  */
 class Authority {
+    static final String ROLE_READONLY = 'ROLE_READONLY'
 	static final String ROLE_USER = 'ROLE_USER'
 	static final String ROLE_ADMIN = 'ROLE_ADMIN'
 

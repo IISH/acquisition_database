@@ -1,20 +1,28 @@
 import grails.util.Environment
+import groovy.sql.Sql
 import org.apache.log4j.Logger
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.iish.acquisition.domain.*
 import org.springframework.ldap.core.DirContextOperations
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.ldap.search.LdapUserSearch
+
+import javax.sql.DataSource
+import java.sql.SQLException
 
 /**
  * Initialization of the application.
  */
 class BootStrap {
+	static final Logger LOGGER = Logger.getLogger(this.class)
 
-	static final Logger log = Logger.getLogger(this.class)
+	DataSource dataSource
 	LdapUserSearch ldapUserSearch
-	def grailsApplication
+	GrailsApplication grailsApplication
 
 	def init = { servletContext ->
 		populateTables()
+		createFulltextIndexes()
 		setUsersAndAuthorities()
 		updateUserData(ldapUserSearch)
 	}
@@ -95,7 +103,7 @@ class BootStrap {
 					}
 				}
 
-		[Authority.ROLE_ADMIN, Authority.ROLE_USER,
+		[Authority.ROLE_ADMIN, Authority.ROLE_USER, Authority.ROLE_READONLY,
 		 Authority.ROLE_OFFLOADER_1, Authority.ROLE_OFFLOADER_2, Authority.ROLE_OFFLOADER_3].
 				each { String role ->
 					if (!Authority.findByAuthority(role)) {
@@ -103,27 +111,45 @@ class BootStrap {
 					}
 				}
 
-		[
-		 (DigitalMaterialStatusCode.NEW_DIGITAL_MATERIAL_COLLECTION) : [status: '1. No folder created yet.', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.FOLDER_CREATION_RUNNING)         : [status: '2. A folder is being created.', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.FOLDER_CREATED)                  : [status: '3. A folder has been created. You can start offloading now.', groupName: 'Folder', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.MATERIAL_UPLOADED)               : [status: '4. Digital material has been uploaded, request creation of backup.', groupName: 'Backup', isSetByUser: true, confirmRequired: false],
-		 (DigitalMaterialStatusCode.BACKUP_RUNNING)                  : [status: '5. A backup of the digital material is being made.', groupName: 'Backup', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.BACKUP_FINISHED)                 : [status: '6. A backup of the digital material has been created.', groupName: 'Backup', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.READY_FOR_RESTORE)               : [status: '7. Request restore of the digital material.', groupName: 'Restore', isSetByUser: true, confirmRequired: true],
-		 (DigitalMaterialStatusCode.RESTORE_RUNNING)                 : [status: '8. A restore of the digital material is being performed.', groupName: 'Restore', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.RESTORE_FINISHED)                : [status: '9. A restore of the digital material has been done.', groupName: 'Restore', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.READY_FOR_PERMANENT_STORAGE)     : [status: '10. Digital material is ready for permanent storage (SOR).', groupName: 'Permanent storage', isSetByUser: true, confirmRequired: false],
-		 (DigitalMaterialStatusCode.UPLOADING_TO_PERMANENT_STORAGE)  : [status: '11. Digital material is being uploaded to permanent storage (SOR).', groupName: 'Permanent storage', isSetByUser: false, confirmRequired: false],
-		 (DigitalMaterialStatusCode.MOVED_TO_PERMANENT_STORAGE)      : [status: '12. Digital material has been moved to permanent storage (SOR).', groupName: 'Permanent storage', isSetByUser: false, confirmRequired: false]
-		].
+		[(DigitalMaterialStatusCode.FOLDER)     : [status: '1. Folder creation', isSetByUser: false, confirmRequired: false, dependsOn: null, needsAuthority: null],
+		 (DigitalMaterialStatusCode.BACKUP)     : [status: '2. Create backup', isSetByUser: true, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.FOLDER, needsAuthority: Authority.ROLE_OFFLOADER_1],
+		 (DigitalMaterialStatusCode.RESTORE)    : [status: '3. Start restore', isSetByUser: true, confirmRequired: true, dependsOn: DigitalMaterialStatusCode.BACKUP, needsAuthority: Authority.ROLE_OFFLOADER_2],
+		 (DigitalMaterialStatusCode.STAGINGAREA): [status: '4. Move to stagingarea', isSetByUser: true, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.BACKUP, needsAuthority: Authority.ROLE_OFFLOADER_2],
+		 (DigitalMaterialStatusCode.SOR)        : [status: '5. Process in SOR', isSetByUser: false, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.STAGINGAREA, needsAuthority: null],
+		 (DigitalMaterialStatusCode.CLEANUP)    : [status: '6. Cleaning up', isSetByUser: false, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.SOR, needsAuthority: null]].
 				each { Long id, Map statusInfo ->
 					if (!DigitalMaterialStatusCode.get(id)) {
-						DigitalMaterialStatusCode digitalMaterialStatusCode = new DigitalMaterialStatusCode(statusInfo)
+						DigitalMaterialStatusCode digitalMaterialStatusCode = new DigitalMaterialStatusCode(
+								status: statusInfo.status,
+								isSetByUser: statusInfo.isSetByUser,
+								confirmRequired: statusInfo.confirmRequired,
+								dependsOn: (statusInfo.dependsOn)
+										? DigitalMaterialStatusCode.get(statusInfo.dependsOn)
+										: null,
+								needsAuthority: (statusInfo.needsAuthority)
+										? Authority.findByAuthority(statusInfo.needsAuthority)
+										: null
+						)
 						digitalMaterialStatusCode.setId(id)
 						digitalMaterialStatusCode.save()
 					}
 				}
+	}
+
+	/**
+	 * Creates the MySQL fulltext indexes.
+	 */
+	private void createFulltextIndexes() {
+		try {
+			Sql sql = new Sql(dataSource)
+			sql.execute('CREATE FULLTEXT INDEX collections_fulltext ON collections ' +
+					'(name, content, lists_available, to_be_done, owner, ' +
+					'contact_person, remarks, original_package_transport)')
+			sql.execute('CREATE FULLTEXT INDEX locations_fulltext ON locations (cabinet)')
+		}
+		catch (SQLException sqle) {
+			// Already created the index, ignore error
+		}
 	}
 
 	/**
@@ -138,17 +164,21 @@ class BootStrap {
 		}
 	}
 
-	private static void addRole(String login, String _authority) {
-
+	/**
+	 * Create a user with the given login name and role.
+	 * @param login The login name.
+	 * @param role The authority.
+	 */
+	private static void addRole(String login, String role) {
 		User user = User.findByLogin(login)
-		def userData = [roles: [_authority], mayReceiveEmail: true]
+		Map userData = [roles: [role], mayReceiveEmail: true]
 		if (!user) {
 			user = new User(login: login, mayReceiveEmail: userData.mayReceiveEmail)
 			user.save(flush: true)
 		}
 
-		userData.roles.each { String role ->
-			Authority authority = Authority.findByAuthority(role)
+		userData.roles.each { String auth ->
+			Authority authority = Authority.findByAuthority(auth)
 			if (!UserAuthority.exists(user.id, authority.id)) {
 				UserAuthority.create(user, authority)
 			}
@@ -165,9 +195,13 @@ class BootStrap {
 				DirContextOperations ctx;
 				try {
 					ctx = ldapUserSearch.searchForUser(user.login)
-					if (ctx) user.update(ctx)
-				} catch (Exception e) {
-					log.error(e)
+					if (ctx) {
+                        LOGGER.info('Updating user ' + user.login);
+						user.update(ctx)
+					}
+				}
+				catch (UsernameNotFoundException e) {
+					LOGGER.error(e)
 				}
 			}
 		}

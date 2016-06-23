@@ -74,12 +74,13 @@ class MaterialType {
 	/**
 	 * Returns the total number of unique material types,
 	 * if you take the meters and numbers separately.
+	 * @param materialTypes The material types.
 	 * @return The total number.
 	 */
-	static int getTotalNumberOfUniqueTypes() {
-		List<Integer> meters = list().collect { it.inMeters ? 1 : 0 }
-		List<Integer> numbers = list().collect { it.inNumbers ? 1 : 0 }
-		return (int) (meters + numbers).sum()
+	static int getTotalNumberOfUniqueTypes(List<MaterialType> materialTypes) {
+		List<Integer> meters = materialTypes.collect { it.inMeters ? 1 : 0 }
+		List<Integer> numbers = materialTypes.collect { it.inNumbers ? 1 : 0 }
+		return (meters + numbers).sum() as Integer ?: 0
 	}
 
 	@Override

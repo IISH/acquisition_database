@@ -5,6 +5,8 @@ import org.iish.acquisition.domain.Collection
 import org.iish.acquisition.domain.DigitalMaterialFile
 import org.iish.acquisition.domain.DigitalMaterialStatus
 import org.iish.acquisition.domain.DigitalMaterialStatusCode
+import org.iish.acquisition.domain.DigitalMaterialStatusSubCode
+import org.iish.acquisition.service.EmailService
 import org.springframework.web.multipart.MultipartFile
 
 import javax.servlet.http.HttpServletResponse
@@ -59,14 +61,15 @@ class ServiceController {
 	/**
 	 * Updates the status of the digital material running for the given PID on the ingest depot.
 	 */
-	def status(String pid, Long status, Boolean failure, String message) {
+	def status(String pid, Long status, Integer subStatus, String message) {
 		doWithPid(pid) { Collection collection ->
 			DigitalMaterialStatus digitalMaterialStatus = collection.digitalMaterialStatus
 			DigitalMaterialStatusCode statusCode = DigitalMaterialStatusCode.get(status)
+			DigitalMaterialStatusSubCode statusSubCode = DigitalMaterialStatusSubCode.getById(subStatus)
 
-			if (digitalMaterialStatus && statusCode) {
+			if (digitalMaterialStatus && statusCode && statusSubCode) {
 				digitalMaterialStatus.statusCode = statusCode
-				digitalMaterialStatus.lastActionFailed = failure
+				digitalMaterialStatus.statusSubCode = statusSubCode
 				digitalMaterialStatus.message = message
 				digitalMaterialStatus.save(flush: true)
 

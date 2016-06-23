@@ -194,24 +194,29 @@ grails {
 				className = 'org.iish.acquisition.domain.Authority'
 			}
 
-			controllerAnnotations {
-				staticRules = [
-						'/'              : ['permitAll'],
-						'/index'         : ['permitAll'],
-						'/index.gsp'     : ['permitAll'],
-						'/assets/**'     : ['permitAll'],
-						'/**/js/**'      : ['permitAll'],
-						'/**/css/**'     : ['permitAll'],
-						'/**/images/**'  : ['permitAll'],
-						'/**/favicon.ico': ['permitAll'],
-						'/service/**'    : ['permitAll'],
-						'/depot/delete'  : [Authority.ROLE_OFFLOADER_2],
-						'/admin/**'      : [Authority.ROLE_ADMIN],
-						'/**'            : [Authority.ROLE_USER]
-				]
-			}
+            controllerAnnotations {
+                staticRules = [
+                        '/'                 : ['permitAll'],
+                        '/index'            : ['permitAll'],
+                        '/index.gsp'        : ['permitAll'],
+                        '/assets/**'        : ['permitAll'],
+                        '/**/js/**'         : ['permitAll'],
+                        '/**/css/**'        : ['permitAll'],
+                        '/**/images/**'     : ['permitAll'],
+                        '/**/favicon.ico'   : ['permitAll'],
+                        '/service/**'       : ['permitAll'],
+                        '/collection/delete': [Authority.ROLE_OFFLOADER_3],
+                        '/depot/delete'     : [Authority.ROLE_OFFLOADER_2],
+                        '/admin/**'         : [Authority.ROLE_ADMIN],
+                        '/depot/**'         : [Authority.ROLE_USER],
+                        '/collection/create': [Authority.ROLE_USER],
+                        //'/collection/edit'  : [Authority.ROLE_USER],
+                        '/collection/email' : [Authority.ROLE_USER],
+                        '/**'               : [Authority.ROLE_READONLY]
+                ]
+            }
 
-			logout {
+            logout {
 				postOnly = false
 			}
 
@@ -242,7 +247,10 @@ grails {
 			roleHierarchy = """
 				$Authority.ROLE_OFFLOADER_3 > $Authority.ROLE_OFFLOADER_2
 				$Authority.ROLE_OFFLOADER_2 > $Authority.ROLE_OFFLOADER_1
-				$Authority.ROLE_ADMIN > $Authority.ROLE_USER
+
+                $Authority.ROLE_ADMIN > $Authority.ROLE_USER
+                $Authority.ROLE_USER > $Authority.ROLE_READONLY
+
 				$Authority.ROLE_OFFLOADER_1 > $Authority.ROLE_USER
 			"""
 		}

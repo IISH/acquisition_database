@@ -1,7 +1,8 @@
 /*
-*= require custom-bootstrap
 *= require datepicker
 */
+
+@import "custom-bootstrap.less";
 
 #main {
   width: 1170px;
@@ -29,6 +30,20 @@
 #loginForm {
   max-width: 300px;
   padding: 15px;
+}
+
+#emailModal {
+  input[type=text],
+  textarea {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
 }
 
 .content-menu {
@@ -71,6 +86,12 @@
 
     .row {
       min-height: 40px;
+    }
+
+    .statistics {
+      min-height: 0;
+      text-align: center;
+      font-style: italic;
     }
   }
 }
@@ -137,13 +158,10 @@ table {
       }
     }
 
-    &.modal-body {
-      margin: 0;
-    }
-
     input[type='checkbox'],
     input[type='radio'] {
-      margin: 5px 0 0 20px;
+      margin: 4px 10px 4px 20px;
+      vertical-align: top;
     }
   }
 
@@ -169,6 +187,16 @@ table {
   }
 }
 
+.modal {
+  .modal-body {
+    padding: 0;
+  }
+
+  table {
+    margin: 0;
+  }
+}
+
 .help-block {
   margin-bottom: 0;
 
@@ -191,7 +219,38 @@ div {
 
   &.panel .help-block {
     margin-top: 5px;
-    margin-bottom: 0;
+    margin-bottom: 5px;
+  }
+}
+
+label.btn {
+  .checked-message {
+    .checked {
+      display: none;
+    }
+
+    .not-checked {
+      display: inline;
+    }
+  }
+
+  > input[type="radio"],
+  > input[type="checkbox"] {
+    position: absolute;
+    clip: rect(0,0,0,0);
+    pointer-events: none;
+
+    &:checked {
+      + .checked-message {
+        .checked {
+          display: inline;
+        }
+
+        .not-checked {
+          display: none;
+        }
+      }
+    }
   }
 }
 
@@ -203,7 +262,30 @@ div {
 }
 
 .badge {
-  background-color: #337ab7;
+  background-color: @brand-primary;
+}
+
+.digital-material-status {
+  &.current {
+    color: @brand-primary;
+
+    &.fail {
+      color: @state-danger-text;
+    }
+
+    .status-name {
+      font-weight: bold;
+    }
+  }
+
+  .message {
+    clear: both;
+
+    label {
+      float: left;
+      margin-right: 15px;
+    }
+  }
 }
 
 @media print {
@@ -219,4 +301,26 @@ div {
   .print-col {
     width: 90% !important;
   }
+}
+
+// Contextual backgrounds, make them important
+.bg-primary {
+  color: #fff !important;
+  .bg-variant(@brand-primary) !important;
+}
+
+.bg-success {
+  .bg-variant(@state-success-bg) !important;
+}
+
+.bg-info {
+  .bg-variant(@state-info-bg) !important;
+}
+
+.bg-warning {
+  .bg-variant(@state-warning-bg) !important;
+}
+
+.bg-danger {
+  .bg-variant(@state-danger-bg) !important;
 }

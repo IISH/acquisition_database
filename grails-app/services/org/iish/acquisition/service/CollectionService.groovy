@@ -1,5 +1,6 @@
 package org.iish.acquisition.service
 
+import com.opencsv.CSVReader
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.transaction.Transactional
@@ -9,6 +10,8 @@ import org.grails.databinding.SimpleMapDataBindingSource
 import org.iish.acquisition.converter.BigDecimalValueConverter
 import org.iish.acquisition.domain.*
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+
+import org.iish.acquisition.util.Droid
 
 /**
  * A service responsible for processing collections.
@@ -354,7 +357,7 @@ class CollectionService {
 			DigitalMaterialStatusCode newStatusCode = DigitalMaterialStatusCode.get(newStatusCodeId)
 			if (newStatusCode && digitalMaterialStatus.canChangeTo(newStatusCode)) {
 				digitalMaterialStatus.statusCode = newStatusCode
-				digitalMaterialStatus.lastActionFailed = false
+				digitalMaterialStatus.statusSubCode = DigitalMaterialStatusSubCode.REQUESTED
 			}
 
 			if (digitalMaterialStatus.canDelayIngest() && digitalMaterialParams.delayIngest) {
@@ -363,5 +366,48 @@ class CollectionService {
 
 			digitalMaterialStatus.save()
 		}
+	}
+
+	/**
+	 * Compute some statistics using the DROID analysis.
+	 * @param collection The collection of which to compute statistics.
+	 * @return A map with some statistics.
+	 */
+	Map<String, Long> getStatistics(Collection collection) {
+		Long manifestCsvId = collection.digitalMaterialStatus?.manifestCsvId
+		return (manifestCsvId) ? getStatisticsForManifest(manifestCsvId) : [:]
+	}
+
+	/**
+	 * Compute some statistics using the DROID analysis.
+	 * @param manifestCsvId The id of the DROID manifest in the database.
+	 * @return A map with some statistics.
+    */
+	private Map<String, Long> getStatisticsForManifest(long manifestCsvId) {
+		DigitalMaterialFile manifestFile = DigitalMaterialFile.get(manifestCsvId)
+		if (manifestFile) {
+			long nrFiles = 0L
+			long nrFolders = 0L
+			long bytes = 0L
+
+			CSVReader reader = new CSVReader(new InputStreamReader(new ByteArrayInputStream(manifestFile.file)))
+			reader.eachWithIndex { String[] columns, int i ->
+				if (i > 0) {
+					if (columns[Droid.TYPE] == 'Folder') {
+						nrFolders++;
+					} else {
+						nrFiles++;
+
+						String size = columns[Droid.SIZE]
+						if (size.isLong()) {
+							bytes += size.toLong()
+						}
+					}
+				}
+			}
+
+			return [nrFiles: nrFiles, nrFolders: nrFolders, bytes: bytes]
+		}
+		return [:]
 	}
 }
