@@ -2,12 +2,14 @@ package org.iish.acquisition.service
 
 import grails.gsp.PageRenderer
 import grails.plugin.mail.MailService
+import grails.plugin.springsecurity.SpringSecurityService
 import grails.util.Holders
 import org.apache.log4j.Logger
 import org.iish.acquisition.command.RecipientsCommand
 import org.iish.acquisition.domain.Authority
 import org.iish.acquisition.domain.DigitalMaterialStatus
 import org.iish.acquisition.domain.DigitalMaterialStatusSubCode
+import org.iish.acquisition.domain.User
 import org.iish.acquisition.util.EmailException
 
 /**
@@ -18,6 +20,7 @@ class EmailService {
 
 	MailService mailService
 	PageRenderer groovyPageRenderer
+	SpringSecurityService springSecurityService
 
 	/**
 	 * Sends an email with a link to the given collection to the configured recipient
@@ -30,8 +33,9 @@ class EmailService {
 	void sentComplementRequestEmail(RecipientsCommand recipientsCommand, String subj, String body)
             throws EmailException {
 		try {
+			User currentUser = (User) springSecurityService.getCurrentUser()
 			mailService.sendMail {
-				from 'Acquisition database <noreply@iisg.nl>'
+				from "$currentUser <noreply@iisg.nl>".toString()
 				to recipientsCommand.getRecipientsArray()
 				subject subj
 				text body

@@ -12,14 +12,16 @@ class CollectionSearchFilters {
 					'sort'         : 'timer_deadline',
 					'order'        : 'asc',
 					'columns'      : ['name', 'timer_deadline', 'digital_status', 'analog_material', 'digital_material'],
-					'statusDigital': DigitalMaterialStatusCode.findAllByIdLessThanEquals(90L)*.id
+					'statusDigital': DigitalMaterialStatusCode.
+							findAllByIdLessThan(DigitalMaterialStatusCode.STAGINGAREA)*.id
 			]),
 			new SearchFilter(
 					'status_second', 'page.collection.filters.statusSecond.label', [
 					'sort'         : 'timer_deadline',
 					'order'        : 'desc',
 					'columns'      : ['name', 'timer_deadline', 'digital_status', 'analog_material', 'digital_material'],
-					'statusDigital': DigitalMaterialStatusCode.findAllByIdGreaterThan(90L)*.id
+					'statusDigital': DigitalMaterialStatusCode.
+							findAllByIdGreaterThanEquals(DigitalMaterialStatusCode.STAGINGAREA)*.id
 			])
 	]
 
