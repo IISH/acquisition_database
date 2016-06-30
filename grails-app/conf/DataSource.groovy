@@ -40,7 +40,7 @@ environments {
 	}
 	production {
 		dataSource {
-			dbCreate = "update"
+			dbCreate = "validate"
 			dialect = org.iish.acquisition.util.CustomMySQL5InnoDBDialect
 			properties {
 				// Documentation for Tomcat JDBC Pool
