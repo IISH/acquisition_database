@@ -141,8 +141,10 @@
 
     var onFormElement = function (e) {
         // Disable the enter key, unless the focused element is a button
-        if ((e.which === 13) && !$(e.target).is('button')) {
-            e.preventDefault();
+        // or the form has not specified the 'lock-enter' class
+        var elem = $(e.target);
+        if ((e.which === 13) && !elem.is('button') && elem.closest('form').hasClass('lock-enter')) {
+           e.preventDefault();
         }
     };
 

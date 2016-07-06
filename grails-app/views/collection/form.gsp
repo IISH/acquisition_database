@@ -66,7 +66,7 @@
     </div>
 </g:if>
 
-<form class="form-horizontal" role="form" method="post" action="#" enctype="multipart/form-data">
+<form class="form-horizontal lock-enter" role="form" method="post" action="#" enctype="multipart/form-data">
 
 <div class="form-group">
     <label for="collection.name" class="col-xs-4 control-label">
