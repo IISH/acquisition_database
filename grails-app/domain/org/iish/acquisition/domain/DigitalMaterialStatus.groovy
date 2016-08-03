@@ -92,21 +92,19 @@ class DigitalMaterialStatus {
 	 * @return Whether the user may change the status code to the new given status code.
 	 */
 	boolean canChangeTo(DigitalMaterialStatusCode newStatusCode) {
-		// If the new status code is already requested, no need to do it again
-		boolean isSameStatusCode = (newStatusCode.id == statusCode.id)
+		// If there is already something requested or running, no other action allowed
 		boolean isRequested = (statusSubCode == DigitalMaterialStatusSubCode.REQUESTED)
-		if (isSameStatusCode && isRequested) {
+		boolean isRunning = (statusSubCode == DigitalMaterialStatusSubCode.RUNNING)
+		if (isRequested || isRunning) {
 			return false
 		}
 
 		// Users may retry if an action failed
+		boolean isSameStatusCode = (newStatusCode.id == statusCode.id)
 		boolean lastActionFailed = (statusSubCode == DigitalMaterialStatusSubCode.FAILED)
 		if (isSameStatusCode && lastActionFailed) {
 			return true
 		}
-
-		// If no retry, then users can only change to later status codes
-		boolean isLaterStatusCode = (newStatusCode.id > statusCode.id)
 
 		// If the action depend on a previous action, confirm the dependency has been successful
 		boolean fulfillsDependency = (newStatusCode.dependsOn?.id < statusCode.id)
@@ -119,7 +117,7 @@ class DigitalMaterialStatus {
 		boolean isGranted = (!neededAuthority || SpringSecurityUtils.ifAllGranted(neededAuthority))
 
 		// Determine whether a new status request is allowed
-		return (newStatusCode.isSetByUser && isLaterStatusCode && fulfillsDependency && isGranted)
+		return (newStatusCode.isSetByUser && fulfillsDependency && isGranted)
 	}
 
 	/**

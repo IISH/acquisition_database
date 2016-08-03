@@ -824,6 +824,7 @@
         <div class="col-xs-20">
             <g:each in="${digitalMaterialStatusCodes}" var="statusCode" status="i">
                 <g:set var="current" value="${digitalMaterialStatus.statusCode?.id == statusCode.id}"/>
+                <g:set var="older" value="${digitalMaterialStatus.statusCode?.id >= statusCode.id}"/>
                 <div class="row digital-material-status ${current ? 'current': ''} ${failureDigital ? 'fail': ''}">
                     <div class="col-xs-6 status-name">
                         <p class="form-control-static">${i+1}. ${statusCode}</p>
@@ -849,6 +850,14 @@
                                                 <g:message code="digitalMaterialStatus.request.retry.label"/>
                                             </span>
                                         </g:if>
+                                        <g:elseif test="${older}">
+                                            <span class="checked">
+                                                <g:message code="digitalMaterialStatus.requested.again.label"/>
+                                            </span>
+                                            <span class="not-checked">
+                                                <g:message code="digitalMaterialStatus.request.again.label"/>
+                                            </span>
+                                        </g:elseif>
                                         <g:else>
                                             <span class="checked">
                                                 <g:message code="digitalMaterialStatus.requested.start.label"/>
