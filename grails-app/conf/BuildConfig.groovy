@@ -53,7 +53,7 @@ grails.project.dependency.resolution = {
 		compile "org.apache.poi:poi:3.14"
 		compile "commons-net:commons-net:3.4"
 
-		runtime "mysql:mysql-connector-java:5.1.38"
+		runtime "mysql:mysql-connector-java:5.1.39"
 	}
 
 	plugins {
