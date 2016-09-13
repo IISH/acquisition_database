@@ -137,15 +137,29 @@ class DigitalMaterialStatus {
 	}
 
 	/**
+	 * Returns a list of digital material collections for the given status codes.
+	 * @param statusCode The digital material status code.
+	 * @param statusSubCode The digital material status sub code.
+	 * @return A list of matching collections.
+	 */
+	static List<Collection> getByStatus(DigitalMaterialStatusCode statusCode,
+	                                    DigitalMaterialStatusSubCode statusSubCode) {
+		Collection.withCriteria {
+			createAlias('digitalMaterialStatus', 'status')
+			eq('status.statusCode', statusCode)
+			eq('status.statusSubCode', statusSubCode)
+		}
+	}
+
+	/**
 	 * Returns a list of digital material collections without a folder on the ingest depot.
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getWithoutFolder() {
-		Collection.withCriteria {
-			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.FOLDER)
-			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
-		}
+		return getByStatus(
+				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.FOLDER),
+				DigitalMaterialStatusSubCode.REQUESTED
+		)
 	}
 
 	/**
@@ -153,11 +167,10 @@ class DigitalMaterialStatus {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getReadyForBackup() {
-		List<Collection> readyForBackup = Collection.withCriteria {
-			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.BACKUP)
-			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
-		}
+		List<Collection> readyForBackup = getByStatus(
+				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.BACKUP),
+				DigitalMaterialStatusSubCode.REQUESTED
+		)
 
 		return getIngestNotStartedOrNotEligible(readyForBackup)
 	}
@@ -167,11 +180,10 @@ class DigitalMaterialStatus {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getReadyForRestore() {
-		List<Collection> readyForRestore = Collection.withCriteria {
-			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.RESTORE)
-			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
-		}
+		List<Collection> readyForRestore = getByStatus(
+				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.RESTORE),
+				DigitalMaterialStatusSubCode.REQUESTED
+		)
 
 		return getIngestNotStartedOrNotEligible(readyForRestore)
 	}

@@ -19,6 +19,7 @@ class ServiceController {
 	                         startBackup : 'GET',
 	                         startIngest : 'GET',
 	                         startRestore: 'GET',
+	                         statusList  : 'GET',
 	                         status      : 'POST',
 	                         manifest    : 'POST']
 
@@ -55,6 +56,23 @@ class ServiceController {
 	def startRestore() {
 		endWithResponse {
 			[pids: DigitalMaterialStatus.getReadyForRestore()*.objectRepositoryPID]
+		}
+	}
+
+	/**
+	 * Returns all of the PIDs for the given status.
+	 */
+	def statusList(long code, int subCode) {
+		DigitalMaterialStatusCode statusCode = DigitalMaterialStatusCode.get(code)
+		DigitalMaterialStatusSubCode statusSubCode = DigitalMaterialStatusSubCode.getById(subCode)
+
+		if (!statusCode || !statusSubCode) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST)
+			return
+		}
+
+		endWithResponse {
+			[pids: DigitalMaterialStatus.getByStatus(statusCode, statusSubCode)*.objectRepositoryPID]
 		}
 	}
 
