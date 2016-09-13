@@ -17,34 +17,34 @@ class UserService {
 	LdapUserSearch ldapUserSearch
 	SpringSecurityService springSecurityService
 
-    /**
-     * Add or remove roles for read/write users.
-     * @param params The data as filled out by the admin.
-     */
-    void updateReadWriteUsers(GrailsParameterMap params) {
-        updateUsers(User.getReadWriteUsers(), params, {
-            User user, List<String> authoritiesToRemove, GrailsParameterMap userData ->
-                updateOffloaderRoles(user, authoritiesToRemove, userData.offloader?.toString())
-                updateAdminRoles(user, authoritiesToRemove, userData.admin?.toString(), userData.offloader?.toString())
-        })
-    }
+	/**
+	 * Add or remove roles for read/write users.
+	 * @param params The data as filled out by the admin.
+	 */
+	void updateReadWriteUsers(GrailsParameterMap params) {
+		updateUsers(User.getReadWriteUsers(), params, {
+			User user, List<String> authoritiesToRemove, GrailsParameterMap userData ->
+				updateOffloaderRoles(user, authoritiesToRemove, userData.offloader?.toString())
+				updateAdminRoles(user, authoritiesToRemove, userData.admin?.toString(), userData.offloader?.toString())
+		})
+	}
 
-    /**
-     * Add or remove roles for read only users.
-     * @param params The data as filled out by the admin.
-     */
-    void updateReadOnlyUsers(GrailsParameterMap params) {
-        updateUsers(User.getReadOnlyUsers(), params, {
-            User user, List<String> authoritiesToRemove, GrailsParameterMap userData ->
-                addRoleToUser(user, Authority.findByAuthority(Authority.ROLE_READONLY), authoritiesToRemove)
-        })
-    }
+	/**
+	 * Add or remove roles for read only users.
+	 * @param params The data as filled out by the admin.
+	 */
+	void updateReadOnlyUsers(GrailsParameterMap params) {
+		updateUsers(User.getReadOnlyUsers(), params, {
+			User user, List<String> authoritiesToRemove, GrailsParameterMap userData ->
+				addRoleToUser(user, Authority.findByAuthority(Authority.ROLE_READONLY), authoritiesToRemove)
+		})
+	}
 
 	/**
 	 * Add and remove roles for users.
-     * @param allUsers All the users.
+	 * @param allUsers All the users.
 	 * @param params The data as filled out by the admin.
-     * @param actionsToPerform The actions to perform on the current user.
+	 * @param actionsToPerform The actions to perform on the current user.
 	 */
 	private void updateUsers(List<User> allUsers, GrailsParameterMap params, Closure actionsToPerform) {
 		Set<User> usersToRemove = new HashSet<>(allUsers)
@@ -53,29 +53,31 @@ class UserService {
 		while (params["user[$i]"]) {
 			GrailsParameterMap userData = params["user[${i++}]"] as GrailsParameterMap
 
-			User user = User.findByLogin(userData.login)
-			usersToRemove.removeAll { it.login.equals(userData.login) }
-			List<String> authoritiesToRemove = []
+			if (userData.login) {
+				User user = User.findByLogin(userData.login)
+				usersToRemove.removeAll { it.login.equals(userData.login) }
+				List<String> authoritiesToRemove = []
 
-			if (!user) {
-				User.withNewSession {
-					user = new User(login: userData.login)
-					DirContextOperations ctx = ldapUserSearch.searchForUser(user.login)
+				if (!user) {
+					User.withNewSession {
+						user = new User(login: userData.login)
+						DirContextOperations ctx = ldapUserSearch.searchForUser(user.login)
 
-					user.mayReceiveEmail = true
+						user.mayReceiveEmail = true
 
-					user.update(ctx)
-					user.save(flush: true)
+						user.update(ctx)
+						user.save(flush: true)
+					}
 				}
-			}
-			else {
-				authoritiesToRemove = UserAuthority.findAllByUser(user)*.authority*.authority
-			}
+				else {
+					authoritiesToRemove = UserAuthority.findAllByUser(user)*.authority*.authority
+				}
 
-            actionsToPerform.call(user, authoritiesToRemove, userData)
+				actionsToPerform.call(user, authoritiesToRemove, userData)
 
-			authoritiesToRemove.each { String authority ->
-				UserAuthority.remove(user, Authority.findByAuthority(authority))
+				authoritiesToRemove.each { String authority ->
+					UserAuthority.remove(user, Authority.findByAuthority(authority))
+				}
 			}
 		}
 
@@ -117,7 +119,7 @@ class UserService {
 	 * @param offloaderRole The chosen offloader role for this user.
 	 */
 	private void updateAdminRoles(User user, List<String> authoritiesToRemove, String chosenRole,
-			String offloaderRole) {
+	                              String offloaderRole) {
 		switch (chosenRole) {
 			case 'admin':
 				addRoleToUser(user, Authority.findByAuthority(Authority.ROLE_ADMIN), authoritiesToRemove)

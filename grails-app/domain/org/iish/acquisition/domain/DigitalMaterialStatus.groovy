@@ -92,21 +92,19 @@ class DigitalMaterialStatus {
 	 * @return Whether the user may change the status code to the new given status code.
 	 */
 	boolean canChangeTo(DigitalMaterialStatusCode newStatusCode) {
-		// If the new status code is already requested, no need to do it again
-		boolean isSameStatusCode = (newStatusCode.id == statusCode.id)
+		// If there is already something requested or running, no other action allowed
 		boolean isRequested = (statusSubCode == DigitalMaterialStatusSubCode.REQUESTED)
-		if (isSameStatusCode && isRequested) {
+		boolean isRunning = (statusSubCode == DigitalMaterialStatusSubCode.RUNNING)
+		if (isRequested || isRunning) {
 			return false
 		}
 
 		// Users may retry if an action failed
+		boolean isSameStatusCode = (newStatusCode.id == statusCode.id)
 		boolean lastActionFailed = (statusSubCode == DigitalMaterialStatusSubCode.FAILED)
 		if (isSameStatusCode && lastActionFailed) {
 			return true
 		}
-
-		// If no retry, then users can only change to later status codes
-		boolean isLaterStatusCode = (newStatusCode.id > statusCode.id)
 
 		// If the action depend on a previous action, confirm the dependency has been successful
 		boolean fulfillsDependency = (newStatusCode.dependsOn?.id < statusCode.id)
@@ -119,7 +117,7 @@ class DigitalMaterialStatus {
 		boolean isGranted = (!neededAuthority || SpringSecurityUtils.ifAllGranted(neededAuthority))
 
 		// Determine whether a new status request is allowed
-		return (newStatusCode.isSetByUser && isLaterStatusCode && fulfillsDependency && isGranted)
+		return (newStatusCode.isSetByUser && fulfillsDependency && isGranted)
 	}
 
 	/**
@@ -139,15 +137,29 @@ class DigitalMaterialStatus {
 	}
 
 	/**
+	 * Returns a list of digital material collections for the given status codes.
+	 * @param statusCode The digital material status code.
+	 * @param statusSubCode The digital material status sub code.
+	 * @return A list of matching collections.
+	 */
+	static List<Collection> getByStatus(DigitalMaterialStatusCode statusCode,
+	                                    DigitalMaterialStatusSubCode statusSubCode) {
+		Collection.withCriteria {
+			createAlias('digitalMaterialStatus', 'status')
+			eq('status.statusCode', statusCode)
+			eq('status.statusSubCode', statusSubCode)
+		}
+	}
+
+	/**
 	 * Returns a list of digital material collections without a folder on the ingest depot.
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getWithoutFolder() {
-		Collection.withCriteria {
-			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.FOLDER)
-			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
-		}
+		return getByStatus(
+				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.FOLDER),
+				DigitalMaterialStatusSubCode.REQUESTED
+		)
 	}
 
 	/**
@@ -155,11 +167,10 @@ class DigitalMaterialStatus {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getReadyForBackup() {
-		List<Collection> readyForBackup = Collection.withCriteria {
-			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.BACKUP)
-			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
-		}
+		List<Collection> readyForBackup = getByStatus(
+				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.BACKUP),
+				DigitalMaterialStatusSubCode.REQUESTED
+		)
 
 		return getIngestNotStartedOrNotEligible(readyForBackup)
 	}
@@ -169,11 +180,10 @@ class DigitalMaterialStatus {
 	 * @return A list of matching collections.
 	 */
 	static List<Collection> getReadyForRestore() {
-		List<Collection> readyForRestore = Collection.withCriteria {
-			createAlias('digitalMaterialStatus', 'status')
-			eq('status.statusCode.id', DigitalMaterialStatusCode.RESTORE)
-			eq('status.statusSubCode', DigitalMaterialStatusSubCode.REQUESTED)
-		}
+		List<Collection> readyForRestore = getByStatus(
+				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.RESTORE),
+				DigitalMaterialStatusSubCode.REQUESTED
+		)
 
 		return getIngestNotStartedOrNotEligible(readyForRestore)
 	}

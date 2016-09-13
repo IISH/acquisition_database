@@ -12,6 +12,11 @@ class UrlMappings {
 			action = 'list'
 		}
 
+		"/service/statusList/$code/$subCode" {
+			controller = 'service'
+			action = 'statusList'
+		}
+
 		"500"(view: '/error')
 	}
 }
