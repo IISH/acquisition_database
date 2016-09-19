@@ -135,7 +135,8 @@ class CollectionController {
                     && collectionService.updateCollection(collection, params)) {
 				flash.message = g.message(
 						code: 'default.updated.message',
-						args: [g.message(code: 'collection.label').toString().toLowerCase(), collection]
+						args: [g.message(code: 'collection.label').toString().toLowerCase(), collection],
+						encodeAs: 'none'
 				)
 				redirect action: 'list', params: request.getAttribute('queryParams')
 				return
