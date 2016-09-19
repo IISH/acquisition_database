@@ -90,8 +90,8 @@ environments {
 					holdResultsOpenOverStatementClose = true
 					// enable MySQL query cache - using server prep stmts will disable query caching
 					useServerPrepStmts = false
-					// metadata caching
-					cacheServerConfiguration = true
+					// metadata caching / TODO: UTF-8 problem
+					// cacheServerConfiguration = true
 					cacheResultSetMetadata = true
 					metadataCacheSize = 100
 					// timeouts for TCP/IP
@@ -104,8 +104,6 @@ environments {
 					noDatetimeStringSync = true
 					// tinyint is a boolean
 					tinyInt1isBit = false
-					// char encoding
-					characterEncoding = 'UTF-8'
 				}
 			}
 		}
