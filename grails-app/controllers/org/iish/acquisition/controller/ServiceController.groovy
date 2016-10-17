@@ -57,6 +57,7 @@ class ServiceController {
 		endWithResponse {
 			[pids: DigitalMaterialStatus.getReadyForRestore()*.objectRepositoryPID]
 		}
+	}
 
     /**
 	 * Returns all of the PIDs for which a cleanup may start.
