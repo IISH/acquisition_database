@@ -189,6 +189,17 @@ class DigitalMaterialStatus {
 	}
 
 	/**
+	 * Returns a list of digital material collections ready for cleanup.
+	 * @return A list of matching collections.
+	 */
+	static List<Collection> getReadyForCleanup() {
+		return getByStatus(
+				DigitalMaterialStatusCode.get(DigitalMaterialStatusCode.CLEANUP),
+				DigitalMaterialStatusSubCode.REQUESTED
+		)
+	}
+
+	/**
 	 * Returns a list of digital material collections ready for ingest.
 	 * @return A list of matching collections.
 	 */
