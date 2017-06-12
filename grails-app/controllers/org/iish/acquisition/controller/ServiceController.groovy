@@ -6,7 +6,6 @@ import org.iish.acquisition.domain.DigitalMaterialFile
 import org.iish.acquisition.domain.DigitalMaterialStatus
 import org.iish.acquisition.domain.DigitalMaterialStatusCode
 import org.iish.acquisition.domain.DigitalMaterialStatusSubCode
-import org.iish.acquisition.service.EmailService
 import org.springframework.web.multipart.MultipartFile
 
 import javax.servlet.http.HttpServletResponse
@@ -15,13 +14,23 @@ import javax.servlet.http.HttpServletResponse
  * Web service for communication with the processes running on the ingest depot.
  */
 class ServiceController {
-	static allowedMethods = [folders     : 'GET',
+	static allowedMethods = [all		 : 'GET',
+							 folders     : 'GET',
 	                         startBackup : 'GET',
 	                         startIngest : 'GET',
 	                         startRestore: 'GET',
 	                         statusList  : 'GET',
 	                         status      : 'POST',
 	                         manifest    : 'POST']
+
+	/**
+	 * Returns all known collections.
+	 */
+	def all() {
+		endWithResponse {
+			[collections: DigitalMaterialStatus.getAll()*.digitalId]
+		}
+	}
 
 	/**
 	 * Returns all of the PIDs without a folder on the ingest depot.

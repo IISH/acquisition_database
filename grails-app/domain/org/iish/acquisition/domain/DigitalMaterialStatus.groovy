@@ -152,6 +152,16 @@ class DigitalMaterialStatus {
 	}
 
 	/**
+	 * Returns a list of digital material collections.
+	 * @return A list of matching collections.
+	 */
+	static List<Collection> getAll() {
+		Collection.withCriteria {
+			isNotNull('objectRepositoryPID')
+		}
+	}
+
+	/**
 	 * Returns a list of digital material collections without a folder on the ingest depot.
 	 * @return A list of matching collections.
 	 */

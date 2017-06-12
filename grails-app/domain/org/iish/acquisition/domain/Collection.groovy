@@ -127,6 +127,17 @@ class Collection {
         digitalMaterialCollection || objectRepositoryPID
     }
 
+	/**
+	 * Returns a unique digital identifier.
+	 * @return A unique digital identifier.
+	 */
+	String getDigitalId() {
+		if (acquisitionTypeId && acquisitionId) {
+			return acquisitionTypeId.name + acquisitionId + '/' + id
+		}
+		return id
+	}
+
     /**
 	 * After each insert or update, check if digital material was entered.
 	 * If so, make sure a PID is created and the digital material status can be tracked.
