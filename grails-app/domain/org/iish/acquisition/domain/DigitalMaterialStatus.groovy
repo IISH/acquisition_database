@@ -158,6 +158,11 @@ class DigitalMaterialStatus {
 	static List<Collection> getAll() {
 		Collection.withCriteria {
 			isNotNull('objectRepositoryPID')
+			isNotNull('acquisitionId')
+			or {
+				eq('acquisitionTypeId', AcquisitionType.ARCHIVE)
+				eq('acquisitionTypeId', AcquisitionType.COLLECTION)
+			}
 		}
 	}
 
