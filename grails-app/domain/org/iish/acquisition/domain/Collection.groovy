@@ -133,7 +133,7 @@ class Collection {
 	 */
 	String getDigitalId() {
 		if (acquisitionTypeId && acquisitionId) {
-			return acquisitionTypeId.name + acquisitionId + '.' + id
+			return acquisitionTypeId.name + acquisitionId + '.b' + id
 		}
 		return id
 	}
