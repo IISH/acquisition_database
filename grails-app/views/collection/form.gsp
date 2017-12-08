@@ -113,7 +113,7 @@
                     </g:else>
                 </div>
 
-                <g:if test="${collection.digitalId != collection.id}">
+                <g:if test="${collection.digitalId}">
                     <label class="col-xs-1 control-label">
                         <g:message code="collection.objectRepositoryPID.label"/>
                     </label>

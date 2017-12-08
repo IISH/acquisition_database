@@ -128,14 +128,14 @@ class Collection {
     }
 
 	/**
-	 * Returns a unique digital identifier as id or in the format "[acquisitionTypeId][acquisitionId].[id]".
+	 * Returns a unique digital identifier as id or in the format "[acquisitionTypeId][acquisitionId].dig[id]".
 	 * @return A unique digital identifier.
 	 */
 	String getDigitalId() {
 		if (acquisitionTypeId && acquisitionId) {
-			return acquisitionTypeId.name + acquisitionId + '.b' + id
+			return acquisitionTypeId.name + acquisitionId + '.dig' + id
 		}
-		return id
+		return null
 	}
 
     /**
