@@ -25,6 +25,8 @@ class Collection {
 	String remarks
 	String originalPackageTransport
 	boolean collectionLevelReady
+	Boolean virusScan
+	Boolean firstAppraisal
 	boolean deleted = false
 
 	static belongsTo = [
@@ -63,6 +65,16 @@ class Collection {
 		}
 		remarks nullable: true
 		originalPackageTransport nullable: true
+		virusScan nullable: true, validator: { val, obj ->
+			if ((val == null) && obj.digitalMaterialCollection) {
+				'collection.virus.required.message'
+			}
+		}
+		firstAppraisal nullable: true, validator: { val, obj ->
+			if ((val == null) && obj.digitalMaterialCollection) {
+				'collection.appraisal.required.message'
+			}
+		}
 
 		addedBy nullable: true
 		appraisal nullable: true

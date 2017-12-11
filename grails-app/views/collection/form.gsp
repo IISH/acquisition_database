@@ -787,6 +787,60 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label class="col-xs-4 control-label">
+                <g:message code="collection.virusScan.label"/>
+                <span class="required">*</span>
+            </label>
+
+            <div class="col-xs-8">
+                <div class="radio">
+                    <label>
+                        <g:radio name="collection.virusScan" value="${true}"
+                                 checked="${collection.virusScan}"/>
+                        <g:message code="default.boolean.true"/>
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-xs-8">
+                <div class="radio">
+                    <label>
+                        <g:radio name="collection.virusScan" value="${false}"
+                                 checked="${!collection.virusScan && (collection.virusScan != null)}"/>
+                        <g:message code="default.boolean.false"/>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-xs-4 control-label">
+                <g:message code="collection.firstAppraisal.label"/>
+                <span class="required">*</span>
+            </label>
+
+            <div class="col-xs-8">
+                <div class="radio">
+                    <label>
+                        <g:radio name="collection.firstAppraisal" value="${true}"
+                                 checked="${collection.firstAppraisal}"/>
+                        <g:message code="default.boolean.true"/>
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-xs-8">
+                <div class="radio">
+                    <label>
+                        <g:radio name="collection.firstAppraisal" value="${false}"
+                                 checked="${!collection.firstAppraisal && (collection.firstAppraisal != null)}"/>
+                        <g:message code="default.boolean.false"/>
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <sec:ifAnyGranted roles="${Authority.ROLE_USER}">
             <div class="form-group hidden-print">
                 <div class="col-xs-22 text-right">

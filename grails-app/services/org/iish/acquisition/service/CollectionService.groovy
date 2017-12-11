@@ -34,7 +34,7 @@ class CollectionService {
 		grailsWebDataBinder.bind(collection, collectionParams as SimpleMapDataBindingSource, [
 				'name', 'acquisitionId', 'content', 'listsAvailable', 'toBeDone', 'owner', 'dateOfArrival',
 				'contactPerson', 'remarks', 'originalPackageTransport', 'contract', 'appraisal', 'status',
-				'collectionLevelReady'], [])
+				'collectionLevelReady', 'virusScan', 'firstAppraisal'], [])
 
 		// Enums are not (yet) supported by the data binder
 		collection.acquisitionTypeId = AcquisitionType.getById(collectionParams.int('acquisitionTypeId'))
