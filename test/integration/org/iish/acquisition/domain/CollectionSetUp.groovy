@@ -114,7 +114,9 @@ class CollectionSetUp {
 				remarks: 'Remarks',
 				originalPackageTransport: 'Original package transport',
 				status: Status.get(Status.WONT_BE_PROCESSED_ID),
-				contract: Contract.get(Contract.UNKNOWN_ID)
+				contract: Contract.get(Contract.UNKNOWN_ID),
+				virusScan: true,
+				firstAppraisal: true
 		)
 
 		collection.properties << properties
