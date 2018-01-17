@@ -144,7 +144,7 @@ class Collection {
 	 * @return A unique digital identifier.
 	 */
 	String getDigitalId() {
-		if (acquisitionTypeId && acquisitionId) {
+		if (isDigital() && acquisitionTypeId && acquisitionId) {
 			return acquisitionTypeId.name + acquisitionId + '.dig' + id
 		}
 		return null
