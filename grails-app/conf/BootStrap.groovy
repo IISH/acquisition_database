@@ -116,7 +116,8 @@ class BootStrap {
 		 (DigitalMaterialStatusCode.RESTORE)    : [status: '3. Start restore', isSetByUser: true, confirmRequired: true, dependsOn: DigitalMaterialStatusCode.BACKUP, needsAuthority: Authority.ROLE_OFFLOADER_2],
 		 (DigitalMaterialStatusCode.STAGINGAREA): [status: '4. Move to stagingarea', isSetByUser: true, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.BACKUP, needsAuthority: Authority.ROLE_OFFLOADER_2],
 		 (DigitalMaterialStatusCode.SOR)        : [status: '5. Process in SOR', isSetByUser: false, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.STAGINGAREA, needsAuthority: null],
-		 (DigitalMaterialStatusCode.CLEANUP)    : [status: '6. Cleaning up', isSetByUser: false, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.SOR, needsAuthority: null]].
+		 (DigitalMaterialStatusCode.CLEANUP)    : [status: '6. Cleaning up', isSetByUser: false, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.SOR, needsAuthority: null],
+		 (DigitalMaterialStatusCode.AIP)        : [status: '7. AIP', isSetByUser: true, confirmRequired: false, dependsOn: DigitalMaterialStatusCode.SOR, needsAuthority: null]].
 				each { Long id, Map statusInfo ->
 					if (!DigitalMaterialStatusCode.get(id)) {
 						DigitalMaterialStatusCode digitalMaterialStatusCode = new DigitalMaterialStatusCode(

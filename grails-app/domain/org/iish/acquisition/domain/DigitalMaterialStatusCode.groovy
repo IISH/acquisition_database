@@ -13,6 +13,7 @@ class DigitalMaterialStatusCode {
 	public static final long STAGINGAREA = 40L
 	public static final long SOR = 50L
 	public static final long CLEANUP = 60L
+	public static final long AIP = 70L
 
 	String status
 	boolean isSetByUser
