@@ -22,6 +22,14 @@ class CollectionSearchFilters {
 					'columns'      : ['name', 'timer_deadline', 'digital_status', 'analog_material', 'digital_material'],
 					'statusDigital': DigitalMaterialStatusCode.
 							findAllByIdGreaterThanEquals(DigitalMaterialStatusCode.STAGINGAREA)*.id
+			]),
+			new SearchFilter(
+					'status_second', 'page.collection.filters.statusThird.label', [
+					'sort'         : 'timer_deadline',
+					'order'        : 'desc',
+					'columns'      : ['name', 'timer_deadline', 'digital_status', 'analog_material', 'digital_material'],
+					'statusDigital': DigitalMaterialStatusCode.
+							findAllByIdGreaterThanEquals(DigitalMaterialStatusCode.AIP)*.id
 			])
 	]
 
