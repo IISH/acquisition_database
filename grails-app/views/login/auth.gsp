@@ -28,9 +28,8 @@
         <g:message code="springSecurity.login.button"/>
     </button>
 
-	<div class="">
-		<br />You can login with your Jira/Confluence account.<br />
-		If you have forgotten your password you can request a new one via <a href="https://confluence.socialhistoryservices.org/login.action?os_destination=%2F" target="_blank">Confluence Lost Password</a>
+	<div>
+		<br />You can login with your Jira/Confluence account. If you have forgotten your password you can request a new one via <a href="https://confluence.socialhistoryservices.org/forgotuserpassword.action" target="_blank">Confluence Lost Password</a>
 	</div>
 </form>
 
